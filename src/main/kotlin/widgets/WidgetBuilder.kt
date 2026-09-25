@@ -11,9 +11,10 @@ class WidgetBuilder(
 ) {
     val widget = WidgetImpl(label, bounds, zIndex)
 
+
     fun add(element: UIElement) {
         element.parent = widget
-        widget.elements.add(element)
+        widget.elements.add(element) // should this be a set?
     }
 
     fun addAll(elements: List<UIElement>) {
@@ -22,14 +23,8 @@ class WidgetBuilder(
             widget.elements.add(element)
         }
     }
-
-    fun addAll(vararg elements: UIElement) {
-        for (element in elements) {
-            element.parent = widget
-            widget.elements.add(element)
-        }
-    }
 }
+
 
 fun widget(
     bounds: Rectangle,
