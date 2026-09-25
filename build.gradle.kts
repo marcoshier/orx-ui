@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 group = property("project.group") ?: error("project.group not set")
 version = property("project.version") ?: error("project.version not set")
 
@@ -6,18 +8,15 @@ plugins {
     id("conventions.kotlin-jvm")
     id("conventions.template-tasks")
     id("conventions.openrndr-tasks")
-    id("conventions.distribute-application")
+    id("conventions.publish-library")
 }
 
 dependencies {
     implementation(openrndr.bundles.basic)
-    implementation(openrndr.bundles.video)
     runtimeOnly(openrndr.bundles.runtime.sdl)
-//    runtimeOnly(openrndr.bundles.runtime.glfw)
     runtimeOnly(openrndr.gl3)
     implementation(openrndr.dialogs)
     implementation(openrndr.orextensions)
-
     implementation(orx.bundles.basic)
     implementation(orx.olive)
 
@@ -29,3 +28,8 @@ dependencies {
     runtimeOnly(libs.bundles.logging.simple)
     testImplementation(libs.junit)
 }
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.compilerOptions {
+    freeCompilerArgs.set(listOf("-Xcontext-parameters"))
+}
+
