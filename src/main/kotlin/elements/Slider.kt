@@ -1,6 +1,5 @@
 package elements
 
-import elements.Slider
 import org.openrndr.color.ColorRGBa
 import org.openrndr.color.mix
 import org.openrndr.draw.Drawer
@@ -15,13 +14,12 @@ import registerElement
 import style.Colors
 import style.Fonts
 import ui.UIElementImpl
-import widgets.WidgetImpl
-import kotlin.collections.fill
+import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 @Suppress("UNCHECKED_CAST")
-class Slider<T: Comparable<T>>(
+open class Slider<T: Comparable<T>>(
     override var label: String = "",
     override var bounds: Rectangle,
     var range: ClosedRange<T>,
@@ -218,7 +216,7 @@ fun <T : Comparable<T>> slider(
     return s
 }
 
-fun <T : Comparable<T>> WidgetImpl.slider(
+fun <T : Comparable<T>> WidgetBuilder.slider(
     label: String,
     bounds: Rectangle,
     range: ClosedRange<T>,
@@ -229,7 +227,7 @@ fun <T : Comparable<T>> WidgetImpl.slider(
     return s
 }
 
-fun <T : Comparable<T>> WidgetImpl.slider(
+fun <T : Comparable<T>> WidgetBuilder.slider(
     label: String,
     bounds: Rectangle,
     range: ClosedRange<T>,

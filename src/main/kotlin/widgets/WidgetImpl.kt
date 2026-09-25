@@ -14,9 +14,4 @@ open class WidgetImpl(
 
     override var yOffset = 0.0
     override val closed = Event<Unit>("widget-closed--$label")
-
-    fun add(element: UIElement) {
-        element.parent = this
-        elements.add(element)
-    }
 }

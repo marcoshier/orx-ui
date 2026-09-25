@@ -13,10 +13,10 @@ import registerElement
 import style.Colors
 import style.Fonts
 import ui.UIElementImpl
-import widgets.WidgetImpl
+import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 
-class Button(
+open class Button(
     label: String,
     bounds: Rectangle,
     configure: Button.() -> Unit = {},
@@ -43,14 +43,15 @@ class Button(
     init {
         configure()
         buttonDown.listen { it.cancelPropagation() }
-        clicked.listen { action() }
+        clicked.listen { action() } // TODO replace with more sophisticated drag-to-undo check
     }
 
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
 
         val mainFill = when {
-            isHovered -> hoverColor
+            isHovered && !isSelected -> hoverColor
+            isHovered && isSelected -> selectColor.shade(0.75)
             isFocused -> focusColor
             isSelected -> selectColor
             else -> idleColor
@@ -136,7 +137,7 @@ fun button(
     return b
 }
 
-fun WidgetImpl.button(
+fun WidgetBuilder.button(
     label: String,
     bounds: Rectangle,
     configure: Button.() -> Unit = {},
@@ -146,7 +147,7 @@ fun WidgetImpl.button(
     return b
 }
 
-fun WidgetImpl.button(
+fun WidgetBuilder.button(
     label: String = "",
     bounds: Rectangle,
     state: KMutableProperty0<Boolean>,

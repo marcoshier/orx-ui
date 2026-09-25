@@ -14,12 +14,11 @@ import style.Colors
 import style.Fonts
 import transformPos
 import ui.UIElementImpl
-import widgets.WidgetImpl
-import kotlin.collections.fill
+import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
-class Dropdown<T> (
+open class Dropdown<T> (
     label: String,
     bounds: Rectangle,
     var getter: () -> T,
@@ -175,37 +174,6 @@ class Dropdown<T> (
     }
 }
 
-
-inline fun <reified T: Enum<T>> dropdown(
-    label: String,
-    bounds: Rectangle,
-    current: KMutableProperty0<T>,
-    crossinline configure: Dropdown<T>.() -> Unit = {},
-): Dropdown<T> {
-    val b = Dropdown(label, bounds, current) {
-        configure()
-        entries = { enumValues<T>().toList() }
-        entryName = { it.name }
-    }
-    registerElement(b)
-    return b
-}
-
-inline fun <reified T: Enum<T>> WidgetImpl.dropdown(
-    label: String,
-    bounds: Rectangle,
-    current: KMutableProperty0<T>,
-    crossinline configure: Dropdown<T>.() -> Unit = {},
-): Dropdown<T> {
-    val b = Dropdown(label, bounds, current) {
-        configure()
-        entries = { enumValues<T>().toList() }
-        entryName = { it.name }
-    }
-    add(b)
-    return b
-}
-
 fun <T> dropdown(
     label: String,
     bounds: Rectangle,
@@ -223,7 +191,22 @@ fun <T> dropdown(
     return b
 }
 
-fun <T> WidgetImpl.dropdown(
+inline fun <reified T: Enum<T>> dropdown(
+    label: String,
+    bounds: Rectangle,
+    current: KMutableProperty0<T>,
+    crossinline configure: Dropdown<T>.() -> Unit = {},
+): Dropdown<T> {
+    val b = Dropdown(label, bounds, current) {
+        configure()
+        entries = { enumValues<T>().toList() }
+        entryName = { it.name }
+    }
+    registerElement(b)
+    return b
+}
+
+fun <T> WidgetBuilder.dropdown(
     label: String,
     bounds: Rectangle,
     entries: () -> List<T>,
@@ -235,6 +218,21 @@ fun <T> WidgetImpl.dropdown(
         configure()
         this.entries = entries
         this.entryName = entryName
+    }
+    add(b)
+    return b
+}
+
+inline fun <reified T: Enum<T>> WidgetBuilder.dropdown(
+    label: String,
+    bounds: Rectangle,
+    current: KMutableProperty0<T>,
+    crossinline configure: Dropdown<T>.() -> Unit = {},
+): Dropdown<T> {
+    val b = Dropdown(label, bounds, current) {
+        configure()
+        entries = { enumValues<T>().toList() }
+        entryName = { it.name }
     }
     add(b)
     return b
