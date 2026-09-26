@@ -17,6 +17,7 @@ class UI: Extension {
     var dragElement: UIElement? = null
 
     var lastClicked = 0.0
+    var pressTime = 0.0
     var pressPosition = Vector2.ZERO
 
     fun setCursor(type: CursorType) {
@@ -50,6 +51,7 @@ class UI: Extension {
                     activeElement = el
                     dragElement = null
                     pressPosition = event.position
+                    pressTime = host.context.program.seconds
                     for (other in host.tree.flattened) {
                         if (other !== el) other.isFocused = false
                     }
@@ -105,7 +107,8 @@ class UI: Extension {
                 activeElement?.buttonUp?.trigger(transformedEvent)
                 requestDraw()
 
-                if (dragElement == null) {
+                val elapsed = host.context.program.seconds - pressTime
+                if (elapsed < 0.25) {
                     activeElement?.clicked?.trigger(transformedEvent)
                     lastClicked = host.context.program.seconds
                 }

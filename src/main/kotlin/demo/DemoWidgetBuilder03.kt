@@ -1,15 +1,10 @@
 package demo
 
 import UI
-import elements.Button
 import elements.button
 import org.openrndr.application
-import org.openrndr.extra.shapes.primitives.grid
-import org.openrndr.extra.shapes.primitives.irregularGrid
 import widgets.asCheckbox
 import widgets.widget
-import widgets.grid
-import widgets.gridSlots
 import widgets.irregularGrid
 
 fun main() {

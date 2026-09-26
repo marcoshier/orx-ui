@@ -5,12 +5,11 @@ import registerWidget
 import ui.UIElement
 
 class WidgetBuilder(
-    label: String,
-    bounds: Rectangle,
-    zIndex: Int
+    val label: String,
+    val bounds: Rectangle,
+    val zIndex: Int
 ) {
     val widget = WidgetImpl(label, bounds, zIndex)
-
 
     fun add(element: UIElement): UIElement {
         element.parent = widget
