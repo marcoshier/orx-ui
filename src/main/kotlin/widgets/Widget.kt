@@ -16,7 +16,11 @@ interface Widget {
     var label: String
 
     var bounds: Rectangle
+
+    var clip: Boolean
+
     var yOffset: Double
+    val maxYOffset: Double
 
     val closed: Event<Unit>
 

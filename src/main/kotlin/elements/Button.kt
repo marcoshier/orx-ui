@@ -161,3 +161,18 @@ fun WidgetBuilder.button(
     add(b)
     return b
 }
+
+fun WidgetBuilder.button(
+    label: String,
+    configure: Button.() -> Unit = {},
+): Button {
+    val r = Rectangle(
+        currentX,
+        currentY,
+        currentElementWidth,
+        currentElementHeight
+    )
+    val b = Button(label, r, configure)
+    add(b)
+    return b
+}

@@ -23,17 +23,30 @@ fun Widget.draw() {
     val drawer = host.context.drawer
 
     drawer.isolated {
-        drawer.drawStyle.clip = bounds
+        if(clip) drawer.drawStyle.clip = this@draw.bounds
 
         val sorted = elements.sortedBy { it.zIndex }
 
-        for (el in sorted) if (!el.isFocused) drawer.isolated {
-            if (yOffset != 0.0) drawer.translate(0.0, yOffset)
-            el.draw(drawer)
+        for (el in sorted) {
+            if (!el.isFocused) {
+                drawer.isolated {
+                    if (yOffset != 0.0) {
+                        drawer.translate(0.0, yOffset)
+                    }
+                    el.draw(drawer)
+                }
+            }
         }
-        for (el in sorted) if (el.isFocused) drawer.isolated {
-            if (yOffset != 0.0) drawer.translate(0.0, yOffset)
-            el.draw(drawer)
+
+        for (el in sorted) {
+            if (el.isFocused) {
+                drawer.isolated {
+                    if (yOffset != 0.0) {
+                        drawer.translate(0.0, yOffset)
+                    }
+                    el.draw(drawer)
+                }
+            }
         }
 
         drawer.drawStyle.clip = null

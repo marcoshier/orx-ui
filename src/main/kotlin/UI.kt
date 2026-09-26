@@ -5,6 +5,7 @@ import org.openrndr.Program
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import ui.UIElement
+import widgets.Widget
 import widgets.draw
 
 class UI: Extension {
@@ -84,6 +85,19 @@ class UI: Extension {
         }
     }
 
+    private fun handleScroll(event: MouseEvent) {
+        if (event.propagationCancelled) return
+
+        val widget = host.tree.widgets
+            .lastOrNull { event.position in it.bounds }
+            ?: return
+
+        val speed = 20.0
+        widget.yOffset = (widget.yOffset + event.rotation.y * speed).coerceAtMost(0.0)
+
+        requestDraw()
+    }
+
     private fun handleDrag(event: MouseEvent) {
         if (!event.propagationCancelled) {
 
@@ -131,6 +145,7 @@ class UI: Extension {
             dragged.listen(::handleDrag)
             buttonUp.listen(::handleButtonUp)
             moved.listen(::handleMouseMoved)
+            scrolled.listen(::handleScroll)
         }
     }
 
