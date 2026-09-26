@@ -20,7 +20,7 @@ fun main() {
         }
 
         program {
-            val ui = extend(UI())
+            extend(UI())
 
             val grid = drawer.bounds.offsetEdges(-100.0).grid(2, 2, gutterX = 10.0, gutterY = 10.0, ).flatten()
 
@@ -36,13 +36,6 @@ fun main() {
                 }
 
                 listOf(button("3", grid[2]), button("4", grid[3])).asRadio()
-            }
-
-
-            extend {
-
-                ui.host.tree.flattened.apply { println(size) }
-
             }
         }
     }
