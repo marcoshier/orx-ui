@@ -12,15 +12,17 @@ class WidgetBuilder(
     val widget = WidgetImpl(label, bounds, zIndex)
 
 
-    fun add(element: UIElement) {
+    fun add(element: UIElement): UIElement {
         element.parent = widget
-        widget.elements.add(element) // should this be a set?
+        widget.elements.add(element)
+        return element
     }
 
-    fun addAll(elements: List<UIElement>) {
-        for (element in elements) {
-            element.parent = widget
-            widget.elements.add(element)
+    fun add(vararg element: UIElement): List<UIElement> {
+        return element.toList().map {
+            it.parent = widget
+            widget.elements.add(it)
+            it
         }
     }
 }

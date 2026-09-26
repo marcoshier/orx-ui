@@ -20,7 +20,7 @@ fun main() {
         }
 
         program {
-            extend(UI())
+            val ui = extend(UI())
 
             val grid = drawer.bounds.offsetEdges(-100.0).grid(2, 2, gutterX = 10.0, gutterY = 10.0, ).flatten()
 
@@ -30,15 +30,18 @@ fun main() {
             ): Button(label, bounds, { borderRadius = 20.0 })
 
             widget(drawer.bounds) {
-                asCheckbox(
-                    RoundButton("1", grid[0]), RoundButton("2", grid[1])
-                )
+                asCheckbox {
+                    add(RoundButton("1", grid[0]))
+                    add(RoundButton("2", grid[1]))
+                }
 
-                listOf(RoundButton("2", grid[2]), RoundButton("3", grid[3])).asRadio()
+                listOf(button("3", grid[2]), button("4", grid[3])).asRadio()
             }
 
 
             extend {
+
+                ui.host.tree.flattened.apply { println(size) }
 
             }
         }

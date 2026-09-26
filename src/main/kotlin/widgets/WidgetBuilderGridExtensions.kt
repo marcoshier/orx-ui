@@ -23,7 +23,6 @@ fun WidgetBuilder.grid(
     for (r in grid) {
         val el = this.element(r)
         gridElements.add(el)
-        add(el)
     }
 
     return gridElements
@@ -141,7 +140,6 @@ fun WidgetBuilder.grid(
     for ((i, r) in grid.withIndex()) {
         val el = this.element(i, r)
         gridElements.add(el)
-        add(el)
     }
 
     return gridElements
@@ -166,7 +164,6 @@ fun WidgetBuilder.irregularGrid(
     for (r in grid) {
         val el = this.element(r)
         gridElements.add(el)
-        add(el)
     }
 
     return gridElements
@@ -208,7 +205,6 @@ fun WidgetBuilder.irregularGrid(
     for ((i, r) in grid.withIndex()) {
         val el = this.element(i, r)
         gridElements.add(el)
-        add(el)
     }
 
     return gridElements

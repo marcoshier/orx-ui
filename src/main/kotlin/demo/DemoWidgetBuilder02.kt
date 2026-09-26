@@ -18,7 +18,7 @@ fun main() {
         }
 
         program {
-            extend(UI())
+            val ui = extend(UI())
 
             val grid = drawer.bounds.grid(2, 1, gutterX = 5.0).flatten()
 
@@ -41,6 +41,7 @@ fun main() {
 
             extend {
 
+                ui.host.tree.flattened.apply { println(size) }
             }
         }
     }

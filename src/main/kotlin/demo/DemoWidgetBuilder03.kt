@@ -6,6 +6,7 @@ import elements.button
 import org.openrndr.application
 import org.openrndr.extra.shapes.primitives.grid
 import org.openrndr.extra.shapes.primitives.irregularGrid
+import widgets.asCheckbox
 import widgets.widget
 import widgets.grid
 import widgets.gridSlots
@@ -19,17 +20,17 @@ fun main() {
         }
 
         program {
-            extend(UI())
+            val ui = extend(UI())
 
             widget(drawer.bounds.offsetEdges(-20.0)) {
-                irregularGrid(listOf(0.2, 0.5, 0.3), listOf(0.1, 0.4, 0.5),
-                ) { rect ->
+                irregularGrid(listOf(0.2, 0.5, 0.3), listOf(0.1, 0.4, 0.5)) { rect ->
                     button("X", rect.offsetEdges(-5.0))
-                }
+                }.asCheckbox()
             }
 
             extend {
 
+                ui.host.tree.flattened.apply { println(size) }
             }
         }
     }
