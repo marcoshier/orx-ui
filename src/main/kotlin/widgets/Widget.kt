@@ -20,6 +20,7 @@ interface Widget {
     var clip: Boolean
 
     var yOffset: Double
+    val smoothYoffset: Double
     val maxYOffset: Double
 
     val closed: Event<Unit>

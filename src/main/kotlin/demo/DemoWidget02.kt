@@ -21,6 +21,7 @@ fun main() {
            // widget(drawer.bounds) {
             // widgets should be nestable and the hit testing for scroll
             // should be done the same as with mouse move
+            // children should inherit parent properties
                 widget(drawer.bounds.scaledBy(1.0, 0.5, 0.5, 0.0)) {
                     minElementHeight = 80.0
                     marginX = 10.0

@@ -5,7 +5,6 @@ import org.openrndr.Program
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import ui.UIElement
-import widgets.Widget
 import widgets.draw
 
 class UI: Extension {
@@ -75,13 +74,23 @@ class UI: Extension {
             }
         }
 
+        var anyHovered = false
+
         for (el in tree.flattened) {
             val nowHovered = el === hit
+            if (nowHovered) anyHovered = true
+
             if (el.isHovered != nowHovered) {
                 el.isHovered = nowHovered
                 el.hovered.trigger(nowHovered)
                 requestDraw()
             }
+        }
+
+        if (anyHovered) {
+            setCursor(CursorType.HAND_CURSOR)
+        } else {
+            setCursor(CursorType.ARROW_CURSOR)
         }
     }
 
@@ -92,7 +101,7 @@ class UI: Extension {
             .lastOrNull { event.position in it.bounds }
             ?: return
 
-        val speed = 20.0
+        val speed = 30.0
         widget.yOffset = (widget.yOffset + event.rotation.y * speed).coerceAtMost(0.0)
 
         requestDraw()

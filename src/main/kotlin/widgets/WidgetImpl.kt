@@ -1,5 +1,6 @@
 package widgets
 
+import lib.smoothing
 import org.openrndr.events.Event
 import ui.UIElement
 import org.openrndr.shape.Rectangle
@@ -22,6 +23,9 @@ open class WidgetImpl(
         set(value) {
             field = value.coerceAtLeast(maxYOffset)
         }
+
+    var scrollSmoothing = 0.75
+    override val smoothYoffset by smoothing(::yOffset, scrollSmoothing)
 
     override val maxYOffset: Double
         get() {

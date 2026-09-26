@@ -19,6 +19,7 @@ dependencies {
     implementation(openrndr.orextensions)
     implementation(orx.bundles.basic)
     implementation(orx.olive)
+    implementation(orx.delegate.magic)
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.core)

@@ -31,7 +31,7 @@ fun Widget.draw() {
             if (!el.isFocused) {
                 drawer.isolated {
                     if (yOffset != 0.0) {
-                        drawer.translate(0.0, yOffset)
+                        drawer.translate(0.0, smoothYoffset)
                     }
                     el.draw(drawer)
                 }
@@ -42,7 +42,7 @@ fun Widget.draw() {
             if (el.isFocused) {
                 drawer.isolated {
                     if (yOffset != 0.0) {
-                        drawer.translate(0.0, yOffset)
+                        drawer.translate(0.0, smoothYoffset)
                     }
                     el.draw(drawer)
                 }

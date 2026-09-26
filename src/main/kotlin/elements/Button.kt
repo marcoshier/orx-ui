@@ -42,8 +42,14 @@ open class Button(
 
     init {
         configure()
-        buttonDown.listen { it.cancelPropagation() }
+        buttonDown.listen {
+            it.cancelPropagation()
+            isSelected = true
+        }
         clicked.listen { action() }
+        buttonUp.listen {
+            isSelected = false
+        }
     }
 
     override fun draw(drawer: Drawer) {
