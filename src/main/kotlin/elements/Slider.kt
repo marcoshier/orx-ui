@@ -50,8 +50,7 @@ open class Slider<T: Comparable<T>>(
 
     var t: Double
         get() {
-            val current = getter()
-            return when (current) {
+            return when (val current = getter()) {
                 is Int -> {
                     val r = range as IntRange
                     current.toDouble().map(r.first.toDouble(), r.last.toDouble(), 0.0, 1.0, true)
@@ -64,8 +63,7 @@ open class Slider<T: Comparable<T>>(
             }
         }
         set(value) {
-            val current = getter()
-            val ranged: T = when(current) {
+            val ranged: T = when(val current = getter()) {
                 is Int -> {
                     val r = range as IntRange
                     (value.map(0.0, 1.0, r.first.toDouble(), r.last.toDouble(), true)).toInt() as T
@@ -81,8 +79,7 @@ open class Slider<T: Comparable<T>>(
         }
 
     private fun getDoubleValue(): Double {
-        val value =  getter()
-        val valueDouble = when(value) {
+        val valueDouble = when(val value =  getter()) {
             is Double -> value
             is Int -> value.toDouble()
             else -> error("Unsupported type: ${value::class}")

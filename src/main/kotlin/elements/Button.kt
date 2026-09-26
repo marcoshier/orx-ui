@@ -43,7 +43,7 @@ open class Button(
     init {
         configure()
         buttonDown.listen { it.cancelPropagation() }
-        clicked.listen { action() } // TODO replace with more sophisticated drag-to-undo check
+        clicked.listen { action() }
     }
 
     override fun draw(drawer: Drawer) {
@@ -136,7 +136,6 @@ fun button(
     registerElement(b)
     return b
 }
-
 
 fun WidgetBuilder.button(
     label: String,

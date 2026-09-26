@@ -27,7 +27,6 @@ class WidgetBuilder(
     }
 }
 
-
 fun widget(
     bounds: Rectangle,
     label: String = "",
