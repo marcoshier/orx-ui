@@ -1,7 +1,6 @@
 package demo
 
 import UI
-import UIHost
 import elements.button
 import elements.titleBar
 import org.openrndr.application
@@ -32,7 +31,7 @@ fun main() = application {
         }
 
         widget(drawer.bounds.offsetEdges(-80.0).movedBy(Vector2(0.0, 30.0))) {
-            background = ColorRGBa.DARK_SALMON
+            this.background = ColorRGBa.DARK_SALMON
             titleBar("WIDGET", bounds.copy(height = 20.0), widgetTitlebar = true)
         }
     }

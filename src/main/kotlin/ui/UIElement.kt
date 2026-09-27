@@ -57,6 +57,7 @@ interface UIElement: MouseEvents {
     val keyDown: Event<KeyEvent>
     val character: Event<CharacterEvent>
 
+    val xOffset: Double
     val yOffset: Double
     var zIndex: Int
 

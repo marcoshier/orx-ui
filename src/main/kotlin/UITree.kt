@@ -1,3 +1,4 @@
+import org.openrndr.math.Vector2
 import ui.UIElement
 import widgets.Widget
 
@@ -35,10 +36,14 @@ class UITree {
         get() {
             cache?.let { return it }
             val out = mutableListOf<UIElement>()
+
             for (widget in widgetRoots) {
-                for (element in widget.elements) walk(element, out)
+                walkWidget(widget, out)
             }
-            for (element in elementRoots) walk(element, out)
+            for (element in elementRoots) {
+                walk(element, out)
+            }
+
             out.sortBy { it.zIndex }
             cache = out
             return out
@@ -58,6 +63,28 @@ class UITree {
                 walk(child, out)
             }
         }
+    }
+
+    private fun walkWidget(w: Widget, out: MutableList<UIElement>) {
+        for (el in w.elements) {
+            walk(el, out)
+        }
+        for (child in w.widgets) {
+            walkWidget(child, out)
+        }
+    }
+
+    fun leafWidget(pos: Vector2, widgets: List<Widget> = this.widgets): Widget? {
+        for (w in widgets.sortedByDescending { it.zIndex }) {
+            val parentOffset = w.parent?.effectiveYOffset ?: 0.0
+            val screenBounds = w.bounds.movedBy(Vector2(0.0, parentOffset))
+            if (pos in screenBounds) {
+                val deeper = leafWidget(pos, w.widgets)
+                if (deeper != null) return deeper
+                if (w.yScrollable || w.xScrollable) return w
+            }
+        }
+        return null
     }
 }
 

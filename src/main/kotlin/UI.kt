@@ -6,6 +6,8 @@ import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import ui.UIElement
 import ui.updateAnimations
+import widgets.Widget
+import widgets.clipBounds
 import widgets.draw
 
 class UI: Extension {
@@ -97,14 +99,10 @@ class UI: Extension {
 
     private fun handleScroll(event: MouseEvent) {
         if (event.propagationCancelled) return
-
-        val widget = host.tree.widgets
-            .lastOrNull { event.position in it.bounds }
-            ?: return
-
+        val widget = host.tree.leafWidget(event.position) ?: return
         val speed = 30.0
-        widget.yOffset = (widget.yOffset + event.rotation.y * speed).coerceAtMost(0.0)
-
+        if (widget.yScrollable) widget.yOffset += event.rotation.y * speed
+        if (widget.xScrollable) widget.xOffset += event.rotation.y * speed
         requestDraw()
     }
 
@@ -185,11 +183,14 @@ fun transformMouseEvent(event: MouseEvent, element: UIElement) = event.copy(
 )
 
 fun transformPos(position: Vector2, element: UIElement): Vector2 {
-    return Vector2(position.x, position.y - element.yOffset)
+    return Vector2(position.x - element.xOffset, position.y - element.yOffset)
 }
 
 fun UIElement.contains(position: Vector2): Boolean {
     val transformedPos = transformPos(position, this)
-    return transformedPos in bounds
-}
+    if (transformedPos !in bounds) return false
 
+    val widget = parent ?: return true
+    if (!widget.clip) return true
+    return position in widget.clipBounds()
+}

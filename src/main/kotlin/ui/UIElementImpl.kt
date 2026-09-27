@@ -22,8 +22,10 @@ open class UIElementImpl(
 
     override val boundsCopy = bounds.copy()
 
+    override val xOffset: Double
+        get() = parent?.effectiveXOffset ?: 0.0
     override val yOffset: Double
-        get() = parent?.yOffset ?: 0.0
+        get() = parent?.effectiveYOffset ?: 0.0
 
     val parentBounds: Rectangle
         get() = parent?.bounds ?: bounds

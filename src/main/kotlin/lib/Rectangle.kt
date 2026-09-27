@@ -41,3 +41,5 @@ fun Rectangle.sdf3(other: Rectangle): Vector3 {
 }
 
 val Rectangle.corners get() = listOf(position(0.0, 0.0), position(1.0, 0.0), position(1.0, 1.0), position(0.0, 1.0))
+
+fun Rectangle.copy(x: Double = this.x, y: Double = this.y, width: Double = this.width, height: Double = this.height) = copy(Vector2(x,y),width,height)
