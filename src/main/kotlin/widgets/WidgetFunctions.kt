@@ -4,6 +4,7 @@ import UIHost
 import deregisterWidget
 import org.openrndr.draw.isolated
 import ui.close
+import ui.updateAnimations
 import kotlin.collections.sortedBy
 
 fun Widget.close() {
@@ -34,6 +35,7 @@ fun Widget.draw() {
                     if (!el.fixed && yOffset != 0.0) {
                         drawer.translate(0.0, smoothYoffset)
                     }
+                    el.updateAnimations()
                     el.draw(drawer)
                 }
             }
@@ -45,6 +47,7 @@ fun Widget.draw() {
                     if (!el.fixed && yOffset != 0.0) {
                         drawer.translate(0.0, smoothYoffset)
                     }
+                    el.updateAnimations()
                     el.draw(drawer)
                 }
             }

@@ -46,9 +46,9 @@ open class Dropdown<T> (
 
     var onSelection = {}
 
-    var idleColor = Colors.CLICKABLE
-    var hoverColor = Colors.HOVERED
-    var focusColor = Colors.FOCUSED
+    override var idleColor = Colors.CLICKABLE
+    override var hoverColor = Colors.HOVERED
+    override var focusColor = Colors.FOCUSED
 
     var textColor = Colors.BLACK
     var font = Fonts.DEFAULT

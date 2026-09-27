@@ -5,6 +5,7 @@ import org.openrndr.Program
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import ui.UIElement
+import ui.updateAnimations
 import widgets.draw
 
 class UI: Extension {
@@ -164,10 +165,16 @@ class UI: Extension {
         }
 
         for (element in host.tree.elements) {
-            if (!element.isFocused) element.draw(drawer)
+            if (!element.isFocused) {
+                element.updateAnimations()
+                element.draw(drawer)
+            }
         }
         for (element in host.tree.elements) {
-            if (element.isFocused) element.draw(drawer)
+            if (element.isFocused) {
+                element.updateAnimations()
+                element.draw(drawer)
+            }
         }
     }
 }

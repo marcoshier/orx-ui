@@ -4,10 +4,12 @@ import org.openrndr.CharacterEvent
 import org.openrndr.DropEvent
 import org.openrndr.KeyEvent
 import org.openrndr.MouseEvent
+import org.openrndr.animatable.Animatable
 import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
+import style.Colors
 import widgets.Widget
 
 open class UIElementImpl(
@@ -17,6 +19,8 @@ open class UIElementImpl(
     override var parent: Widget? = null
 ): UIElement {
     override val description: String? = null
+
+    override val boundsCopy = bounds.copy()
 
     override val yOffset: Double
         get() = parent?.yOffset ?: 0.0
@@ -29,6 +33,13 @@ open class UIElementImpl(
 
     override var visibleIf = { true }
     override var interactableIf = { true }
+
+    override var idleColor = Colors.CLICKABLE
+    override var hoverColor = Colors.HOVERED
+    override var focusColor = Colors.FOCUSED
+    override var selectColor = focusColor
+
+    override var animations = listOf<UIAnimatable>()
 
     override var fixed = false
 

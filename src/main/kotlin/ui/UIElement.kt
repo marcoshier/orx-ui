@@ -5,9 +5,12 @@ import org.openrndr.DropEvent
 import org.openrndr.KeyEvent
 import org.openrndr.MouseEvent
 import org.openrndr.MouseEvents
+import org.openrndr.animatable.Animatable
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.shape.Rectangle
+import style.Colors
 import widgets.Widget
 
 /**
@@ -23,6 +26,7 @@ interface UIElement: MouseEvents {
     val description: String?
 
     var bounds: Rectangle
+    val boundsCopy: Rectangle
 
     var visible: Boolean
     var interactable: Boolean
@@ -31,6 +35,12 @@ interface UIElement: MouseEvents {
     var interactableIf: () -> Boolean
 
     var fixed: Boolean
+    val animations: List<UIAnimatable>
+
+    var idleColor: ColorRGBa
+    var hoverColor: ColorRGBa
+    var focusColor: ColorRGBa
+    var selectColor: ColorRGBa
 
     var acceptsDrop: Boolean
     var acceptsText: Boolean

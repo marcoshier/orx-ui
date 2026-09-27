@@ -27,10 +27,10 @@ open class Button(
     var iconOn: Button.() -> Unit = {}
     var iconOff: Button.() -> Unit = iconOn
 
-    var idleColor = Colors.CLICKABLE
-    var hoverColor = Colors.HOVERED
-    var focusColor = Colors.FOCUSED
-    var selectColor = focusColor
+    override var idleColor = Colors.CLICKABLE
+    override var hoverColor = Colors.HOVERED
+    override var focusColor = Colors.FOCUSED
+    override var selectColor = focusColor
 
     var border: Boolean = false
     var rounded: Boolean = true
