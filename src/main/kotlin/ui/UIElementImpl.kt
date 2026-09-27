@@ -16,7 +16,6 @@ open class UIElementImpl(
     override var zIndex: Int = 0,
     override var parent: Widget? = null
 ): UIElement {
-
     override val description: String? = null
 
     override val yOffset: Double
@@ -30,6 +29,8 @@ open class UIElementImpl(
 
     override var visibleIf = { true }
     override var interactableIf = { true }
+
+    override var fixed = false
 
     override var acceptsDrop = false
     override var acceptsText = false

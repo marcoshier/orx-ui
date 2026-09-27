@@ -41,7 +41,6 @@ open class Button(
     var textAlign = Vector2(0.5)
 
     init {
-        configure()
         buttonDown.listen {
             it.cancelPropagation()
             isSelected = true
@@ -50,6 +49,8 @@ open class Button(
         buttonUp.listen {
             isSelected = false
         }
+
+        configure()
     }
 
     override fun draw(drawer: Drawer) {

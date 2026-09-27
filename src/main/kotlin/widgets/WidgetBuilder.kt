@@ -1,5 +1,6 @@
 package widgets
 
+import org.openrndr.color.ColorRGBa
 import org.openrndr.shape.Rectangle
 import registerWidget
 import ui.UIElement
@@ -9,12 +10,16 @@ class WidgetBuilder(
     val bounds: Rectangle,
     val zIndex: Int
 ) {
-    val widget = WidgetImpl(label, bounds, zIndex)
+    var widget = WidgetImpl(label, bounds, zIndex)
 
     var marginX = 0.0
     var marginY = 0.0
     var gutterX = 0.0
     var gutterY = 0.0
+
+    var background: ColorRGBa
+        get() = widget.background
+        set(value) { widget.background = value }
 
     var currentX = 0.0
         private set

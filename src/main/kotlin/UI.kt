@@ -159,10 +159,8 @@ class UI: Extension {
     }
 
     override fun afterDraw(drawer: Drawer, program: Program) {
-        for (widget in host.tree.widgets) {
-            context(host) {
-                widget.draw()
-            }
+        for (widget in host.tree.widgets.sortedBy { it.zIndex }) {
+            context(host) { widget.draw() }
         }
 
         for (element in host.tree.elements) {

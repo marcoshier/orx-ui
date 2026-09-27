@@ -23,6 +23,7 @@ class Checkbox(
     init {
         action = { state.set(!state.get()) }
         beforeDraw = { isSelected = state.get() }
+        configure()
     }
 
     override fun draw(drawer: Drawer) {

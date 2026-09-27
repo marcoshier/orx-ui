@@ -1,6 +1,7 @@
 package widgets
 
 import lib.smoothing
+import org.openrndr.color.ColorRGBa
 import org.openrndr.events.Event
 import ui.UIElement
 import org.openrndr.shape.Rectangle
@@ -13,6 +14,9 @@ open class WidgetImpl(
 ) : Widget {
 
     override val elements = mutableListOf<UIElement>()
+
+    override var background = ColorRGBa.TRANSPARENT
+    override var stroke = ColorRGBa.TRANSPARENT
 
     val contentBounds: Rectangle
         get() = elements.map { it.bounds }.bounds

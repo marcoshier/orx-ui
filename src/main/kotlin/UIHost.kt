@@ -13,3 +13,4 @@ class UIHost(program: Program) {
 }
 
 fun mousePosition() = UIHost.current.context.mouse.position
+fun window() = UIHost.current.context.window

@@ -63,8 +63,6 @@ open class Dropdown<T> (
     }
 
     init {
-        configure()
-
         buttonDown.listen {
             it.cancelPropagation()
         }
@@ -91,6 +89,8 @@ open class Dropdown<T> (
                 }
             }
         }
+
+        configure()
     }
 
     override fun draw(drawer: Drawer) {
@@ -183,9 +183,9 @@ fun <T> dropdown(
     configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
     val b = Dropdown(label, bounds, current) {
-        configure()
         this.entries = entries
         this.entryName = entryName
+        configure()
     }
     registerElement(b)
     return b
@@ -198,9 +198,9 @@ inline fun <reified T: Enum<T>> dropdown(
     crossinline configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
     val b = Dropdown(label, bounds, current) {
-        configure()
         entries = { enumValues<T>().toList() }
         entryName = { it.name }
+        configure()
     }
     registerElement(b)
     return b
@@ -215,9 +215,9 @@ fun <T> WidgetBuilder.dropdown(
     configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
     val b = Dropdown(label, bounds, current) {
-        configure()
         this.entries = entries
         this.entryName = entryName
+        configure()
     }
     add(b)
     return b
@@ -230,9 +230,9 @@ inline fun <reified T: Enum<T>> WidgetBuilder.dropdown(
     crossinline configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
     val b = Dropdown(label, bounds, current) {
-        configure()
         entries = { enumValues<T>().toList() }
         entryName = { it.name }
+        configure()
     }
     add(b)
     return b

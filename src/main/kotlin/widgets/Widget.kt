@@ -1,5 +1,6 @@
 package widgets
 
+import org.openrndr.color.ColorRGBa
 import ui.UIElement
 import org.openrndr.events.Event
 import org.openrndr.shape.Rectangle
@@ -12,6 +13,9 @@ import org.openrndr.shape.Rectangle
 
 interface Widget {
     val elements: List<UIElement>
+
+    var background: ColorRGBa
+    var stroke: ColorRGBa
 
     var label: String
 

@@ -25,13 +25,15 @@ open class Slider<T: Comparable<T>>(
     var range: ClosedRange<T>,
     private val getter: () -> T,
     private val setter: (T) -> Unit,
+    configure: Slider<T>.() -> Unit = {}
 ): UIElementImpl(label, bounds) {
 
     constructor(
         label: String,
         bounds: Rectangle,
         range: ClosedRange<T>,
-        valueRef: KMutableProperty0<T>
+        valueRef: KMutableProperty0<T>,
+        configure: Slider<T>.() -> Unit = {}
     ): this(label, bounds, range, { valueRef.get() }, { valueRef.set(it) })
 
     constructor(
@@ -39,7 +41,8 @@ open class Slider<T: Comparable<T>>(
         bounds: Rectangle,
         range: ClosedRange<T>,
         obj: Any,
-        valueRef: KMutableProperty1<Any, T>
+        valueRef: KMutableProperty1<Any, T>,
+        configure: Slider<T>.() -> Unit = {}
     ) : this(label, bounds, range, { valueRef.get(obj) }, { valueRef.set(obj, it) })
 
     val railStart: Vector2
@@ -108,6 +111,8 @@ open class Slider<T: Comparable<T>>(
         dragged.listen {
             updateT(it.position.x)
         }
+
+        configure()
     }
 
     override fun draw(drawer: Drawer) {
@@ -195,8 +200,9 @@ fun <T : Comparable<T>> slider(
     bounds: Rectangle,
     range: ClosedRange<T>,
     valueRef: KMutableProperty0<T>,
+    configure: Slider<T>.() -> Unit = {}
 ): Slider<T> {
-    val s = Slider(label, bounds, range, valueRef)
+    val s = Slider(label, bounds, range, valueRef, configure)
     registerElement(s)
     return s
 }
@@ -207,8 +213,9 @@ fun <T : Comparable<T>> slider(
     range: ClosedRange<T>,
     obj: Any,
     valueRef: KMutableProperty1<Any, T>,
+    configure: Slider<T>.() -> Unit = {}
 ): Slider<T> {
-    val s = Slider(label, bounds, range, obj, valueRef)
+    val s = Slider(label, bounds, range, obj, valueRef, configure)
     registerElement(s)
     return s
 }
@@ -218,8 +225,9 @@ fun <T : Comparable<T>> WidgetBuilder.slider(
     bounds: Rectangle,
     range: ClosedRange<T>,
     valueRef: KMutableProperty0<T>,
+    configure: Slider<T>.() -> Unit = {}
 ): Slider<T> {
-    val s = Slider(label, bounds, range, valueRef)
+    val s = Slider(label, bounds, range, valueRef, configure)
     add(s)
     return s
 }
@@ -230,8 +238,9 @@ fun <T : Comparable<T>> WidgetBuilder.slider(
     range: ClosedRange<T>,
     obj: Any,
     valueRef: KMutableProperty1<Any, T>,
+    configure: Slider<T>.() -> Unit = {}
 ): Slider<T> {
-    val s = Slider(label, bounds, range, obj, valueRef)
+    val s = Slider(label, bounds, range, obj, valueRef, configure)
     add(s)
     return s
 }

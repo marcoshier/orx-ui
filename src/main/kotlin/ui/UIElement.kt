@@ -30,6 +30,8 @@ interface UIElement: MouseEvents {
     var visibleIf: () -> Boolean
     var interactableIf: () -> Boolean
 
+    var fixed: Boolean
+
     var acceptsDrop: Boolean
     var acceptsText: Boolean
 
