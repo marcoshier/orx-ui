@@ -11,6 +11,7 @@ import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.shape.Rectangle
 import style.Colors
+import style.UIElementStyle
 import widgets.Widget
 
 /**
@@ -37,10 +38,7 @@ interface UIElement: MouseEvents {
     var fixed: Boolean
     val animations: List<UIAnimatable>
 
-    var idleColor: ColorRGBa
-    var hoverColor: ColorRGBa
-    var focusColor: ColorRGBa
-    var selectColor: ColorRGBa
+    var style: UIElementStyle
 
     var acceptsDrop: Boolean
     var acceptsText: Boolean

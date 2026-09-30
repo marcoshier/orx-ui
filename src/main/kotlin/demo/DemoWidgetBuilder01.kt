@@ -27,7 +27,7 @@ fun main() {
             class RoundButton(
                 override var label: String,
                 override var bounds: Rectangle
-            ): Button(label, bounds, { borderRadius = 20.0 })
+            ): Button(label, bounds, { style.borderRadius = 20.0 })
 
             widget(drawer.bounds) {
                 asCheckbox {
@@ -40,3 +40,4 @@ fun main() {
         }
     }
 }
+

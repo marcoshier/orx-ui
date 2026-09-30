@@ -10,8 +10,6 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import registerElement
-import style.Colors
-import style.Fonts
 import ui.UIElementImpl
 import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
@@ -27,17 +25,6 @@ open class Button(
     var iconOn: Button.() -> Unit = {}
     var iconOff: Button.() -> Unit = iconOn
 
-    override var idleColor = Colors.CLICKABLE
-    override var hoverColor = Colors.HOVERED
-    override var focusColor = Colors.FOCUSED
-    override var selectColor = focusColor
-
-    var border: Boolean = false
-    var rounded: Boolean = true
-    var borderRadius: Double = 2.0
-
-    var textColor = Colors.BLACK
-    var font = Fonts.DEFAULT
     var textAlign = Vector2(0.5)
 
     init {
@@ -57,19 +44,19 @@ open class Button(
         super.draw(drawer)
 
         val mainFill = when {
-            isHovered && !isSelected -> hoverColor
-            isHovered && isSelected -> selectColor.shade(0.75)
-            isFocused -> focusColor
-            isSelected -> selectColor
-            else -> idleColor
+            isHovered && !isSelected -> style.hoverColor
+            isHovered && isSelected -> style.selectColor.shade(0.75)
+            isFocused -> style.focusColor
+            isSelected -> style.selectColor
+            else -> style.idleColor
         }
 
         drawer.strokeWeight = 0.01
-        drawer.stroke = if (border) Colors.BLACK else null
+        drawer.stroke = style.stroke
         drawer.fill  = mainFill
 
-        if (rounded) {
-            drawer.roundedRectangle(bounds.toRounded(borderRadius))
+        if (style.rounded) {
+            drawer.roundedRectangle(bounds.toRounded(style.borderRadius))
         } else {
             drawer.rectangle(bounds)
         }
@@ -80,8 +67,8 @@ open class Button(
         if (label.isEmpty()) {
             if (isFocused) { iconOn() } else { iconOff() }
         } else {
-            drawer.fill = if (isFocused) ColorRGBa.WHITE - textColor else textColor
-            drawer.fontMap = font
+            drawer.fill = if (isFocused) ColorRGBa.WHITE - style.textColor else style.textColor
+            drawer.fontMap = style.font
 
             val textBounds = drawer.writer {
                 box = bounds.copy(width = 9999.0)

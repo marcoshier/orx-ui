@@ -46,12 +46,6 @@ open class Dropdown<T> (
 
     var onSelection = {}
 
-    override var idleColor = Colors.CLICKABLE
-    override var hoverColor = Colors.HOVERED
-    override var focusColor = Colors.FOCUSED
-
-    var textColor = Colors.BLACK
-    var font = Fonts.DEFAULT
     var textAlign = Vector2(0.0, 0.5)
 
     val collapsedBounds = bounds.copy()
@@ -104,10 +98,10 @@ open class Dropdown<T> (
         val box = Rectangle(collapsedBounds.x, collapsedBounds.y, collapsedBounds.width, boxHeight)
         val target = findTarget(transformPos(mousePosition(), this))
 
-        drawer.fontMap = font
+        drawer.fontMap = style.font
 
         if (label.isNotEmpty()) {
-            drawer.fill = textColor
+            drawer.fill = style.textColor
             drawer.stroke = null
             drawer.writer {
                 this.box = collapsedBounds
@@ -118,9 +112,9 @@ open class Dropdown<T> (
         }
 
         val mainFill = when {
-            isFocused -> if (target == 0) hoverColor else focusColor
-            isHovered -> hoverColor
-            else -> idleColor
+            isFocused -> if (target == 0) style.hoverColor else style.focusColor
+            isHovered -> style.hoverColor
+            else -> style.idleColor
         }
 
         drawer.stroke = null
@@ -147,7 +141,7 @@ open class Dropdown<T> (
                 )
 
                 drawer.stroke = null
-                drawer.fill = if (target == (j + 1)) hoverColor else idleColor
+                drawer.fill = if (target == (j + 1)) style.hoverColor else style.idleColor
                 drawer.rectangle(r)
 
                 drawer.fill = ColorRGBa.BLACK

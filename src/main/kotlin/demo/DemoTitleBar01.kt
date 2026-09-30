@@ -25,7 +25,7 @@ fun main() = application {
             zIndex = 10
         ) {
             button("X", Rectangle(bounds.width - 30.0, 5.0, 20.0)) {
-                idleColor = Colors.CLICKABLE.shade(0.9)
+                style.idleColor = Colors.CLICKABLE.shade(0.9)
                 action = { application.exit() }
             }
         }

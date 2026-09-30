@@ -10,6 +10,7 @@ import org.openrndr.events.Event
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import style.Colors
+import style.UIElementStyle
 import widgets.Widget
 
 open class UIElementImpl(
@@ -36,10 +37,7 @@ open class UIElementImpl(
     override var visibleIf = { true }
     override var interactableIf = { true }
 
-    override var idleColor = Colors.CLICKABLE
-    override var hoverColor = Colors.HOVERED
-    override var focusColor = Colors.FOCUSED
-    override var selectColor = focusColor
+    override var style = UIElementStyle()
 
     override var animations = listOf<UIAnimatable>()
 

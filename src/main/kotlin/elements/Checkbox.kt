@@ -32,35 +32,35 @@ class Checkbox(
         if (!visible) { isFocused = false; return }
 
         val bgFill = when {
-            isHovered && !isSelected -> hoverColor
-            else -> idleColor
+            isHovered && !isSelected -> style.hoverColor
+            else -> style.idleColor
         }
 
         drawer.strokeWeight = 0.01
-        drawer.stroke = if (border) Colors.BLACK else null
+        drawer.stroke = style.stroke
         drawer.fill = bgFill
 
-        if (rounded) {
-            drawer.roundedRectangle(bounds.toRounded(borderRadius))
+        if (style.rounded) {
+            drawer.roundedRectangle(bounds.toRounded(style.borderRadius))
         } else {
             drawer.rectangle(bounds)
         }
 
         val mainFill = when {
-            isFocused || isSelected -> selectColor
+            isFocused || isSelected -> style.selectColor
             else -> ColorRGBa.TRANSPARENT
         }
 
         drawer.fill = mainFill
-        if (rounded) {
-            drawer.roundedRectangle(bounds.offsetEdges(-3.0).toRounded(borderRadius))
+        if (style.rounded) {
+            drawer.roundedRectangle(bounds.offsetEdges(-3.0).toRounded(style.borderRadius))
         } else {
             drawer.rectangle(bounds.offsetEdges(-3.0))
         }
 
         if (label.isNotEmpty()) {
-            drawer.fill = textColor
-            drawer.fontMap = font
+            drawer.fill = style.textColor
+            drawer.fontMap = style.font
 
             val textBox = Rectangle(
                 bounds.x + bounds.height + 10.0,
