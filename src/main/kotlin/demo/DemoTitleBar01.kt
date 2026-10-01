@@ -11,6 +11,7 @@ import org.openrndr.shape.Rectangle
 import style.Colors
 import widgets.titleBarWidget
 import widgets.widget
+import kotlin.math.sin
 
 fun main() = application {
     configure {
@@ -34,7 +35,14 @@ fun main() = application {
             this.background = ColorRGBa.DARK_SALMON
             titleBar("WIDGET", bounds.copy(height = 20.0), widgetTitlebar = true)
         }
+
+        extend {
+
+           // window.position = Vector2.UNIT_X * sin(seconds) * (width / 2.0) + width / 2.0
+            println(window.position)
+        }
     }
+
 }
 
 

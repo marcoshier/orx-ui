@@ -15,8 +15,8 @@ import widgets.WidgetBuilder
 import window
 
 class TitleBar(
-    override var label: String,
-    override var bounds: Rectangle,
+    label: String,
+    bounds: Rectangle,
     var windowTitlebar: Boolean = false,
     var widgetTitlebar: Boolean = false,
     configure: TitleBar.() -> Unit = {}

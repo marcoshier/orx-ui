@@ -25,8 +25,8 @@ fun main() {
             val grid = drawer.bounds.offsetEdges(-100.0).grid(2, 2, gutterX = 10.0, gutterY = 10.0, ).flatten()
 
             class RoundButton(
-                override var label: String,
-                override var bounds: Rectangle
+                label: String,
+                bounds: Rectangle
             ): Button(label, bounds, { style.borderRadius = 20.0 })
 
             widget(drawer.bounds) {

@@ -20,8 +20,8 @@ import kotlin.reflect.KMutableProperty1
 
 @Suppress("UNCHECKED_CAST")
 open class Slider<T: Comparable<T>>(
-    override var label: String = "",
-    override var bounds: Rectangle,
+    label: String = "",
+    bounds: Rectangle,
     var range: ClosedRange<T>,
     private val getter: () -> T,
     private val setter: (T) -> Unit,
@@ -34,7 +34,7 @@ open class Slider<T: Comparable<T>>(
         range: ClosedRange<T>,
         valueRef: KMutableProperty0<T>,
         configure: Slider<T>.() -> Unit = {}
-    ): this(label, bounds, range, { valueRef.get() }, { valueRef.set(it) })
+    ): this(label, bounds, range, { valueRef.get() }, { valueRef.set(it) }, configure)
 
     constructor(
         label: String,
@@ -43,7 +43,7 @@ open class Slider<T: Comparable<T>>(
         obj: Any,
         valueRef: KMutableProperty1<Any, T>,
         configure: Slider<T>.() -> Unit = {}
-    ) : this(label, bounds, range, { valueRef.get(obj) }, { valueRef.set(obj, it) })
+    ) : this(label, bounds, range, { valueRef.get(obj) }, { valueRef.set(obj, it) }, configure)
 
     val railStart: Vector2
         get() = bounds.position(0.05, 0.5)
@@ -228,19 +228,6 @@ fun <T : Comparable<T>> WidgetBuilder.slider(
     configure: Slider<T>.() -> Unit = {}
 ): Slider<T> {
     val s = Slider(label, bounds, range, valueRef, configure)
-    add(s)
-    return s
-}
-
-fun <T : Comparable<T>> WidgetBuilder.slider(
-    label: String,
-    bounds: Rectangle,
-    range: ClosedRange<T>,
-    obj: Any,
-    valueRef: KMutableProperty1<Any, T>,
-    configure: Slider<T>.() -> Unit = {}
-): Slider<T> {
-    val s = Slider(label, bounds, range, obj, valueRef, configure)
     add(s)
     return s
 }

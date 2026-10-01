@@ -43,3 +43,21 @@ fun Rectangle.sdf3(other: Rectangle): Vector3 {
 val Rectangle.corners get() = listOf(position(0.0, 0.0), position(1.0, 0.0), position(1.0, 1.0), position(0.0, 1.0))
 
 fun Rectangle.copy(x: Double = this.x, y: Double = this.y, width: Double = this.width, height: Double = this.height) = copy(Vector2(x,y),width,height)
+
+fun Rectangle.coerceIn(container: Rectangle): Rectangle {
+    var result = this.copy()
+    if (result.x + result.width > container.x + container.width) {
+        result = result.movedBy(Vector2(container.x + container.width - (result.x + result.width), 0.0))
+    }
+    if (result.x < container.x) {
+        result = result.movedBy(Vector2(container.x - result.x, 0.0))
+    }
+    if (result.y + result.height > container.y + container.height) {
+        result = result.movedBy(Vector2(0.0, container.y + container.height - (result.y + result.height)))
+    }
+    if (result.y < container.y) {
+        result = result.movedBy(Vector2(0.0, container.y - result.y))
+    }
+
+    return result
+}
