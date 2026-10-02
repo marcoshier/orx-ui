@@ -5,6 +5,13 @@ import org.openrndr.shape.Rectangle
 import registerWidget
 import ui.UIElement
 
+enum class Direction {
+    DOWN,
+    RIGHT,
+    UP,
+    LEFT
+}
+
 class WidgetBuilder(
     val label: String,
     val bounds: Rectangle,
