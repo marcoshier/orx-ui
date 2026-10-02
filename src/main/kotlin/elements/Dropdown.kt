@@ -89,6 +89,7 @@ open class Dropdown<T> (
 
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
+        if (!visible) return
 
         val list = entries()
         val current = getter()

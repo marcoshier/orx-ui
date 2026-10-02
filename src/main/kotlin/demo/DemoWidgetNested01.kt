@@ -36,7 +36,7 @@ fun main() {
                         append(Direction.DOWN) { button("B$i") }
                     }
                     append(Direction.DOWN) {
-                        widget(bounds.copy(y = currentY, height = 200.0)) {
+                        widget(bounds.copy(y = itemY, height = 200.0)) {
                             background = parent?.style?.background?.shade(0.8)
                             minElementWidth = bounds.width - paddingX * 2
                             gutterX = 10.0

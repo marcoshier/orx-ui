@@ -83,7 +83,6 @@ open class UIElementImpl(
         visible = visibleIf()
         if (!visible) {
             isFocused = false
-            return
         }
     }
 }

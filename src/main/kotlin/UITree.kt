@@ -10,12 +10,14 @@ class UITree {
     val widgets: List<Widget> get() = widgetRoots.toList()
     val elements: List<UIElement> get() = elementRoots.toList()
 
-    fun addWidget(widget: Widget) {
+    fun addWidget(widget: Widget): Widget {
         if (widgetRoots.add(widget)) invalidateCache()
+        return widget
     }
 
-    fun addElement(element: UIElement) {
+    fun addElement(element: UIElement): UIElement {
         if (elementRoots.add(element)) invalidateCache()
+        return element
     }
 
     fun removeWidget(widget: Widget) {
@@ -91,3 +93,4 @@ class UITree {
 interface Root {
     val children: List<UIElement>
 }
+

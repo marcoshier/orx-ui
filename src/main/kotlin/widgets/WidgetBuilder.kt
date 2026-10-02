@@ -13,19 +13,19 @@ class WidgetBuilder(
 ) {
     var widget = WidgetImpl(label, bounds, zIndex, parent)
 
-    var currentX = 0.0
+    var itemX = 0.0
         private set
 
-    var currentY = 0.0
+    var itemY = 0.0
         private set
 
-    var currentElementWidth = widget.style.minElementWidth
+    var itemWidth = widget.style.minElementWidth
         private set
 
-    var currentElementHeight = widget.style.minElementHeight
+    var itemHeight = widget.style.minElementHeight
         private set
 
-    private fun step(direction: Direction) {
+    fun step(direction: Direction) {
         val elementBounds = widget.elements.map { it.bounds }
         val widgetBounds = widget.widgets.map { it.bounds }
 
@@ -34,57 +34,57 @@ class WidgetBuilder(
 
         when (direction) {
             Direction.DOWN -> {
-                currentX = bounds.x + paddingX
+                itemX = bounds.x + paddingX
 
-                currentY =
+                itemY =
                     (occupiedBounds.maxOfOrNull { it.y + it.height } ?: bounds.y) +
                             if (empty) paddingY else gutterY
 
-                currentElementWidth = bounds.width - 2 * paddingX
-                currentElementHeight = minElementHeight
+                itemWidth = bounds.width - 2 * paddingX
+                itemHeight = minElementHeight
             }
 
             Direction.UP -> {
-                currentX = bounds.x + paddingX
+                itemX = bounds.x + paddingX
 
                 val topEdge =
                     occupiedBounds.minOfOrNull { it.y }
                         ?: (bounds.y + bounds.height)
 
-                currentElementWidth = bounds.width - 2 * paddingX
-                currentElementHeight = minElementHeight
+                itemWidth = bounds.width - 2 * paddingX
+                itemHeight = minElementHeight
 
-                currentY =
+                itemY =
                     topEdge -
                             (if (empty) paddingY else gutterY) -
-                            currentElementHeight
+                            itemHeight
             }
 
             Direction.RIGHT -> {
-                currentY = bounds.y + paddingY
+                itemY = bounds.y + paddingY
 
-                currentX =
+                itemX =
                     (occupiedBounds.maxOfOrNull { it.x + it.width } ?: bounds.x) +
                             if (empty) paddingX else gutterX
 
-                currentElementWidth = minElementWidth
-                currentElementHeight = bounds.height - 2 * paddingY
+                itemWidth = minElementWidth
+                itemHeight = bounds.height - 2 * paddingY
             }
 
             Direction.LEFT -> {
-                currentY = bounds.y + paddingY
+                itemY = bounds.y + paddingY
 
                 val leftEdge =
                     occupiedBounds.minOfOrNull { it.x }
                         ?: (bounds.x + bounds.width)
 
-                currentElementWidth = minElementWidth
-                currentElementHeight = bounds.height - 2 * paddingY
+                itemWidth = minElementWidth
+                itemHeight = bounds.height - 2 * paddingY
 
-                currentX =
+                itemX =
                     leftEdge -
                             (if (empty) paddingX else gutterX) -
-                            currentElementWidth
+                            itemWidth
             }
         }
     }

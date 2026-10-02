@@ -100,6 +100,7 @@ class ScaleControl (
 
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
+        if (!visible) return
 
         drawer.fontMap = style.font
 

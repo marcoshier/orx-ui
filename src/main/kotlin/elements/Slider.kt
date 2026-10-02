@@ -117,6 +117,7 @@ open class Slider<T: Comparable<T>>(
 
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
+        if (!visible) return
 
         val ls = Segment2D(railStart, railEnd)
 

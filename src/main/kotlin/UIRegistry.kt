@@ -15,8 +15,8 @@ object UIRegistry {
     fun removeElement(element: UIElement) = activeTree.removeElement(element)
 }
 
-fun registerWidget(widget: Widget) { UIRegistry.addWidget(widget) }
-fun registerElement(element: UIElement) { UIRegistry.addElement(element) }
+fun registerWidget(widget: Widget): Widget { return UIRegistry.addWidget(widget) }
+fun registerElement(element: UIElement): UIElement { return UIRegistry.addElement(element) }
 
 fun deregisterWidget(widget: Widget) { UIRegistry.removeWidget(widget) }
 fun deregisterElement(element: UIElement) { UIRegistry.removeElement(element) }

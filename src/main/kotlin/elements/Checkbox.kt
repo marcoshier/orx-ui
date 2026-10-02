@@ -27,9 +27,8 @@ class Checkbox(
     }
 
     override fun draw(drawer: Drawer) {
-        beforeDraw()
-        visible = visibleIf()
-        if (!visible) { isFocused = false; return }
+        super.draw(drawer)
+        if (!visible) return
 
         val bgFill = when {
             isHovered && !isSelected -> style.hoverColor

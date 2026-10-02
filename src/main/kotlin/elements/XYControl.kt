@@ -32,28 +32,18 @@ class XYControl(
         label: String,
         bounds: Rectangle,
         valueRef: KMutableProperty0<Vector2>,
-        rangeX: ClosedFloatingPointRange<Double>,
-        rangeY: ClosedFloatingPointRange<Double>,
+        range: LinearRange1D<Vector2>,
         configure: XYControl.() -> Unit = {}
-    ): this(
-        label, bounds, { valueRef.get() }, { valueRef.set(it) },
-        Vector2(rangeX.start, rangeY.start)..Vector2(rangeX.endInclusive, rangeY.endInclusive),
-        configure
-    )
+    ): this(label, bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
 
     constructor(
         label: String,
         bounds: Rectangle,
         obj: Any,
         valueRef: KMutableProperty1<Any, Vector2>,
-        rangeX: ClosedFloatingPointRange<Double>,
-        rangeY: ClosedFloatingPointRange<Double>,
+        range: LinearRange1D<Vector2>,
         configure: XYControl.() -> Unit = {}
-    ) : this(
-        label, bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) },
-        Vector2(rangeX.start, rangeY.start)..Vector2(rangeX.endInclusive, rangeY.endInclusive),
-        configure
-    )
+    ) : this(label, bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
 
     private val ibounds = bounds.copy()
 

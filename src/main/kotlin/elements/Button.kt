@@ -42,6 +42,7 @@ open class Button(
 
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
+        if (!visible) return
 
         val mainFill = when {
             isHovered && !isSelected -> style.hoverColor
@@ -161,10 +162,10 @@ fun WidgetBuilder.button(
     configure: Button.() -> Unit = {},
 ): Button {
     val r = Rectangle(
-        currentX,
-        currentY,
-        currentElementWidth,
-        currentElementHeight
+        itemX,
+        itemY,
+        itemWidth,
+        itemHeight
     )
     val b = Button(label, r, configure)
     add(b)

@@ -86,6 +86,7 @@ class TitleBar(
 
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
+        if (!visible) return
 
         drawer.isolated {
             val bb = this@TitleBar.bounds
