@@ -5,7 +5,9 @@ import elements.button
 import elements.dropdown
 import elements.slider
 import org.openrndr.application
+import org.openrndr.extra.math.linearrange.rangeTo
 import org.openrndr.extra.shapes.primitives.grid
+import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import widgets.widget
 
@@ -24,6 +26,8 @@ fun main() {
             extend(UI())
 
             val grid = drawer.bounds.offsetEdges(-100.0).grid(1, 4, gutterY = 10.0).flatten()
+
+            val v = Vector2.ZERO..Vector2.ONE
 
             val state = object {
                 var current0 = Test.OPTION_0

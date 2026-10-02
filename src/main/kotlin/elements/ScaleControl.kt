@@ -4,6 +4,8 @@ import lib.coerceIn
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.events.listen
+import org.openrndr.extra.math.linearrange.LinearRange1D
+import org.openrndr.extra.math.linearrange.rangeTo
 import org.openrndr.extra.shapes.primitives.roundedRectangle
 import org.openrndr.extra.shapes.primitives.toRounded
 import org.openrndr.extra.textwriter.writer
@@ -22,8 +24,7 @@ class ScaleControl (
     bounds: Rectangle,
     private val getter: () -> Vector2,
     private val setter: (Vector2) -> Unit,
-    val rangeX: ClosedFloatingPointRange<Double>,
-    val rangeY: ClosedFloatingPointRange<Double>,
+    val range: LinearRange1D<Vector2>,
     configure: ScaleControl.() -> Unit
 ): UIElementImpl(label, bounds) {
 
@@ -35,10 +36,9 @@ class ScaleControl (
         label: String,
         bounds: Rectangle,
         valueRef: KMutableProperty0<Vector2>,
-        rangeX: ClosedFloatingPointRange<Double>,
-        rangeY: ClosedFloatingPointRange<Double>,
+        range: LinearRange1D<Vector2>,
         configure: ScaleControl.() -> Unit = {}
-    ): this(label, bounds, { valueRef.get() }, { valueRef.set(it) },  rangeX, rangeY, configure)
+    ): this(label, bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
 
     constructor(
         label: String,
@@ -46,7 +46,10 @@ class ScaleControl (
         valueRef: KMutableProperty0<Double>,
         range: ClosedFloatingPointRange<Double>,
         configure: ScaleControl.() -> Unit = {}
-    ): this(label, bounds, { Vector2(valueRef.get()) }, { valueRef.set(it.x) }, range, range, configure) {
+    ): this(
+        label, bounds, { Vector2(valueRef.get()) }, { valueRef.set(it.x) },
+        Vector2(range.start)..Vector2(range.endInclusive), configure
+    ) {
         uniform = true
     }
 
@@ -58,11 +61,7 @@ class ScaleControl (
 
             val afterLeft = if (invert) Vector2.ONE else Vector2.ZERO
             val afterRight = if (invert) Vector2.ZERO else Vector2.ONE
-            return current.map(
-                Vector2(rangeX.start, rangeY.start),
-                Vector2(rangeX.endInclusive, rangeY.endInclusive),
-                afterLeft, afterRight, true
-            )
+            return current.map(range.start, range.end, afterLeft, afterRight, true)
         }
         set(value) {
             if (!value.x.isFinite() || !value.y.isFinite())
@@ -70,17 +69,11 @@ class ScaleControl (
 
             val beforeLeft = if (invert) Vector2.ONE else Vector2.ZERO
             val beforeRight = if (invert) Vector2.ZERO else Vector2.ONE
-            val ranged = value.map(
-                beforeLeft, beforeRight,
-                Vector2(rangeX.start, rangeY.start),
-                Vector2(rangeX.endInclusive, rangeY.endInclusive),
-                true
-            )
+            val ranged = value.map(beforeLeft, beforeRight, range.start, range.end, true)
 
             if (ranged.x.isFinite() || ranged.y.isFinite()) {
                 setter(ranged)
             }
-
         }
 
     init {
@@ -91,10 +84,14 @@ class ScaleControl (
         listOf(dragged, buttonUp).listen {
             val half = Vector2(ibounds.width / 2.0, ibounds.height / 2.0)
             val diff = it.position - ibounds.center
-            val n = Vector2(
+            var n = Vector2(
                 (abs(diff.x) / half.x).coerceIn(0.0, 1.0),
                 (abs(diff.y) / half.y).coerceIn(0.0, 1.0)
             )
+            if (uniform) {
+                val u = maxOf(n.x, n.y)
+                n = Vector2(u, u)
+            }
             mappedScale = n
         }
 
@@ -169,10 +166,10 @@ class ScaleControl (
             }
         }
 
-        drawRangeText(rangeX.start, 0.03, 1.0)
-        drawRangeText(rangeX.endInclusive, 0.97, 1.0)
-        drawRangeText(rangeY.start, 0.03, 0.0, true)
-        drawRangeText(rangeY.endInclusive, 0.97, 0.0, true)
+        drawRangeText(range.start.x, 0.03, 1.0)
+        drawRangeText(range.end.x, 0.97, 1.0)
+        drawRangeText(range.start.y, 0.03, 0.0, true)
+        drawRangeText(range.end.y, 0.97, 0.0, true)
 
 
         val textRect = drawValueText(false)
@@ -189,11 +186,10 @@ fun scaleControl(
     label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
-    rangeX: ClosedFloatingPointRange<Double>,
-    rangeY: ClosedFloatingPointRange<Double>,
+    range: LinearRange1D<Vector2>,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl(label, bounds, valueRef, rangeX, rangeY, configure)
+    val b = ScaleControl(label, bounds, valueRef, range, configure)
     registerElement(b)
     return b
 }
@@ -214,11 +210,10 @@ fun WidgetBuilder.scaleControl(
     label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
-    rangeX: ClosedFloatingPointRange<Double>,
-    rangeY: ClosedFloatingPointRange<Double>,
+    range: LinearRange1D<Vector2>,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl(label, bounds, valueRef, rangeX, rangeY, configure)
+    val b = ScaleControl(label, bounds, valueRef, range, configure)
     add(b)
     return b
 }

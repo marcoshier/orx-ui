@@ -4,6 +4,7 @@ import UI
 import elements.scaleControl
 import elements.xyControl
 import org.openrndr.application
+import org.openrndr.extra.math.linearrange.rangeTo
 import org.openrndr.math.Vector2
 import widgets.grid
 import widgets.gridSlots
@@ -32,7 +33,7 @@ fun main() {
                     ) {  }
                     scaleControl("",
                         rects[1].offsetEdges(-5.0),
-                        state::scale2, 0.0..3.0, 0.0..8.0
+                        state::scale2, Vector2.ZERO..Vector2(3.0, 8.0)
                     )
                 }
             }

@@ -3,6 +3,8 @@ package elements
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.events.listen
+import org.openrndr.extra.math.linearrange.LinearRange1D
+import org.openrndr.extra.math.linearrange.rangeTo
 import org.openrndr.extra.shapes.primitives.roundedRectangle
 import org.openrndr.extra.shapes.primitives.toRounded
 import org.openrndr.extra.textwriter.writer
@@ -22,9 +24,8 @@ class XYControl(
     bounds: Rectangle,
     private val getter: () -> Vector2,
     private val setter: (Vector2) -> Unit,
-    var rangeX: ClosedFloatingPointRange<Double>,
-    var rangeY: ClosedFloatingPointRange<Double>,
-    configure: XYControl.() -> Unit
+    var range: LinearRange1D<Vector2>,
+    configure: XYControl.() -> Unit = {}
 ): UIElementImpl(label, bounds.offsetEdges(10.0)) {
 
     constructor(
@@ -34,7 +35,11 @@ class XYControl(
         rangeX: ClosedFloatingPointRange<Double>,
         rangeY: ClosedFloatingPointRange<Double>,
         configure: XYControl.() -> Unit = {}
-    ): this(label, bounds, { valueRef.get() }, { valueRef.set(it) },  rangeX, rangeY, configure)
+    ): this(
+        label, bounds, { valueRef.get() }, { valueRef.set(it) },
+        Vector2(rangeX.start, rangeY.start)..Vector2(rangeX.endInclusive, rangeY.endInclusive),
+        configure
+    )
 
     constructor(
         label: String,
@@ -44,27 +49,21 @@ class XYControl(
         rangeX: ClosedFloatingPointRange<Double>,
         rangeY: ClosedFloatingPointRange<Double>,
         configure: XYControl.() -> Unit = {}
-    ) : this(label, bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, rangeX, rangeY, configure)
+    ) : this(
+        label, bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) },
+        Vector2(rangeX.start, rangeY.start)..Vector2(rangeX.endInclusive, rangeY.endInclusive),
+        configure
+    )
 
     private val ibounds = bounds.copy()
 
     var uv: Vector2
         get() {
             val current = getter()
-            return current.map(
-                Vector2(rangeX.start, rangeY.start),
-                Vector2(rangeX.endInclusive, rangeY.endInclusive),
-                Vector2.ZERO, Vector2.ONE, true
-            )
+            return current.map(range.start, range.end, Vector2.ZERO, Vector2.ONE, true)
         }
         set(value) {
-            val ranged = value.map(
-                Vector2.ZERO, Vector2.ONE,
-                Vector2(rangeX.start, rangeY.start),
-                Vector2(rangeX.endInclusive, rangeY.endInclusive),
-                true
-            )
-
+            val ranged = value.map(Vector2.ZERO, Vector2.ONE, range.start, range.end, true)
             setter(ranged)
         }
 
@@ -130,10 +129,10 @@ class XYControl(
             }
         }
 
-        drawRangeText(rangeX.start, 0.03, 1.0)
-        drawRangeText(rangeX.endInclusive, 0.97, 1.0)
-        drawRangeText(rangeY.start, 0.03, 0.0, true)
-        drawRangeText(rangeY.endInclusive, 1.0, 0.0, true)
+        drawRangeText(range.start.x, 0.03, 1.0)
+        drawRangeText(range.end.x, 0.97, 1.0)
+        drawRangeText(range.start.y, 0.03, 0.0, true)
+        drawRangeText(range.end.y, 1.0, 0.0, true)
 
         drawer.stroke = null
         drawer.fill = style.hoverColor
@@ -162,16 +161,14 @@ class XYControl(
         drawer.circle(ibounds.position(uv), 5.0)
     }
 }
-
 fun xyControl(
     label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
-    rangeX: ClosedFloatingPointRange<Double>,
-    rangeY: ClosedFloatingPointRange<Double>,
+    range: LinearRange1D<Vector2>,
     configure: XYControl.() -> Unit = {},
 ): XYControl {
-    val b = XYControl(label, bounds, valueRef, rangeX, rangeY, configure)
+    val b = XYControl(label, bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
     registerElement(b)
     return b
 }
@@ -181,11 +178,10 @@ fun xyControl(
     bounds: Rectangle,
     obj: Any,
     valueRef: KMutableProperty1<Any, Vector2>,
-    rangeX: ClosedFloatingPointRange<Double>,
-    rangeY: ClosedFloatingPointRange<Double>,
+    range: LinearRange1D<Vector2>,
     configure: XYControl.() -> Unit = {},
 ): XYControl {
-    val b = XYControl(label, bounds, obj, valueRef, rangeX, rangeY, configure)
+    val b = XYControl(label, bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
     registerElement(b)
     return b
 }
@@ -194,12 +190,23 @@ fun WidgetBuilder.xyControl(
     label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
-    rangeX: ClosedFloatingPointRange<Double>,
-    rangeY: ClosedFloatingPointRange<Double>,
+    range: LinearRange1D<Vector2>,
     configure: XYControl.() -> Unit = {},
 ): XYControl {
-    val b = XYControl(label, bounds, valueRef, rangeX, rangeY, configure)
+    val b = XYControl(label, bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
     add(b)
     return b
 }
 
+fun WidgetBuilder.xyControl(
+    label: String = "",
+    bounds: Rectangle,
+    obj: Any,
+    valueRef: KMutableProperty1<Any, Vector2>,
+    range: LinearRange1D<Vector2>,
+    configure: XYControl.() -> Unit = {},
+): XYControl {
+    val b = XYControl(label, bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
+    add(b)
+    return b
+}

@@ -23,53 +23,6 @@ fun Widget.close() {
     deregisterWidget(this@close)
 }
 
-context(host: UIHost)
-fun Widget.draw() {
-    val drawer = host.context.drawer
-
-    drawer.isolated {
-
-        if (clip) {
-            drawer.drawStyle.clip = this@draw.clipBounds()
-        }
-
-        drawer.stroke = style.stroke
-        drawer.fill = style.background
-        drawer.rectangle(this@draw.bounds)
-
-        val sorted = elements.sortedBy { it.zIndex }
-
-        for (el in sorted) {
-            if (!el.isFocused) {
-                drawer.isolated {
-                    if (!el.fixed) drawer.translate(smoothXoffset, smoothYoffset)
-                    el.updateAnimations()
-                    el.draw(drawer)
-                }
-            }
-        }
-
-        for (el in sorted) {
-            if (el.isFocused) {
-                drawer.isolated {
-                    if (!el.fixed) drawer.translate(smoothXoffset, smoothYoffset)
-                    el.updateAnimations()
-                    el.draw(drawer)
-                }
-            }
-        }
-
-        for (child in widgets.sortedBy { it.zIndex }) {
-            drawer.isolated {
-                drawer.translate(smoothXoffset, smoothYoffset)
-                child.draw()
-            }
-        }
-
-        drawer.drawStyle.clip = null
-    }
-}
-
 fun Widget.screenBounds(): Rectangle {
     val px = parent?.effectiveXOffset ?: 0.0
     val py = parent?.effectiveYOffset ?: 0.0

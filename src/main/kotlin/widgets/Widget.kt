@@ -1,6 +1,8 @@
 package widgets
 
+import UIHost
 import org.openrndr.color.ColorRGBa
+import org.openrndr.draw.Drawer
 import ui.UIElement
 import org.openrndr.events.Event
 import org.openrndr.shape.Rectangle
@@ -44,4 +46,6 @@ interface Widget {
     val closed: Event<Unit>
 
     var zIndex: Int
+
+    fun draw(drawer: Drawer)
 }

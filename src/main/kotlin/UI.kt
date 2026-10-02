@@ -8,7 +8,6 @@ import ui.UIElement
 import ui.updateAnimations
 import widgets.Widget
 import widgets.clipBounds
-import widgets.draw
 
 class UI: Extension {
     override var enabled = true
@@ -159,7 +158,7 @@ class UI: Extension {
 
     override fun afterDraw(drawer: Drawer, program: Program) {
         for (widget in host.tree.widgets.sortedBy { it.zIndex }) {
-            context(host) { widget.draw() }
+            widget.draw(drawer)
         }
 
         for (element in host.tree.elements) {

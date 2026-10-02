@@ -1,11 +1,15 @@
 package widgets
 
+import UIHost
 import lib.smoothing
+import org.openrndr.draw.Drawer
+import org.openrndr.draw.isolated
 import org.openrndr.events.Event
 import ui.UIElement
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import style.WidgetStyle
+import ui.updateAnimations
 
 open class WidgetImpl(
     override var label: String = "",
@@ -56,5 +60,49 @@ open class WidgetImpl(
         }
 
     override val closed = Event<Unit>("widget-closed--$label")
+
+    override fun draw(drawer: Drawer) {
+            drawer.isolated {
+
+                if (clip) {
+                    drawer.drawStyle.clip = this@WidgetImpl.clipBounds()
+                }
+
+                drawer.stroke = style.stroke
+                drawer.fill = style.background
+                drawer.rectangle(this@WidgetImpl.bounds)
+
+                val sorted = elements.sortedBy { it.zIndex }
+
+                for (el in sorted) {
+                    if (!el.isFocused) {
+                        drawer.isolated {
+                            if (!el.fixed) drawer.translate(smoothXoffset, smoothYoffset)
+                            el.updateAnimations()
+                            el.draw(drawer)
+                        }
+                    }
+                }
+
+                for (el in sorted) {
+                    if (el.isFocused) {
+                        drawer.isolated {
+                            if (!el.fixed) drawer.translate(smoothXoffset, smoothYoffset)
+                            el.updateAnimations()
+                            el.draw(drawer)
+                        }
+                    }
+                }
+
+                for (child in widgets.sortedBy { it.zIndex }) {
+                    drawer.isolated {
+                        drawer.translate(smoothXoffset, smoothYoffset)
+                        child.draw(drawer)
+                    }
+                }
+
+                drawer.drawStyle.clip = null
+            }
+        }
 
 }
