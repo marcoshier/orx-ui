@@ -11,5 +11,6 @@ TODO (highest priority first):
 - [ ] Color Support
 - [ ] GUI hijack
 - [ ] Documentation
+- [ ] Text support
 - [ ] tests
 - [ ] Nodes
