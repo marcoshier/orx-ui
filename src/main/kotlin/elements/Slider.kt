@@ -45,11 +45,8 @@ open class Slider<T: Comparable<T>>(
         configure: Slider<T>.() -> Unit = {}
     ) : this(label, bounds, range, { valueRef.get(obj) }, { valueRef.set(obj, it) }, configure)
 
-    val railStart: Vector2
-        get() = bounds.position(0.05, 0.5)
-
-    val railEnd: Vector2
-        get() = bounds.position(0.95, 0.5)
+    var railStart = bounds.position(0.05, 0.5)
+    var railEnd = bounds.position(0.95, 0.5)
 
     var t: Double
         get() {

@@ -60,6 +60,7 @@ open class UIElementImpl(
     override val hovered = Event<Boolean>("ui-element-hovered--$label")
     override val focused = Event<Boolean>("ui-element-focused--$label")
     override val clicked = Event<MouseEvent>("ui-element-clicked--$label")
+    override val doubleClicked = Event<MouseEvent>("ui-element-double-clicked--$label")
     override val dropped = Event<DropEvent>("ui-element-dropped--$label")
     override val keyDown = Event<KeyEvent>("ui-element-keyDown--$label")
     override val character = Event<CharacterEvent>("ui-element-character--$label")

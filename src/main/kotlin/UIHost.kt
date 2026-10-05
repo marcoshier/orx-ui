@@ -14,3 +14,5 @@ class UIHost(program: Program) {
 
 fun mousePosition() = UIHost.current.context.mouse.position
 fun window() = UIHost.current.context.window
+fun seconds() = UIHost.current.context.program.seconds
+fun clipboard() = UIHost.current.context.program.clipboard

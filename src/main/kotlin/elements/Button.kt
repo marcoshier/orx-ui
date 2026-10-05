@@ -1,5 +1,6 @@
 package elements
 
+import org.openrndr.MouseEvent
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
@@ -20,19 +21,29 @@ open class Button(
     configure: Button.() -> Unit = {},
 ) : UIElementImpl(label, bounds) {
 
-    var action: () -> Unit = {}
+    var action: (MouseEvent) -> Unit = {}
+    var dragAction: (MouseEvent) -> Unit = {}
 
-    var iconOn: Button.() -> Unit = {}
-    var iconOff: Button.() -> Unit = iconOn
+    var iconOff: (Drawer.() -> Unit)? = null
+        set(value) {
+            field = value
+            if (iconOn == null) iconOn = field
+        }
+
+    var iconOn: (Drawer.() -> Unit)? = null
 
     var textAlign = Vector2(0.5)
+
+    var buttonDownPosition = Vector2.ZERO
 
     init {
         buttonDown.listen {
             it.cancelPropagation()
+            buttonDownPosition = it.position
             isSelected = true
         }
-        clicked.listen { action() }
+        clicked.listen { action(it) }
+        dragged.listen { dragAction(it) }
         buttonUp.listen {
             isSelected = false
         }
@@ -66,9 +77,15 @@ open class Button(
 
 
         if (label.isEmpty()) {
-            if (isFocused) { iconOn() } else { iconOff() }
+            drawer.isolated {
+                if (isFocused) {
+                    iconOn?.invoke(drawer)
+                } else {
+                    iconOff?.invoke(drawer)
+                }
+            }
         } else {
-            drawer.fill = if (isFocused) ColorRGBa.WHITE - style.textColor else style.textColor
+            drawer.fill = style.textColor
             drawer.fontMap = style.font
 
             val textBounds = drawer.writer {
@@ -106,6 +123,7 @@ open class Button(
 
     }
 }
+
 
 fun button(
     label: String,

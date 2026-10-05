@@ -1,12 +1,14 @@
+import elements.TextInput
+import org.openrndr.CharacterEvent
 import org.openrndr.CursorType
 import org.openrndr.Extension
+import org.openrndr.KeyEvent
 import org.openrndr.MouseEvent
 import org.openrndr.Program
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import ui.UIElement
 import ui.updateAnimations
-import widgets.Widget
 import widgets.clipBounds
 
 class UI: Extension {
@@ -16,9 +18,14 @@ class UI: Extension {
         private set
 
     var activeElement: UIElement? = null
+    var focusElement: UIElement? = null
     var dragElement: UIElement? = null
+    var textElement: UIElement? = null
+    var lastClickElement: UIElement? = null
 
     var lastClicked = 0.0
+    var lastClickPosition = Vector2.ZERO
+    val doubleClickThreshold = 0.3
     var pressTime = 0.0
     var pressPosition = Vector2.ZERO
 
@@ -51,9 +58,16 @@ class UI: Extension {
 
                 if (event.propagationCancelled) {
                     activeElement = el
+                    focusElement = activeElement
                     dragElement = null
                     pressPosition = event.position
                     pressTime = host.context.program.seconds
+
+                    if (activeElement?.acceptsText == true) {
+                        textElement = activeElement
+                    }
+
+                    el.isFocused = true
                     for (other in host.tree.flattened) {
                         if (other !== el) other.isFocused = false
                     }
@@ -76,11 +90,11 @@ class UI: Extension {
             }
         }
 
-        var anyHovered = false
+        var hoveredElement: UIElement? = null
 
         for (el in tree.flattened) {
             val nowHovered = el === hit
-            if (nowHovered) anyHovered = true
+            if (nowHovered) hoveredElement = el
 
             if (el.isHovered != nowHovered) {
                 el.isHovered = nowHovered
@@ -89,15 +103,25 @@ class UI: Extension {
             }
         }
 
-        if (anyHovered) {
-            setCursor(CursorType.HAND_CURSOR)
+        if (hoveredElement != null) {
+            if (hoveredElement.acceptsText) {
+                setCursor(CursorType.IBEAM_CURSOR)
+            } else {
+                setCursor(CursorType.HAND_CURSOR)
+            }
         } else {
             setCursor(CursorType.ARROW_CURSOR)
         }
     }
 
     private fun handleScroll(event: MouseEvent) {
+        if (focusElement is TextInput) {
+            focusElement?.scrolled?.trigger(event)
+            return
+        }
+
         if (event.propagationCancelled) return
+
         val widget = host.tree.leafWidget(event.position) ?: return
         val speed = 30.0
         if (widget.yScrollable) widget.yOffset += event.rotation.y * speed
@@ -130,8 +154,20 @@ class UI: Extension {
 
                 val elapsed = host.context.program.seconds - pressTime
                 if (elapsed < 0.25) {
-                    activeElement?.clicked?.trigger(transformedEvent)
-                    lastClicked = host.context.program.seconds
+                    val now = host.context.program.seconds
+                    val sinceLast = now - lastClicked
+                    val inRange = event.position.distanceTo(lastClickPosition) < 8.0
+
+                    if (sinceLast < doubleClickThreshold && inRange && activeElement === lastClickElement) {
+                        activeElement?.doubleClicked?.trigger(transformedEvent)
+                        lastClicked = 0.0
+                        lastClickElement = null
+                    } else {
+                        activeElement?.clicked?.trigger(transformedEvent)
+                        lastClicked = now
+                        lastClickPosition = event.position
+                        lastClickElement = activeElement
+                    }
                 }
             }
 
@@ -140,6 +176,14 @@ class UI: Extension {
             dragElement = null
             activeElement = null
         }
+    }
+
+    private fun handleCharacter(event: CharacterEvent) {
+        textElement?.character?.trigger(event)
+    }
+
+    private fun handleKeydown(event: KeyEvent) {
+        textElement?.keyDown?.trigger(event)
     }
 
     override fun setup(program: Program) {
@@ -153,6 +197,11 @@ class UI: Extension {
             buttonUp.listen(::handleButtonUp)
             moved.listen(::handleMouseMoved)
             scrolled.listen(::handleScroll)
+        }
+
+        program.keyboard.apply {
+            character.listen(::handleCharacter)
+            keyDown.listen(::handleKeydown)
         }
     }
 

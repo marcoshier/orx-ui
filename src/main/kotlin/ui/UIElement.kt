@@ -51,6 +51,7 @@ interface UIElement: MouseEvents {
     val hovered: Event<Boolean>
     val focused: Event<Boolean>
     val clicked: Event<MouseEvent>
+    val doubleClicked: Event<MouseEvent>
     val dropped: Event<DropEvent>
     val keyDown: Event<KeyEvent>
     val character: Event<CharacterEvent>
