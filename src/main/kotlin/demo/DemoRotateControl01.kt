@@ -2,13 +2,7 @@ package demo
 
 import UI
 import elements.rotateControl
-import elements.scaleControl
-import elements.xyControl
 import org.openrndr.application
-import org.openrndr.math.Vector2
-import widgets.grid
-import widgets.gridSlots
-import widgets.widget
 
 fun main() {
     application {
@@ -24,7 +18,7 @@ fun main() {
                 var angle = 0.0
             }
 
-            rotateControl("", drawer.bounds.offsetEdges(-70.0), state::angle)
+            rotateControl(drawer.bounds.offsetEdges(-70.0), state::angle)
 
         }
     }

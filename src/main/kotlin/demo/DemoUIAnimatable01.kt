@@ -1,20 +1,16 @@
 package demo
 
 import UI
-import elements.Button
 import elements.button
 import lib.sdf3
-import org.openrndr.animatable.Animatable
 import org.openrndr.animatable.easing.Easing
 import org.openrndr.application
 import org.openrndr.extra.noise.uniform
 import org.openrndr.math.Polar
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
-import style.Colors
 import ui.UIAnimatable
 import ui.UIElement
-import ui.UIElementImpl
 
 fun main() = application {
     program {
@@ -34,8 +30,9 @@ fun main() = application {
         }
 
 
-        fun placeButton(label: String, from: Rectangle) {
-            button(label, from) {
+        fun placeButton(from: Rectangle) {
+            button(from) {
+                label = ""
                 animations = listOf(SpawnAnimation().apply { fadeIn() })
                 action = {
                     val existing = ui.host.tree.flattened.map { it.boundsCopy }
@@ -56,12 +53,12 @@ fun main() = application {
                     }
 
                     val clear = existing.none { it.sdf3(candidate).z < 0.0 }
-                    if (clear) placeButton(label, candidate)
+                    if (clear) placeButton(candidate)
                 }
             }
         }
 
-        placeButton("X", Rectangle.fromCenter(drawer.bounds.center, 50.0))
+        placeButton(Rectangle.fromCenter(drawer.bounds.center, 50.0))
     }
 }
 

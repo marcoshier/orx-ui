@@ -5,12 +5,14 @@ Aimed to make quick UIs, but extensible to more complex interfaces.
 
 ___
 
-TODO (highest priority first):
+Roadmap (highest priority first):
 
-- [ ] Stylesheet (see Selectors) / themes
+- [x] Text support
+- [ ] Stylesheet (see Selectors) / themes (partially done)
 - [ ] Color Support
 - [ ] GUI hijack
 - [ ] Documentation
-- [ ] Text support
 - [ ] tests
+- [ ] resistance-based precision
+- [ ] Experimental controls (elastic, etc...)
 - [ ] Nodes

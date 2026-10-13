@@ -6,6 +6,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import lib.TextInputToken
 import lib.allCharacters
 import lib.join
+import lib.mixOrNull
 import lib.toTextInputTokens
 import org.openrndr.KEY_ARROW_DOWN
 import org.openrndr.KEY_ARROW_LEFT
@@ -13,6 +14,7 @@ import org.openrndr.KEY_ARROW_RIGHT
 import org.openrndr.KEY_ARROW_UP
 import org.openrndr.KEY_BACKSPACE
 import org.openrndr.KEY_END
+import org.openrndr.KEY_ENTER
 import org.openrndr.KEY_HOME
 import org.openrndr.KeyModifier
 import org.openrndr.color.ColorRGBa
@@ -27,7 +29,6 @@ import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import registerElement
 import seconds
-import style.Colors
 import ui.UIElementImpl
 import widgets.WidgetBuilder
 import kotlin.math.absoluteValue
@@ -40,19 +41,17 @@ import kotlin.reflect.KMutableProperty0
 private val logger = KotlinLogging.logger {  }
 
 class TextInput(
-    label: String = "",
     bounds: Rectangle,
     private val getter: () -> String,
     private val setter: (String) -> Unit,
     configure: TextInput.() -> Unit = {}
-): UIElementImpl(label, bounds) {
+): UIElementImpl(bounds) {
 
     constructor(
-        label: String,
         bounds: Rectangle,
         textRef: KMutableProperty0<String>,
         configure: TextInput.() -> Unit = {}
-    ): this(label, bounds, { textRef.get() }, { textRef.set(it) }, configure)
+    ): this(bounds, { textRef.get() }, { textRef.set(it) }, configure)
 
     var maxCharacters = Int.MAX_VALUE
     var allowedCharacters = allCharacters
@@ -354,12 +353,12 @@ class TextInput(
     }
 
     private fun resizeButton(): Button {
-        return Button("", resizeControlBounds) {
-            style.idleColor = this@TextInput.style.idleColor.shade(0.95)
-            style.selectColor = style.idleColor.shade(0.95)
-            style.focusColor = style.idleColor
+        return Button(resizeControlBounds) {
+            style.backgroundColor = this@TextInput.style.backgroundColor?.shade(0.95)
+            style.selectColor = style.backgroundColor?.shade(0.95)
+            style.focusColor = style.backgroundColor
             iconOff = { drawer ->
-                drawer.stroke = style.hoverColor.shade(0.75)
+                drawer.stroke = style.hoverColor?.shade(0.75)
                 for (i in 0 until 3) {
                     val b = bounds.offsetEdges(-1.0)
                     val t = (i / 3.0)
@@ -492,6 +491,9 @@ class TextInput(
                     caretIdx = getter().length
                     clearSelection()
                 }
+                KEY_ENTER -> {
+                    insertAtCaretPosition("\n")
+                }
                 else -> {
                     if (it.modifiers.contains(KeyModifier.CTRL)) {
                         when(it.key.toChar()) {
@@ -542,7 +544,7 @@ class TextInput(
         drawer.pushStyle()
         drawer.drawStyle.clip = bounds
         drawer.stroke = null
-        drawer.fill = style.idleColor
+        drawer.fill = style.backgroundColor
         drawer.roundedRectangle(bounds.toRounded(style.borderRadius))
 
         tokens = getter().toTextInputTokens()
@@ -588,7 +590,7 @@ class TextInput(
         drawer.stroke = when {
             isFocused -> style.selectColor
             !isFocused && isHovered -> style.hoverColor
-            else -> style.idleColor.mix(style.hoverColor, 0.5)
+            else -> style.backgroundColor.mixOrNull(style.hoverColor, 0.5)
         }
 
         val baselineY = if (multiline) {
@@ -605,7 +607,7 @@ class TextInput(
             translate(offsetAxis * offset)
             selectionRectangles().forEach {
                 drawer.stroke = null
-                drawer.fill = style.hoverColor.opacify(0.5)
+                drawer.fill = style.hoverColor?.opacify(0.5)
                 drawer.rectangle(it)
             }
         }
@@ -650,8 +652,8 @@ class TextInput(
                 drawer.stroke = null
                 drawer.fill = ColorRGBa.WHITE
                 drawer.shadeStyle = gradient<ColorRGBa> {
-                    stops[0.0] = style.idleColor
-                    stops[1.0] = style.idleColor.opacify(0.0)
+                    stops[0.0] = style.backgroundColor ?: ColorRGBa.TRANSPARENT
+                    stops[1.0] = style.backgroundColor?.opacify(0.0) ?: ColorRGBa.TRANSPARENT
                     linear {
                         this.start = start
                         this.end = end
@@ -703,13 +705,12 @@ class TextInput(
 }
 
 fun textInput(
-    label: String = "",
     corner: Vector2,
     width: Double,
     textRef: KMutableProperty0<String>,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val b = TextInput(label, Rectangle(corner.x, corner.y, width, 50.0), textRef) {
+    val b = TextInput(Rectangle(corner.x, corner.y, width, 50.0), textRef) {
         multiline = false
         configure()
     }
@@ -718,13 +719,12 @@ fun textInput(
 }
 
 fun WidgetBuilder.textInput(
-    label: String = "",
     corner: Vector2,
     width: Double,
     textRef: KMutableProperty0<String>,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val b = TextInput(label, Rectangle(corner.x, corner.y, width, 50.0), textRef) {
+    val b = TextInput(Rectangle(corner.x, corner.y, width, 50.0), textRef) {
         multiline = false
         configure()
     }
@@ -733,12 +733,11 @@ fun WidgetBuilder.textInput(
 }
 
 fun textboxInput(
-    label: String = "",
     bounds: Rectangle,
     textRef: KMutableProperty0<String>,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val b = TextInput(label, bounds, textRef) {
+    val b = TextInput(bounds, textRef) {
         multiline = true
         resizable = true
         configure()
@@ -748,12 +747,11 @@ fun textboxInput(
 }
 
 fun WidgetBuilder.textboxInput(
-    label: String = "",
     bounds: Rectangle,
     textRef: KMutableProperty0<String>,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val b = TextInput(label, bounds, textRef) {
+    val b = TextInput(bounds, textRef) {
         multiline = true
         resizable = true
         configure()

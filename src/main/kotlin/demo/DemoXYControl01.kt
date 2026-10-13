@@ -20,7 +20,7 @@ fun main() {
                 var position = Vector2.ZERO
             }
 
-            xyControl("",
+            xyControl(
                 drawer.bounds.offsetEdges(-70.0),
                 state::position, -Vector2(100.0)..Vector2(100.0)
             )

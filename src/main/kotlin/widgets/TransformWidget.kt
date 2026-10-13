@@ -26,23 +26,21 @@ enum class BoxSizing {
 }
 
 class TransformWidget(
-    label: String,
     bounds: Rectangle,
     val getter: () -> Matrix44,
     val setter: (Matrix44) -> Unit,
     val translateRange: LinearRange1D<Vector2>,
     val scaleRange: LinearRange1D<Vector2>,
     configure: TransformWidget.() -> Unit = { }
-): WidgetImpl(label, bounds) {
+): WidgetImpl(bounds) {
 
     constructor(
-        label: String,
         bounds: Rectangle,
         transform: KMutableProperty0<Matrix44>,
         translateRange: ClosedFloatingPointRange<Double>,
         scaleRange: ClosedFloatingPointRange<Double>,
         configure: TransformWidget.() -> Unit = { }
-    ): this(label, bounds, { transform.get() }, { transform.set(it) },
+    ): this(bounds, { transform.get() }, { transform.set(it) },
         Vector2(translateRange.start)..Vector2(translateRange.endInclusive),
         Vector2(scaleRange.start)..Vector2(scaleRange.endInclusive),
         configure
@@ -61,9 +59,9 @@ class TransformWidget(
         get() = getCurrentControlBounds()
 
     val buttons = asRadio(
-        Button("translate", buttonGrid[0]),
-        Button("scale", buttonGrid[1]),
-        Button("rotate", buttonGrid[2]),
+        Button(buttonGrid[0]) { label = "translate" },
+        Button(buttonGrid[1]) { label = "scale" },
+        Button(buttonGrid[2]) { label = "rotate" },
     )
 
     private val tb = TransformBinding(getter, setter)
@@ -111,14 +109,14 @@ class TransformWidget(
         get() = findCurrentTransformType()
 
     init {
-        style.background = Colors.CLICKABLE.shade(1.5)
+        style.backgroundColor = Colors.CLICKABLE.shade(1.5)
         configure()
     }
 
     override val elements = (listOf<UIElement>(
-        XYControl("translate", controlBounds, tb::translation, translateRange) { visibleIf = { currentTransformType == "translate" } },
-        ScaleControl("scale", controlBounds, tb::scale, scaleRange) { visibleIf = { currentTransformType == "scale" } },
-        RotateControl("rotate", controlBounds, tb::rotation) { visibleIf = { currentTransformType == "rotate" } }
+        XYControl(controlBounds, tb::translation, translateRange) { visibleIf = { currentTransformType == "translate" } },
+        ScaleControl(controlBounds, tb::scale, scaleRange) { visibleIf = { currentTransformType == "scale" } },
+        RotateControl(controlBounds, tb::rotation) { visibleIf = { currentTransformType == "rotate" } }
     ) + buttons).toMutableList()
 
     override fun draw(drawer: Drawer) {
@@ -135,7 +133,6 @@ class TransformWidget(
 }
 
 fun transformWidget(
-    label: String = "",
     bounds: Rectangle,
     transform: KMutableProperty0<Matrix44>,
     translateRange: LinearRange1D<Vector2>,
@@ -143,8 +140,8 @@ fun transformWidget(
     zIndex: Int = 0,
     configure: TransformWidget.() -> Unit = {}
 ): TransformWidget {
-    val b = WidgetBuilder(label, bounds, zIndex)
-    val tw = TransformWidget(label, bounds,
+    val b = WidgetBuilder(bounds, zIndex)
+    val tw = TransformWidget(bounds,
         { transform.get() },
         { transform.set(it) },
         translateRange, scaleRange,
@@ -158,7 +155,6 @@ fun transformWidget(
 }
 
 fun transformWidget(
-    label: String = "",
     bounds: Rectangle,
     transform: KMutableProperty0<Matrix44>,
     translateRange: ClosedFloatingPointRange<Double>,
@@ -166,8 +162,8 @@ fun transformWidget(
     configure: TransformWidget.() -> Unit = {},
     zIndex: Int = 0,
 ): TransformWidget {
-    val b = WidgetBuilder(label, bounds, zIndex)
-    val tw = TransformWidget(label, bounds,
+    val b = WidgetBuilder(bounds, zIndex)
+    val tw = TransformWidget(bounds,
         transform, translateRange, scaleRange, configure
     )
     val w = b.widget
@@ -178,7 +174,6 @@ fun transformWidget(
 }
 
 fun WidgetBuilder.transformWidget(
-    label: String,
     transform: KMutableProperty0<Matrix44>,
     translateRange: LinearRange1D<Vector2>,
     scaleRange: LinearRange1D<Vector2>,
@@ -190,7 +185,7 @@ fun WidgetBuilder.transformWidget(
         itemWidth,
         itemHeight
     )
-    val b = TransformWidget(label, r,
+    val b = TransformWidget(r,
         { transform.get() },
         { transform.set(it) },
         translateRange, scaleRange,
@@ -201,7 +196,6 @@ fun WidgetBuilder.transformWidget(
 }
 
 fun WidgetBuilder.transformWidget(
-   label: String,
    transform: KMutableProperty0<Matrix44>,
    translateRange: ClosedFloatingPointRange<Double>,
    scaleRange: ClosedFloatingPointRange<Double>,
@@ -213,7 +207,7 @@ fun WidgetBuilder.transformWidget(
         itemWidth,
         itemHeight
     )
-    val b = TransformWidget(label, r,
+    val b = TransformWidget(r,
         transform, translateRange, scaleRange, configure
     )
     registerWidget(b)
@@ -221,7 +215,6 @@ fun WidgetBuilder.transformWidget(
 }
 
 fun WidgetBuilder.transformWidget(
-    label: String,
     bounds: Rectangle,
     transform: KMutableProperty0<Matrix44>,
     translateRange: LinearRange1D<Vector2>,
@@ -229,7 +222,6 @@ fun WidgetBuilder.transformWidget(
     configure: TransformWidget.() -> Unit = {}
 ): TransformWidget {
     val b = TransformWidget(
-        label,
         bounds,
         { transform.get() },
         { transform.set(it) },

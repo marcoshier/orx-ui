@@ -11,7 +11,7 @@ import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.shape.Rectangle
 import style.Colors
-import style.UIElementStyle
+import style.Style
 import widgets.Widget
 
 /**
@@ -23,8 +23,9 @@ import widgets.Widget
 interface UIElement: MouseEvents {
     var parent: Widget?
 
-    val label: String
-    val description: String?
+    val selectors: List<String>
+    var label: String
+    var description: String?
 
     var bounds: Rectangle
     val boundsCopy: Rectangle
@@ -38,7 +39,7 @@ interface UIElement: MouseEvents {
     var fixed: Boolean
     val animations: List<UIAnimatable>
 
-    var style: UIElementStyle
+    var style: Style
 
     var acceptsDrop: Boolean
     var acceptsText: Boolean

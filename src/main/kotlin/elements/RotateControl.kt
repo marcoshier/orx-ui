@@ -1,5 +1,6 @@
 package elements
 
+import lib.mixOrNull
 import org.openrndr.draw.Drawer
 import org.openrndr.extra.shapes.primitives.roundedRectangle
 import org.openrndr.extra.shapes.primitives.toRounded
@@ -17,19 +18,17 @@ import kotlin.math.min
 import kotlin.reflect.KMutableProperty0
 
 class RotateControl(
-    label: String,
     bounds: Rectangle,
     private val getter: () -> Double,
     private val setter: (Double) -> Unit,
     configure: RotateControl.() -> Unit = {}
-): UIElementImpl(label, bounds) {
+): UIElementImpl(bounds) {
 
     constructor(
-        label: String,
         bounds: Rectangle,
         valueRef: KMutableProperty0<Double>,
         configure: RotateControl.() -> Unit = {}
-    ): this(label, bounds, { valueRef.get() }, { valueRef.set(it) }, configure)
+    ): this(bounds, { valueRef.get() }, { valueRef.set(it) }, configure)
 
 
     val track = Circle(
@@ -101,13 +100,13 @@ class RotateControl(
         drawer.fontMap = style.font
 
         drawer.stroke = null
-        drawer.fill = style.idleColor
+        drawer.fill = style.backgroundColor
         drawer.roundedRectangle(bounds.toRounded(2.0))
 
         val mainColor = when {
             isHovered && !isDragged -> style.hoverColor
-            isDragged -> style.selectColor.shade(0.75)
-            else -> style.hoverColor.mix(style.idleColor, 0.25)
+            isDragged -> style.selectColor?.shade(0.75)
+            else -> style.hoverColor.mixOrNull(style.backgroundColor, 0.25)
         }
 
         drawer.stroke = mainColor
@@ -134,23 +133,21 @@ class RotateControl(
 
 
 fun rotateControl(
-    label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Double>,
     configure: RotateControl.() -> Unit = {},
 ): RotateControl {
-    val b = RotateControl(label, bounds, valueRef, configure)
+    val b = RotateControl(bounds, valueRef, configure)
     registerElement(b)
     return b
 }
 
 fun WidgetBuilder.rotateControl(
-    label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Double>,
     configure: RotateControl.() -> Unit = {},
 ): RotateControl {
-    val b = RotateControl(label, bounds, valueRef, configure)
+    val b = RotateControl(bounds, valueRef, configure)
     add(b)
     return b
 }

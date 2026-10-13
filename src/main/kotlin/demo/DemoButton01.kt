@@ -12,7 +12,7 @@ fun main() = application {
     program {
         extend(UI())
 
-        button("Click me", Rectangle(10.0, 10.0, 100.0)) {
+        button(Rectangle(10.0, 10.0, 100.0)) {
             action = { println("clicked") }
         }
     }

@@ -29,11 +29,11 @@ fun main() {
 
             widget(Rectangle(0.0, 0.0, width * 1.0, 600.0)) {
                 gridSlots(2, 1, gutterX = 5.0, marginX = 5.0, marginY = 5.0) { r ->
-                    transformWidget("tr0", r[0], state::tr0,
+                    transformWidget(r[0], state::tr0,
                         Vector2(-5.0)..Vector2(5.0),
                         Vector2.ONE..Vector2(5.0)
                     )
-                    transformWidget("tr0", r[1], state::tr1,
+                    transformWidget(r[1], state::tr1,
                         Vector2(-5.0)..Vector2(5.0),
                         Vector2.ONE..Vector2(5.0)
                     ) { boxSizing = BoxSizing.BORDER_BOX }

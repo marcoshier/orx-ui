@@ -19,7 +19,7 @@ fun main() {
 
             widget(drawer.bounds.offsetEdges(-20.0)) {
                 irregularGrid(listOf(0.2, 0.5, 0.3), listOf(0.1, 0.4, 0.5)) { rect ->
-                    button("X", rect.offsetEdges(-5.0))
+                    button(rect.offsetEdges(-5.0))
                 }.asCheckbox()
             }
         }

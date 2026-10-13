@@ -12,7 +12,6 @@ import org.openrndr.shape.Segment2D
 import org.openrndr.shape.bounds
 import registerElement
 import style.Colors
-import style.Fonts
 import ui.UIElementImpl
 import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
@@ -20,30 +19,27 @@ import kotlin.reflect.KMutableProperty1
 
 @Suppress("UNCHECKED_CAST")
 open class Slider<T: Comparable<T>>(
-    label: String = "",
     bounds: Rectangle,
     var range: ClosedRange<T>,
     private val getter: () -> T,
     private val setter: (T) -> Unit,
     configure: Slider<T>.() -> Unit = {}
-): UIElementImpl(label, bounds) {
+): UIElementImpl( bounds) {
 
     constructor(
-        label: String,
         bounds: Rectangle,
         range: ClosedRange<T>,
         valueRef: KMutableProperty0<T>,
         configure: Slider<T>.() -> Unit = {}
-    ): this(label, bounds, range, { valueRef.get() }, { valueRef.set(it) }, configure)
+    ): this(bounds, range, { valueRef.get() }, { valueRef.set(it) }, configure)
 
     constructor(
-        label: String,
         bounds: Rectangle,
         range: ClosedRange<T>,
         obj: Any,
         valueRef: KMutableProperty1<Any, T>,
         configure: Slider<T>.() -> Unit = {}
-    ) : this(label, bounds, range, { valueRef.get(obj) }, { valueRef.set(obj, it) }, configure)
+    ) : this(bounds, range, { valueRef.get(obj) }, { valueRef.set(obj, it) }, configure)
 
     var railStart = bounds.position(0.05, 0.5)
     var railEnd = bounds.position(0.95, 0.5)
@@ -171,7 +167,7 @@ open class Slider<T: Comparable<T>>(
 
         drawer.fill = ColorRGBa.BLACK
         drawer.stroke = null
-        drawer.fontMap = Fonts.DEFAULT
+        drawer.fontMap = style.font
         drawer.writer {
             box = Rectangle(railStart.x, railStart.y + 5.0, ls.length, 15.0)
             horizontalAlign = 0.0
@@ -181,7 +177,7 @@ open class Slider<T: Comparable<T>>(
 
         drawer.fill = ColorRGBa.BLACK
         drawer.stroke = null
-        drawer.fontMap = Fonts.DEFAULT
+        drawer.fontMap = style.font
         drawer.writer {
             box = Rectangle(railStart.x, railStart.y + 5.0, ls.length, 15.0)
             horizontalAlign = 1.0
@@ -194,38 +190,35 @@ open class Slider<T: Comparable<T>>(
 
 
 fun <T : Comparable<T>> slider(
-    label: String,
+    bounds: Rectangle,
+    range: ClosedFloatingPointRange<T>,
+    valueRef: KMutableProperty0<T>,
+    configure: Slider<T>.() -> Unit = {}
+): Slider<T> {
+    val s = Slider(bounds, range, valueRef, configure)
+    registerElement(s)
+    return s
+}
+
+
+fun <T : Comparable<T>> slider(
     bounds: Rectangle,
     range: ClosedRange<T>,
     valueRef: KMutableProperty0<T>,
     configure: Slider<T>.() -> Unit = {}
 ): Slider<T> {
-    val s = Slider(label, bounds, range, valueRef, configure)
-    registerElement(s)
-    return s
-}
-
-fun <T : Comparable<T>> slider(
-    label: String,
-    bounds: Rectangle,
-    range: ClosedRange<T>,
-    obj: Any,
-    valueRef: KMutableProperty1<Any, T>,
-    configure: Slider<T>.() -> Unit = {}
-): Slider<T> {
-    val s = Slider(label, bounds, range, obj, valueRef, configure)
+    val s = Slider(bounds, range, valueRef, configure)
     registerElement(s)
     return s
 }
 
 fun <T : Comparable<T>> WidgetBuilder.slider(
-    label: String,
     bounds: Rectangle,
     range: ClosedRange<T>,
     valueRef: KMutableProperty0<T>,
     configure: Slider<T>.() -> Unit = {}
 ): Slider<T> {
-    val s = Slider(label, bounds, range, valueRef, configure)
+    val s = Slider(bounds, range, valueRef, configure)
     add(s)
     return s
 }

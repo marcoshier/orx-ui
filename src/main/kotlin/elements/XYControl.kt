@@ -4,7 +4,6 @@ import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.events.listen
 import org.openrndr.extra.math.linearrange.LinearRange1D
-import org.openrndr.extra.math.linearrange.rangeTo
 import org.openrndr.extra.shapes.primitives.roundedRectangle
 import org.openrndr.extra.shapes.primitives.toRounded
 import org.openrndr.extra.textwriter.writer
@@ -20,30 +19,27 @@ import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 class XYControl(
-    label: String,
     bounds: Rectangle,
     private val getter: () -> Vector2,
     private val setter: (Vector2) -> Unit,
     var range: LinearRange1D<Vector2>,
     configure: XYControl.() -> Unit = {}
-): UIElementImpl(label, bounds.offsetEdges(10.0)) {
+): UIElementImpl(bounds.offsetEdges(10.0)) {
 
     constructor(
-        label: String,
         bounds: Rectangle,
         valueRef: KMutableProperty0<Vector2>,
         range: LinearRange1D<Vector2>,
         configure: XYControl.() -> Unit = {}
-    ): this(label, bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
+    ): this(bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
 
     constructor(
-        label: String,
         bounds: Rectangle,
         obj: Any,
         valueRef: KMutableProperty1<Any, Vector2>,
         range: LinearRange1D<Vector2>,
         configure: XYControl.() -> Unit = {}
-    ) : this(label, bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
+    ) : this(bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
 
     private val ibounds = bounds.copy()
 
@@ -81,8 +77,8 @@ class XYControl(
 
         drawer.fontMap = style.font
 
-        drawer.stroke = style.stroke
-        drawer.fill = style.idleColor
+        drawer.stroke = style.strokeColor
+        drawer.fill = style.backgroundColor
         drawer.roundedRectangle(ibounds.toRounded(2.0))
 
         val textBoxOffset = 4.0
@@ -94,7 +90,7 @@ class XYControl(
                     rotate(-90.0)
                     translate(-ibounds.center)
                 }
-                drawer.fill = style.textColor.opacify(0.75)
+                drawer.fill = style.textColor?.opacify(0.75)
                 drawer.writer {
                     box = ibounds.offsetEdges(-textBoxOffset)
                     horizontalAlign = xAlign
@@ -152,51 +148,47 @@ class XYControl(
     }
 }
 fun xyControl(
-    label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
     range: LinearRange1D<Vector2>,
     configure: XYControl.() -> Unit = {},
 ): XYControl {
-    val b = XYControl(label, bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
+    val b = XYControl(bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
     registerElement(b)
     return b
 }
 
 fun xyControl(
-    label: String = "",
     bounds: Rectangle,
     obj: Any,
     valueRef: KMutableProperty1<Any, Vector2>,
     range: LinearRange1D<Vector2>,
     configure: XYControl.() -> Unit = {},
 ): XYControl {
-    val b = XYControl(label, bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
+    val b = XYControl(bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
     registerElement(b)
     return b
 }
 
 fun WidgetBuilder.xyControl(
-    label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
     range: LinearRange1D<Vector2>,
     configure: XYControl.() -> Unit = {},
 ): XYControl {
-    val b = XYControl(label, bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
+    val b = XYControl(bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
     add(b)
     return b
 }
 
 fun WidgetBuilder.xyControl(
-    label: String = "",
     bounds: Rectangle,
     obj: Any,
     valueRef: KMutableProperty1<Any, Vector2>,
     range: LinearRange1D<Vector2>,
     configure: XYControl.() -> Unit = {},
 ): XYControl {
-    val b = XYControl(label, bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
+    val b = XYControl(bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
     add(b)
     return b
 }

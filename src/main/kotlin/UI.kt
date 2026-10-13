@@ -9,6 +9,7 @@ import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
 import ui.UIElement
 import ui.updateAnimations
+import widgets.Widget
 import widgets.clipBounds
 
 class UI: Extension {
@@ -22,6 +23,8 @@ class UI: Extension {
     var dragElement: UIElement? = null
     var textElement: UIElement? = null
     var lastClickElement: UIElement? = null
+
+    var focusWidget: Widget? = null
 
     var lastClicked = 0.0
     var lastClickPosition = Vector2.ZERO
@@ -59,6 +62,7 @@ class UI: Extension {
                 if (event.propagationCancelled) {
                     activeElement = el
                     focusElement = activeElement
+                    focusWidget = activeElement?.parent
                     dragElement = null
                     pressPosition = event.position
                     pressTime = host.context.program.seconds
@@ -73,6 +77,11 @@ class UI: Extension {
                     }
                     break
                 }
+            }
+
+            if (activeElement == null) {
+                focusElement = null
+                focusWidget = null
             }
         }
     }
@@ -169,13 +178,15 @@ class UI: Extension {
                         lastClickElement = activeElement
                     }
                 }
-            }
 
-            dragElement?.isDragged = false
-            activeElement?.isDragged = false
-            dragElement = null
-            activeElement = null
+                dragElement?.isDragged = false
+                activeElement?.isDragged = false
+                dragElement = null
+                activeElement = null
+
+            }
         }
+
     }
 
     private fun handleCharacter(event: CharacterEvent) {
@@ -206,21 +217,25 @@ class UI: Extension {
     }
 
     override fun afterDraw(drawer: Drawer, program: Program) {
+
         for (widget in host.tree.widgets.sortedBy { it.zIndex }) {
-            widget.draw(drawer)
+            if (widget !== focusWidget) {
+                widget.draw(drawer)
+            }
         }
 
         for (element in host.tree.elements) {
-            if (!element.isFocused) {
+            if (element !== focusElement) {
                 element.updateAnimations()
                 element.draw(drawer)
             }
         }
-        for (element in host.tree.elements) {
-            if (element.isFocused) {
-                element.updateAnimations()
-                element.draw(drawer)
-            }
+
+        if (focusWidget != null) {
+            focusWidget?.draw(drawer)
+        } else {
+            focusElement?.updateAnimations()
+            focusElement?.draw(drawer)
         }
     }
 }

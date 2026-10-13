@@ -19,7 +19,7 @@ fun <T> WidgetBuilder.grid(
         .map { element(it) }
 }
 
-fun <T> WidgetBuilder.grid(
+fun <T> WidgetBuilder.gridIndexed(
     columns: Int,
     rows: Int,
     marginX: Double = 0.0,
@@ -72,7 +72,7 @@ fun <T> WidgetBuilder.grid(
         .map { element(it) }
 }
 
-fun <T> WidgetBuilder.grid(
+fun <T> WidgetBuilder.gridIndexed(
     cellWidth: Double,
     cellHeight: Double,
     minMarginX: Double = 0.0,

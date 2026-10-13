@@ -5,9 +5,8 @@ import elements.Button
 import elements.button
 import org.openrndr.application
 import org.openrndr.extra.shapes.primitives.grid
-import org.openrndr.extra.shapes.primitives.irregularGrid
 import widgets.widget
-import widgets.grid
+import widgets.gridIndexed
 import widgets.gridSlots
 
 fun main() {
@@ -22,20 +21,23 @@ fun main() {
 
             val grid = drawer.bounds.grid(2, 1, gutterX = 5.0).flatten()
 
-            val conf: Button.() -> Unit = {
+            val configure: Button.() -> Unit = {
                 action = { println("hello $label") }
             }
 
             widget(grid[0]) {
                 gridSlots(1, 2, gutterX = 5.0, gutterY = 5.0) { slots ->
-                    button("ZERO", slots[0], conf)
-                    button("ONE", slots[1], conf)
+                    button(slots[0], configure)
+                    button(slots[1], configure)
                 }
             }
 
             widget(grid[1]) {
-                grid(2, 2, gutterX = 5.0, gutterY = 5.0) { i, r ->
-                    button("$i", r, conf)
+                gridIndexed(2, 2, gutterX = 5.0, gutterY = 5.0) { i, r ->
+                    button(r) {
+                        configure()
+                        label = "$i"
+                    }
                 }
             }
             

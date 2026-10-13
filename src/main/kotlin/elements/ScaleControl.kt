@@ -1,6 +1,7 @@
 package elements
 
 import lib.coerceIn
+import lib.mixOrNull
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.events.listen
@@ -20,34 +21,31 @@ import kotlin.math.abs
 import kotlin.reflect.KMutableProperty0
 
 class ScaleControl (
-    label: String,
     bounds: Rectangle,
     private val getter: () -> Vector2,
     private val setter: (Vector2) -> Unit,
     val range: LinearRange1D<Vector2>,
     configure: ScaleControl.() -> Unit
-): UIElementImpl(label, bounds) {
+): UIElementImpl(bounds) {
 
     private val ibounds = bounds.offsetEdges(-15.0)
     var invert = false
     var uniform = false
 
     constructor(
-        label: String,
         bounds: Rectangle,
         valueRef: KMutableProperty0<Vector2>,
         range: LinearRange1D<Vector2>,
         configure: ScaleControl.() -> Unit = {}
-    ): this(label, bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
+    ): this(bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
 
     constructor(
-        label: String,
         bounds: Rectangle,
         valueRef: KMutableProperty0<Double>,
         range: ClosedFloatingPointRange<Double>,
         configure: ScaleControl.() -> Unit = {}
     ): this(
-        label, bounds, { Vector2(valueRef.get()) }, { valueRef.set(it.x) },
+        bounds, { Vector2(valueRef.get()) }, { valueRef.set(it.x) },
         Vector2(range.start)..Vector2(range.endInclusive), configure
     ) {
         uniform = true
@@ -77,17 +75,26 @@ class ScaleControl (
         }
 
     init {
+        var dragSign = Vector2.ONE
+
         buttonDown.listen {
             it.cancelPropagation()
+            val diff = it.position - ibounds.center
+            dragSign = Vector2(
+                if (diff.x < 0) -1.0 else 1.0,
+                if (diff.y < 0) -1.0 else 1.0
+            )
         }
 
         listOf(dragged, buttonUp).listen {
             val half = Vector2(ibounds.width / 2.0, ibounds.height / 2.0)
             val diff = it.position - ibounds.center
+
             var n = Vector2(
-                (abs(diff.x) / half.x).coerceIn(0.0, 1.0),
-                (abs(diff.y) / half.y).coerceIn(0.0, 1.0)
+                (diff.x * dragSign.x / half.x).coerceIn(0.0, 1.0),
+                (diff.y * dragSign.y / half.y).coerceIn(0.0, 1.0)
             )
+
             if (uniform) {
                 val u = maxOf(n.x, n.y)
                 n = Vector2(u, u)
@@ -104,12 +111,12 @@ class ScaleControl (
 
         drawer.fontMap = style.font
 
-        drawer.stroke = style.stroke
-        drawer.fill = style.idleColor
+        drawer.stroke = style.strokeColor
+        drawer.fill = style.backgroundColor
         drawer.roundedRectangle(bounds.toRounded(2.0))
 
         drawer.strokeWeight = 15.0
-        drawer.stroke = style.hoverColor.mix(style.idleColor, 0.55).opacify(0.5)
+        drawer.stroke = style.hoverColor.mixOrNull(style.backgroundColor, 0.55)?.opacify(0.5)
         drawer.fill = null
         drawer.roundedRectangle(bounds.offsetEdges(-7.5).toRounded(2.0))
         drawer.strokeWeight = 1.0
@@ -118,7 +125,7 @@ class ScaleControl (
         val offsetBounds = bounds.offsetEdges(-15.0)
         val scaleRect = ibounds.scaledBy(mappedScale.x, mappedScale.y, 0.5, 0.5)
 
-        drawer.stroke = style.hoverColor.mix(style.idleColor, 0.4)
+        drawer.stroke = style.hoverColor.mixOrNull(style.backgroundColor, 0.4)
         drawer.strokeWeight = 0.1
         drawer.lineSegment(scaleRect.x, offsetBounds.y, scaleRect.x, offsetBounds.y + offsetBounds.height)
         drawer.lineSegment(scaleRect.x + scaleRect.width, offsetBounds.y, scaleRect.x + scaleRect.width, offsetBounds.y + offsetBounds.height)
@@ -184,49 +191,45 @@ class ScaleControl (
 
 
 fun scaleControl(
-    label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
     range: LinearRange1D<Vector2>,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl(label, bounds, valueRef, range, configure)
+    val b = ScaleControl( bounds, valueRef, range, configure)
     registerElement(b)
     return b
 }
 
 fun scaleControl(
-    label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Double>,
     range: ClosedFloatingPointRange<Double>,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl(label, bounds, valueRef, range, configure)
+    val b = ScaleControl(bounds, valueRef, range, configure)
     registerElement(b)
     return b
 }
 
 fun WidgetBuilder.scaleControl(
-    label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
     range: LinearRange1D<Vector2>,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl(label, bounds, valueRef, range, configure)
+    val b = ScaleControl(bounds, valueRef, range, configure)
     add(b)
     return b
 }
 
 fun WidgetBuilder.scaleControl(
-    label: String = "",
     bounds: Rectangle,
     valueRef: KMutableProperty0<Double>,
     range: ClosedFloatingPointRange<Double>,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl(label, bounds, valueRef, range, configure)
+    val b = ScaleControl(bounds, valueRef, range, configure)
     add(b)
     return b
 }

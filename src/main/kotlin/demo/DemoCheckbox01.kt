@@ -3,7 +3,7 @@ package demo
 import UI
 import elements.checkbox
 import org.openrndr.application
-import widgets.grid
+import widgets.gridIndexed
 import widgets.widget
 
 fun main() {
@@ -20,8 +20,8 @@ fun main() {
             }
 
             widget(drawer.bounds.offsetEdges(-10.0)) {
-                grid(2, 2, gutterX = 20.0, gutterY = 20.0) { i, box ->
-                    checkbox("", box, states[i]::on)
+                gridIndexed(2, 2, gutterX = 10.0, gutterY = 10.0) { i, box ->
+                    checkbox(box, states[i]::on)
                 }
             }
         }

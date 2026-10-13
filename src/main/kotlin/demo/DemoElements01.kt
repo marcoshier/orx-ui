@@ -27,8 +27,6 @@ fun main() {
 
             val grid = drawer.bounds.offsetEdges(-100.0).grid(1, 4, gutterY = 10.0).flatten()
 
-            val v = Vector2.ZERO..Vector2.ONE
-
             val state = object {
                 var current0 = Test.OPTION_0
                 var current1 = Test.OPTION_0
@@ -36,24 +34,19 @@ fun main() {
             }
 
             widget(drawer.bounds) {
-                button("click me", grid[0]) {
+                button(grid[0]) {
                     action = { println("clicked button") }
                 }
 
-                dropdown<Test>("test 0", grid[1], state::current0)
+                dropdown<Test>(grid[1], state::current0)
                 dropdown(
-                    "test 1",
                     grid[2],
                     entries = { Test.entries.toList() },
                     entryName = { it.name },
                     current = state::current1,
                 )
 
-                slider("slider", grid[3], 0.0..10.0, state::value)
-
-                button("center", Rectangle.fromCenter(drawer.bounds.center, 100.0)) {
-                    action = { println("centered") }
-                }
+                slider(grid[3], 0.0..10.0, state::value)
             }
 
             extend {

@@ -11,7 +11,6 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import registerElement
 import style.Colors
-import style.Fonts
 import transformPos
 import ui.UIElementImpl
 import widgets.WidgetBuilder
@@ -19,27 +18,24 @@ import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 open class Dropdown<T> (
-    label: String,
     bounds: Rectangle,
     var getter: () -> T,
     val setter: (T) -> Unit,
     configure: Dropdown<T>.() -> Unit = {},
-): UIElementImpl(label, bounds) {
+): UIElementImpl(bounds) {
 
     constructor(
-        label: String,
         bounds: Rectangle,
         current: KMutableProperty0<T>,
         configure: Dropdown<T>.() -> Unit = {}
-    ): this(label, bounds, { current.get() }, { current.set(it) }, configure)
+    ): this(bounds, { current.get() }, { current.set(it) }, configure)
 
     constructor(
-        label: String,
         bounds: Rectangle,
         obj: Any,
         propertyRef: KMutableProperty1<Any, T>,
         configure: Dropdown<T>.() -> Unit = {}
-    ): this(label, bounds, { propertyRef.get(obj) }, { propertyRef.set(obj, it) }, configure)
+    ): this(bounds, { propertyRef.get(obj) }, { propertyRef.set(obj, it) }, configure)
 
     var entries: () -> List<T> = { listOf() }
     var entryName: (T) -> String = { "" }
@@ -50,6 +46,15 @@ open class Dropdown<T> (
 
     val collapsedBounds = bounds.copy()
 
+    var open = false
+        set(value) {
+            field = value
+            bounds = if (value)
+                collapsedBounds.copy(height = collapsedBounds.height * entries().size)
+            else
+                collapsedBounds.copy()
+        }
+
     fun findTarget(localPos: Vector2): Int {
         if (!isHovered) return -1
         val y = localPos.y - collapsedBounds.y
@@ -57,31 +62,24 @@ open class Dropdown<T> (
     }
 
     init {
+
+        focused.listen { focused ->
+            if (!focused) { open = false }
+        }
+
         buttonDown.listen {
             it.cancelPropagation()
-        }
-
-        focused.listen { open ->
-            this.bounds = if (open)
-                collapsedBounds.copy(height = collapsedBounds.height * entries().size)
-            else
-                collapsedBounds.copy()
-        }
-
-        clicked.listen {
-            if (!isFocused) {
-                isFocused = true
-            } else {
-                val idx = findTarget(it.position)
-                if (idx <= 0) {
-                    isFocused = false
-                } else {
-                    val others = entries() - getter()
-                    setter(others[(idx - 1).coerceIn(0, others.size - 1)])
-                    onSelection()
-                    isFocused = false
-                }
+            if (!open) {
+                open = true
+                return@listen
             }
+            val idx = ((it.position.y - collapsedBounds.y) / collapsedBounds.height).toInt()
+            if (idx > 0) {
+                val others = entries() - getter()
+                setter(others[(idx - 1).coerceIn(0, others.lastIndex)])
+                onSelection()
+            }
+            open = false
         }
 
         configure()
@@ -95,7 +93,7 @@ open class Dropdown<T> (
         val current = getter()
         val currentName = entryName(current)
 
-        val boxHeight = if (isFocused) collapsedBounds.height * list.size else collapsedBounds.height
+        val boxHeight = if (open) collapsedBounds.height * list.size else collapsedBounds.height
         val box = Rectangle(collapsedBounds.x, collapsedBounds.y, collapsedBounds.width, boxHeight)
         val target = findTarget(transformPos(mousePosition(), this))
 
@@ -113,9 +111,9 @@ open class Dropdown<T> (
         }
 
         val mainFill = when {
-            isFocused -> if (target == 0) style.hoverColor else style.focusColor
+            open -> if (target == 0) style.hoverColor else style.focusColor
             isHovered -> style.hoverColor
-            else -> style.idleColor
+            else -> style.backgroundColor
         }
 
         drawer.stroke = null
@@ -132,7 +130,7 @@ open class Dropdown<T> (
         }
 
 
-        if (isFocused) {
+        if (open) {
             for ((j, entry) in (list - current).withIndex()) {
                 val r = Rectangle(
                     bounds.x,
@@ -142,7 +140,7 @@ open class Dropdown<T> (
                 )
 
                 drawer.stroke = null
-                drawer.fill = if (target == (j + 1)) style.hoverColor else style.idleColor
+                drawer.fill = if (target == (j + 1)) style.hoverColor else style.backgroundColor
                 drawer.rectangle(r)
 
                 drawer.fill = ColorRGBa.BLACK
@@ -156,7 +154,7 @@ open class Dropdown<T> (
             }
         }
 
-        var phase = if (isFocused) 30.0 else 210.0
+        var phase = if (open) 30.0 else 210.0
 
         drawer.fill = Colors.HOVERED.shade(0.5)
         val rect = Rectangle(bounds.x + bounds.width - collapsedBounds.height, bounds.y, collapsedBounds.height, collapsedBounds.height)
@@ -170,14 +168,13 @@ open class Dropdown<T> (
 }
 
 fun <T> dropdown(
-    label: String,
     bounds: Rectangle,
     entries: () -> List<T>,
     entryName: (T) -> String,
     current: KMutableProperty0<T>,
     configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
-    val b = Dropdown(label, bounds, current) {
+    val b = Dropdown(bounds, current) {
         this.entries = entries
         this.entryName = entryName
         configure()
@@ -187,12 +184,11 @@ fun <T> dropdown(
 }
 
 inline fun <reified T: Enum<T>> dropdown(
-    label: String,
     bounds: Rectangle,
     current: KMutableProperty0<T>,
     crossinline configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
-    val b = Dropdown(label, bounds, current) {
+    val b = Dropdown(bounds, current) {
         entries = { enumValues<T>().toList() }
         entryName = { it.name }
         configure()
@@ -202,14 +198,13 @@ inline fun <reified T: Enum<T>> dropdown(
 }
 
 fun <T> WidgetBuilder.dropdown(
-    label: String,
     bounds: Rectangle,
     entries: () -> List<T>,
     entryName: (T) -> String,
     current: KMutableProperty0<T>,
     configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
-    val b = Dropdown(label, bounds, current) {
+    val b = Dropdown(bounds, current) {
         this.entries = entries
         this.entryName = entryName
         configure()
@@ -219,12 +214,11 @@ fun <T> WidgetBuilder.dropdown(
 }
 
 inline fun <reified T: Enum<T>> WidgetBuilder.dropdown(
-    label: String,
     bounds: Rectangle,
     current: KMutableProperty0<T>,
     crossinline configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
-    val b = Dropdown(label, bounds, current) {
+    val b = Dropdown(bounds, current) {
         entries = { enumValues<T>().toList() }
         entryName = { it.name }
         configure()

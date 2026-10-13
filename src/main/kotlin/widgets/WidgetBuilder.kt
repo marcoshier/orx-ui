@@ -13,12 +13,11 @@ enum class Direction {
 }
 
 class WidgetBuilder(
-    val label: String,
     val bounds: Rectangle,
     val zIndex: Int,
     val parent: Widget? = null
 ) {
-    var widget = WidgetImpl(label, bounds, zIndex, parent)
+    var widget = WidgetImpl(bounds, zIndex, parent)
 
     var itemX = 0.0
         private set
@@ -26,11 +25,8 @@ class WidgetBuilder(
     var itemY = 0.0
         private set
 
-    var itemWidth = widget.style.minElementWidth
-        private set
-
-    var itemHeight = widget.style.minElementHeight
-        private set
+    var itemWidth = widget.style.minWidth
+    var itemHeight = widget.style.minHeight
 
     fun step(direction: Direction) {
         val elementBounds = widget.elements.map { it.bounds }
@@ -48,7 +44,7 @@ class WidgetBuilder(
                             if (empty) paddingY else gutterY
 
                 itemWidth = bounds.width - 2 * paddingX
-                itemHeight = minElementHeight
+                itemHeight = minHeight
             }
 
             Direction.UP -> {
@@ -59,7 +55,7 @@ class WidgetBuilder(
                         ?: (bounds.y + bounds.height)
 
                 itemWidth = bounds.width - 2 * paddingX
-                itemHeight = minElementHeight
+                itemHeight = minHeight
 
                 itemY =
                     topEdge -
@@ -74,7 +70,7 @@ class WidgetBuilder(
                     (occupiedBounds.maxOfOrNull { it.x + it.width } ?: bounds.x) +
                             if (empty) paddingX else gutterX
 
-                itemWidth = minElementWidth
+                itemWidth = minWidth
                 itemHeight = bounds.height - 2 * paddingY
             }
 
@@ -85,7 +81,7 @@ class WidgetBuilder(
                     occupiedBounds.minOfOrNull { it.x }
                         ?: (bounds.x + bounds.width)
 
-                itemWidth = minElementWidth
+                itemWidth = minWidth
                 itemHeight = bounds.height - 2 * paddingY
 
                 itemX =
@@ -125,22 +121,22 @@ class WidgetBuilder(
             paddingX = value.x
             paddingY = value.y
         }
-    var background by widget.style::background
-    var stroke by widget.style::stroke
-    var minElementWidth by widget.style::minElementWidth
-    var minElementHeight by widget.style::minElementHeight
-    var maxElementWidth by widget.style::maxElementWidth
-    var maxElementHeight by widget.style::maxElementHeight
+
+    var backgroundColor by widget.style::backgroundColor
+    var strokeColor by widget.style::strokeColor
+    var minWidth by widget.style::minWidth
+    var minHeight by widget.style::minHeight
+    var maxWidth by widget.style::maxWidth
+    var maxHeight by widget.style::maxHeight
 
 }
 
 fun widget(
     bounds: Rectangle,
-    label: String = "",
     zIndex: Int = 0,
     build: WidgetBuilder.() -> Unit = {},
 ): WidgetImpl {
-    val builder = WidgetBuilder(label, bounds, zIndex)
+    val builder = WidgetBuilder(bounds, zIndex)
     builder.build()
     val widget = builder.widget
     registerWidget(widget)
@@ -149,11 +145,10 @@ fun widget(
 
 fun WidgetBuilder.widget(
     bounds: Rectangle,
-    label: String = "",
     zIndex: Int = 0,
     build: WidgetBuilder.() -> Unit = {},
 ): WidgetImpl {
-    val childBuilder = WidgetBuilder(label, bounds, zIndex, this.widget)
+    val childBuilder = WidgetBuilder(bounds, zIndex, this.widget)
     childBuilder.gutterX = gutterX
     childBuilder.gutterY = gutterY
     childBuilder.build()

@@ -11,7 +11,6 @@ import org.openrndr.shape.Rectangle
 import style.Colors
 import widgets.titleBarWidget
 import widgets.widget
-import kotlin.math.sin
 
 fun main() = application {
     configure {
@@ -25,21 +24,17 @@ fun main() = application {
             windowTitlebar = true,
             zIndex = 10
         ) {
-            button("X", Rectangle(bounds.width - 30.0, 5.0, 20.0)) {
-                style.idleColor = Colors.CLICKABLE.shade(0.9)
+            button(Rectangle(bounds.width - 30.0, 5.0, 20.0)) {
+                label = ""
+                style.backgroundColor = Colors.CLICKABLE.shade(0.9)
                 action = { application.exit() }
             }
         }
 
         widget(drawer.bounds.offsetEdges(-80.0).movedBy(Vector2(0.0, 30.0))) {
-            this.background = ColorRGBa.DARK_SALMON
-            titleBar("WIDGET", bounds.copy(height = 20.0), widgetTitlebar = true)
-        }
-
-        extend {
-
-           // window.position = Vector2.UNIT_X * sin(seconds) * (width / 2.0) + width / 2.0
-            println(window.position)
+            this.backgroundColor = ColorRGBa.DARK_SALMON
+            this.strokeColor = null
+            titleBar("TITLEBAR-WIDGET", bounds.copy(height = 20.0), widgetTitlebar = true)
         }
     }
 

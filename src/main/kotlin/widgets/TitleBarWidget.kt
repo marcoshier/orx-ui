@@ -6,12 +6,12 @@ import registerWidget
 import ui.UIElement
 
 class TitleBarWidget(
-    label: String = "",
+    override var label: String = "",
     bounds: Rectangle,
     zIndex: Int,
     windowTitlebar: Boolean = false,
     widgetTitlebar: Boolean = false,
-): WidgetImpl(label, bounds, zIndex) {
+): WidgetImpl(bounds, zIndex) {
 
     val titleBar = TitleBar(label, bounds, windowTitlebar, widgetTitlebar)
 
@@ -26,7 +26,7 @@ fun titleBarWidget(
     zIndex: Int = 0,
     configure: WidgetBuilder.() -> Unit
 ): TitleBarWidget {
-    val b = WidgetBuilder(label, bounds, zIndex)
+    val b = WidgetBuilder(bounds, zIndex)
     val tw = TitleBarWidget(label, bounds, zIndex, windowTitlebar, widgetTitlebar)
     val w = b.widget
     b.widget = tw

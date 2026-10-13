@@ -6,23 +6,23 @@ import org.openrndr.draw.isolated
 import org.openrndr.extra.shapes.primitives.roundedRectangle
 import org.openrndr.extra.shapes.primitives.toRounded
 import org.openrndr.extra.textwriter.writer
+import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import registerElement
-import style.Colors
 import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 
 class Checkbox(
-    label: String,
-    val fullBounds: Rectangle,
+    fullBounds: Rectangle,
     state: KMutableProperty0<Boolean>,
     configure: Button.() -> Unit = {}
-): Button(label, fullBounds.copy(width = fullBounds.height), configure) {
+): Button(fullBounds.copy(width = fullBounds.height), configure) {
 
     init {
-        action = { state.set(!state.get()) }
+        label = ""
         beforeDraw = { isSelected = state.get() }
+        action = { state.set(!state.get()) }
         configure()
     }
 
@@ -32,93 +32,92 @@ class Checkbox(
 
         val bgFill = when {
             isHovered && !isSelected -> style.hoverColor
-            else -> style.idleColor
+            else -> style.backgroundColor
         }
 
         drawer.strokeWeight = 0.01
-        drawer.stroke = style.stroke
+        drawer.stroke = style.strokeColor
         drawer.fill = bgFill
 
-        if (style.rounded) {
+        if (style.borderRadius > 0.0) {
             drawer.roundedRectangle(bounds.toRounded(style.borderRadius))
         } else {
             drawer.rectangle(bounds)
         }
 
-        val mainFill = when {
-            isFocused || isSelected -> style.selectColor
-            else -> ColorRGBa.TRANSPARENT
-        }
+        val mainFill = if (isSelected) style.selectColor else ColorRGBa.TRANSPARENT
 
         drawer.fill = mainFill
-        if (style.rounded) {
+        if (style.borderRadius > 0.0) {
             drawer.roundedRectangle(bounds.offsetEdges(-3.0).toRounded(style.borderRadius))
         } else {
             drawer.rectangle(bounds.offsetEdges(-3.0))
         }
 
-        if (label.isNotEmpty()) {
+        if (label.isEmpty()) {
+            drawer.isolated {
+                if (isFocused) {
+                    iconOn?.invoke(drawer)
+                } else {
+                    iconOff?.invoke(drawer)
+                }
+            }
+        } else {
             drawer.fill = style.textColor
             drawer.fontMap = style.font
 
-            val textBox = Rectangle(
-                bounds.x + bounds.height + 10.0,
-                bounds.y,
-                fullBounds.width - (bounds.height + 5.0),
-                bounds.height
-            )
-
             val textBounds = drawer.writer {
-                box = textBox
-                horizontalAlign = 0.0
+                box = bounds.copy(width = 9999.0)
+                horizontalAlign = textAlign.x
                 verticalAlign = textAlign.y
                 text(label, false)
                 glyphOutput.rectangles.map { it.second }.bounds
             }
 
-            if (textBounds.width > fullBounds.width) {
+            if (textBounds.width > bounds.width) {
                 drawer.isolated {
                     drawer.drawStyle.clip = this@Checkbox.bounds
                     drawer.writer {
-                        box = textBox
+                        box = this@Checkbox.bounds.copy(
+                            corner = Vector2(this@Checkbox.bounds.x + 5.0, this@Checkbox.bounds.y),
+                            width = 9999.0
+                        )
                         horizontalAlign = 0.0
                         verticalAlign = textAlign.y
                         text(label)
                     }
                     drawer.drawStyle.clip = null
                 }
+
             } else {
                 drawer.writer {
-                    box = textBox
-                    horizontalAlign = 0.0
+                    box = this@Checkbox.bounds
+                    horizontalAlign = textAlign.x
                     verticalAlign = textAlign.y
                     text(label)
                 }
             }
-
         }
 
     }
 }
 
 fun checkbox(
-    label: String,
     bounds: Rectangle,
     state: KMutableProperty0<Boolean>,
     configure: Button.() -> Unit = {},
 ): Checkbox {
-    val c = Checkbox(label, bounds, state, configure)
+    val c = Checkbox(bounds, state, configure)
     registerElement(c)
     return c
 }
 
 fun WidgetBuilder.checkbox(
-    label: String,
     bounds: Rectangle,
     state: KMutableProperty0<Boolean>,
     configure: Button.() -> Unit = {},
 ): Checkbox {
-    val c = Checkbox(label, bounds, state, configure)
+    val c = Checkbox(bounds, state, configure)
     add(c)
     return c
 }

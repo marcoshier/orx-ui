@@ -4,22 +4,22 @@ import org.openrndr.CharacterEvent
 import org.openrndr.DropEvent
 import org.openrndr.KeyEvent
 import org.openrndr.MouseEvent
-import org.openrndr.animatable.Animatable
 import org.openrndr.draw.Drawer
 import org.openrndr.events.Event
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
-import style.Colors
-import style.UIElementStyle
+import style.Style
 import widgets.Widget
 
 open class UIElementImpl(
-    override var label: String = "",
     override var bounds: Rectangle,
     override var zIndex: Int = 0,
     override var parent: Widget? = null
 ): UIElement {
-    override val description: String? = null
+
+    override var selectors = listOf(id())
+    override var label = selectors.first()
+    override var description: String? = null
 
     override val boundsCopy = bounds.copy()
 
@@ -37,7 +37,7 @@ open class UIElementImpl(
     override var visibleIf = { true }
     override var interactableIf = { true }
 
-    override var style = UIElementStyle()
+    override var style = Style()
 
     override var animations = listOf<UIAnimatable>()
 
@@ -88,3 +88,8 @@ open class UIElementImpl(
     }
 }
 
+
+fun UIElementImpl.id(): String {
+    // to finish
+    return this::class.simpleName?.lowercase() ?: ""
+}

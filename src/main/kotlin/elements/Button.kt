@@ -1,7 +1,6 @@
 package elements
 
 import org.openrndr.MouseEvent
-import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.extra.shapes.primitives.roundedRectangle
@@ -16,10 +15,9 @@ import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 
 open class Button(
-    label: String,
     bounds: Rectangle,
     configure: Button.() -> Unit = {},
-) : UIElementImpl(label, bounds) {
+) : UIElementImpl(bounds) {
 
     var action: (MouseEvent) -> Unit = {}
     var dragAction: (MouseEvent) -> Unit = {}
@@ -40,13 +38,9 @@ open class Button(
         buttonDown.listen {
             it.cancelPropagation()
             buttonDownPosition = it.position
-            isSelected = true
+            action(it)
         }
-        clicked.listen { action(it) }
         dragged.listen { dragAction(it) }
-        buttonUp.listen {
-            isSelected = false
-        }
 
         configure()
     }
@@ -57,17 +51,17 @@ open class Button(
 
         val mainFill = when {
             isHovered && !isSelected -> style.hoverColor
-            isHovered && isSelected -> style.selectColor.shade(0.75)
-            isFocused -> style.focusColor
+            isFocused && !isSelected -> style.focusColor
+            isHovered && isSelected -> style.selectColor?.shade(0.75)
             isSelected -> style.selectColor
-            else -> style.idleColor
+            else -> style.backgroundColor
         }
 
         drawer.strokeWeight = 0.01
-        drawer.stroke = style.stroke
+        drawer.stroke = style.strokeColor
         drawer.fill  = mainFill
 
-        if (style.rounded) {
+        if (style.borderRadius > 0.0) {
             drawer.roundedRectangle(bounds.toRounded(style.borderRadius))
         } else {
             drawer.rectangle(bounds)
@@ -76,7 +70,7 @@ open class Button(
         drawer.strokeWeight = 1.0
 
 
-        if (label.isEmpty()) {
+        if (iconOn != null || iconOff != null) {
             drawer.isolated {
                 if (isFocused) {
                     iconOn?.invoke(drawer)
@@ -113,7 +107,7 @@ open class Button(
 
             } else {
                 drawer.writer {
-                    box = bounds
+                    box = this@Button.bounds
                     horizontalAlign = textAlign.x
                     verticalAlign = textAlign.y
                     text(label)
@@ -126,22 +120,20 @@ open class Button(
 
 
 fun button(
-    label: String,
     bounds: Rectangle,
     configure: Button.() -> Unit = {},
 ): Button {
-    val b = Button(label, bounds, configure)
+    val b = Button(bounds, configure)
     registerElement(b)
     return b
 }
 
 fun button(
-    label: String = "",
     bounds: Rectangle,
     state: KMutableProperty0<Boolean>,
     configure: Button.() -> Unit = {},
 ): Button {
-    val b = Button(label, bounds) {
+    val b = Button(bounds) {
         action = { state.set(!state.get()) }
         beforeDraw = { isFocused = state.get() }
         configure()
@@ -151,22 +143,20 @@ fun button(
 }
 
 fun WidgetBuilder.button(
-    label: String,
     bounds: Rectangle,
     configure: Button.() -> Unit = {},
 ): Button {
-    val b = Button(label, bounds, configure)
+    val b = Button(bounds, configure)
     add(b)
     return b
 }
 
 fun WidgetBuilder.button(
-    label: String = "",
     bounds: Rectangle,
     state: KMutableProperty0<Boolean>,
     configure: Button.() -> Unit = {},
 ): Button {
-    val b = Button(label, bounds) {
+    val b = Button(bounds) {
         action = { state.set(!state.get()) }
         beforeDraw = { isSelected = state.get() }
         configure()
@@ -176,7 +166,6 @@ fun WidgetBuilder.button(
 }
 
 fun WidgetBuilder.button(
-    label: String,
     configure: Button.() -> Unit = {},
 ): Button {
     val r = Rectangle(
@@ -185,7 +174,7 @@ fun WidgetBuilder.button(
         itemWidth,
         itemHeight
     )
-    val b = Button(label, r, configure)
+    val b = Button(r, configure)
     add(b)
     return b
 }

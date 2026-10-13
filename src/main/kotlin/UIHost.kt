@@ -1,8 +1,10 @@
 import org.openrndr.Program
+import style.StyleStack
 
 class UIHost(program: Program) {
     val context = UIContext(program)
     val tree = UITree()
+    val style = StyleStack()
 
     companion object {
         lateinit var current: UIHost

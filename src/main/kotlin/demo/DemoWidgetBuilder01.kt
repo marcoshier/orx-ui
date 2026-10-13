@@ -22,20 +22,17 @@ fun main() {
         program {
             extend(UI())
 
-            val grid = drawer.bounds.offsetEdges(-100.0).grid(2, 2, gutterX = 10.0, gutterY = 10.0, ).flatten()
+            val grid = drawer.bounds.offsetEdges(-100.0).grid(2, 2, gutterX = 10.0, gutterY = 10.0,).flatten()
 
-            class RoundButton(
-                label: String,
-                bounds: Rectangle
-            ): Button(label, bounds, { style.borderRadius = 20.0 })
+            class RoundButton(bounds: Rectangle): Button(bounds, { style.borderRadius = 20.0; beforeDraw = { label = "${isSelected}" } })
 
             widget(drawer.bounds) {
                 asCheckbox {
-                    add(RoundButton("1", grid[0]))
-                    add(RoundButton("2", grid[1]))
+                    add(RoundButton(grid[0]))
+                    add(RoundButton(grid[1]))
                 }
 
-                listOf(button("3", grid[2]), button("4", grid[3])).asRadio()
+                listOf(button(grid[2]), button(grid[3])).asRadio()
             }
         }
     }

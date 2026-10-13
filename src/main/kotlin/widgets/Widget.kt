@@ -6,7 +6,7 @@ import org.openrndr.draw.Drawer
 import ui.UIElement
 import org.openrndr.events.Event
 import org.openrndr.shape.Rectangle
-import style.WidgetStyle
+import style.Style
 
 /**
  * A widget provides a container for multiple ui.UIElement instances.
@@ -19,9 +19,11 @@ interface Widget {
     val widgets: List<Widget>
     var parent: Widget?
 
-    var style: WidgetStyle
+    var style: Style
 
-    var label: String
+    val selectors: List<String>
+    val label: String
+    val description: String?
 
     var bounds: Rectangle
     val contentBounds: Rectangle

@@ -9,27 +9,24 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import registerElement
 import style.Colors
-import style.Fonts
 import ui.UIElementImpl
 import widgets.WidgetBuilder
 import window
 
 class TitleBar(
-    label: String,
+    override var label: String,
     bounds: Rectangle,
     var windowTitlebar: Boolean = false,
     var widgetTitlebar: Boolean = false,
     configure: TitleBar.() -> Unit = {}
-): UIElementImpl(label, bounds) {
+): UIElementImpl(bounds) {
 
     override var fixed = !widgetTitlebar
-
 
     var backgroundColor = Colors.CLICKABLE
 
     var dragMasks = listOf<Rectangle>()
     val icon: (TitleBar.() -> Unit)? = null
-    var font = Fonts.DEFAULT
 
     init {
         interactable = widgetTitlebar
@@ -96,7 +93,7 @@ class TitleBar(
             drawer.rectangle(bb.x, bb.y, bb.width, bb.height)
 
             drawer.fill = ColorRGBa.BLACK
-            drawer.fontMap = font
+            drawer.fontMap = style.font
 
             if (icon != null) {
                 icon()
