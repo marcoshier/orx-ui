@@ -11,7 +11,7 @@ import org.openrndr.shape.Segment2D
 import org.openrndr.shape.bounds
 import registerElement
 import style.Colors
-import ui.UIElementImpl
+import ui.UIElement
 import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
@@ -23,7 +23,7 @@ open class RangeSlider<T : Comparable<T>>(
     private val getter: () -> ClosedRange<T>,
     private val setter: (ClosedRange<T>) -> Unit,
     configure: RangeSlider<T>.() -> Unit = {}
-) : UIElementImpl(bounds) {
+) : UIElement(bounds) {
 
     constructor(
         bounds: Rectangle,
@@ -171,7 +171,7 @@ open class RangeSlider<T : Comparable<T>>(
 
         drawer.fill = ColorRGBa.BLACK
         drawer.stroke = null
-        drawer.fontMap = style.font
+        drawer.fontMap = effectiveStyle.font
         drawer.writer {
             box = Rectangle(railStart.x, railStart.y + 5.0, ls.length, 15.0)
             horizontalAlign = 0.0

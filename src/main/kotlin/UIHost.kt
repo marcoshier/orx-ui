@@ -6,6 +6,10 @@ class UIHost(program: Program) {
     val tree = UITree()
     val style = StyleStack()
 
+    private var uniqueId = 0
+
+    fun nextUniqueId() = uniqueId++ // TODO
+
     companion object {
         lateinit var current: UIHost
             internal set

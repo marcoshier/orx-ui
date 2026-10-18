@@ -1,6 +1,7 @@
 package elements
 
 import org.openrndr.MouseEvent
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.extra.shapes.primitives.roundedRectangle
@@ -10,14 +11,14 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import registerElement
-import ui.UIElementImpl
+import ui.UIElement
 import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 
 open class Button(
     bounds: Rectangle,
     configure: Button.() -> Unit = {},
-) : UIElementImpl(bounds) {
+) : UIElement(bounds) {
 
     var action: (MouseEvent) -> Unit = {}
     var dragAction: (MouseEvent) -> Unit = {}
@@ -50,19 +51,19 @@ open class Button(
         if (!visible) return
 
         val mainFill = when {
-            isHovered && !isSelected -> style.hoverColor
-            isFocused && !isSelected -> style.focusColor
-            isHovered && isSelected -> style.selectColor?.shade(0.75)
-            isSelected -> style.selectColor
-            else -> style.backgroundColor
-        }
+            isHovered && !isSelected -> effectiveStyle.hoverColor
+            isFocused && !isSelected -> effectiveStyle.focusColor
+            isHovered && isSelected -> effectiveStyle.selectColor
+            isSelected -> effectiveStyle.selectColor
+            else -> effectiveStyle.backgroundColor
+        } ?: effectiveStyle.backgroundColor
 
-        drawer.strokeWeight = 0.01
-        drawer.stroke = style.strokeColor
+        drawer.strokeWeight = effectiveStyle.strokeWeight
+        drawer.stroke = effectiveStyle.strokeColor
         drawer.fill  = mainFill
 
-        if (style.borderRadius > 0.0) {
-            drawer.roundedRectangle(bounds.toRounded(style.borderRadius))
+        if (effectiveStyle.borderRadius > 0.0) {
+            drawer.roundedRectangle(bounds.toRounded(effectiveStyle.borderRadius))
         } else {
             drawer.rectangle(bounds)
         }
@@ -79,8 +80,8 @@ open class Button(
                 }
             }
         } else {
-            drawer.fill = style.textColor
-            drawer.fontMap = style.font
+            drawer.fill = effectiveStyle.textColor
+            drawer.fontMap = effectiveStyle.font
 
             val textBounds = drawer.writer {
                 box = bounds.copy(width = 9999.0)

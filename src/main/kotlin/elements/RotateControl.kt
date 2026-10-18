@@ -10,7 +10,7 @@ import org.openrndr.shape.Circle
 import org.openrndr.shape.Rectangle
 import registerElement
 import style.Colors
-import ui.UIElementImpl
+import ui.UIElement
 import widgets.WidgetBuilder
 import kotlin.math.atan2
 import kotlin.math.max
@@ -22,7 +22,7 @@ class RotateControl(
     private val getter: () -> Double,
     private val setter: (Double) -> Unit,
     configure: RotateControl.() -> Unit = {}
-): UIElementImpl(bounds) {
+): UIElement(bounds) {
 
     constructor(
         bounds: Rectangle,
@@ -97,16 +97,16 @@ class RotateControl(
         super.draw(drawer)
         if (!visible) return
 
-        drawer.fontMap = style.font
+        drawer.fontMap = effectiveStyle.font
 
         drawer.stroke = null
-        drawer.fill = style.backgroundColor
+        drawer.fill = effectiveStyle.backgroundColor
         drawer.roundedRectangle(bounds.toRounded(2.0))
 
         val mainColor = when {
-            isHovered && !isDragged -> style.hoverColor
-            isDragged -> style.selectColor?.shade(0.75)
-            else -> style.hoverColor.mixOrNull(style.backgroundColor, 0.25)
+            isHovered && !isDragged -> effectiveStyle.hoverColor
+            isDragged -> effectiveStyle.selectColor?.shade(0.75)
+            else -> effectiveStyle.hoverColor.mixOrNull(effectiveStyle.backgroundColor, 0.25)
         }
 
         drawer.stroke = mainColor

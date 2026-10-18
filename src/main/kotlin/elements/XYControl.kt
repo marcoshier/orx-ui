@@ -13,7 +13,7 @@ import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import registerElement
 import style.Colors
-import ui.UIElementImpl
+import ui.UIElement
 import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
@@ -24,7 +24,7 @@ class XYControl(
     private val setter: (Vector2) -> Unit,
     var range: LinearRange1D<Vector2>,
     configure: XYControl.() -> Unit = {}
-): UIElementImpl(bounds.offsetEdges(10.0)) {
+): UIElement(bounds.offsetEdges(10.0)) {
 
     constructor(
         bounds: Rectangle,
@@ -75,10 +75,10 @@ class XYControl(
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
 
-        drawer.fontMap = style.font
+        drawer.fontMap = effectiveStyle.font
 
-        drawer.stroke = style.strokeColor
-        drawer.fill = style.backgroundColor
+        drawer.stroke = effectiveStyle.strokeColor
+        drawer.fill = effectiveStyle.backgroundColor
         drawer.roundedRectangle(ibounds.toRounded(2.0))
 
         val textBoxOffset = 4.0
@@ -90,7 +90,7 @@ class XYControl(
                     rotate(-90.0)
                     translate(-ibounds.center)
                 }
-                drawer.fill = style.textColor?.opacify(0.75)
+                drawer.fill = effectiveStyle.textColor?.opacify(0.75)
                 drawer.writer {
                     box = ibounds.offsetEdges(-textBoxOffset)
                     horizontalAlign = xAlign
@@ -121,14 +121,14 @@ class XYControl(
         drawRangeText(range.end.y, 1.0, 0.0, true)
 
         drawer.stroke = null
-        drawer.fill = style.hoverColor
+        drawer.fill = effectiveStyle.hoverColor
         val textBounds = drawValueText(false).offsetEdges(2.0)
         drawer.rectangle(textBounds)
-        drawer.fill = style.textColor
+        drawer.fill = effectiveStyle.textColor
         drawValueText(true)
 
         val bpos = ibounds.position(uv)
-        drawer.stroke = style.hoverColor
+        drawer.stroke = effectiveStyle.hoverColor
         drawer.lineSegment(
             Vector2(bpos.x, ibounds.y),
             Vector2(bpos.x, ibounds.y + ibounds.height)
@@ -143,7 +143,7 @@ class XYControl(
         drawer.circle(ibounds.position(uv), 10.0)
 
         drawer.stroke = null
-        drawer.fill = style.selectColor
+        drawer.fill = effectiveStyle.selectColor
         drawer.circle(ibounds.position(uv), 5.0)
     }
 }

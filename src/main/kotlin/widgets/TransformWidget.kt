@@ -32,7 +32,7 @@ class TransformWidget(
     val translateRange: LinearRange1D<Vector2>,
     val scaleRange: LinearRange1D<Vector2>,
     configure: TransformWidget.() -> Unit = { }
-): WidgetImpl(bounds) {
+): Widget(bounds) {
 
     constructor(
         bounds: Rectangle,

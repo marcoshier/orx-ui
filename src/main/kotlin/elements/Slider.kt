@@ -5,14 +5,13 @@ import org.openrndr.color.mix
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.LineCap
 import org.openrndr.extra.textwriter.writer
-import org.openrndr.math.Vector2
 import org.openrndr.math.map
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.Segment2D
 import org.openrndr.shape.bounds
 import registerElement
 import style.Colors
-import ui.UIElementImpl
+import ui.UIElement
 import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
@@ -24,7 +23,7 @@ open class Slider<T: Comparable<T>>(
     private val getter: () -> T,
     private val setter: (T) -> Unit,
     configure: Slider<T>.() -> Unit = {}
-): UIElementImpl( bounds) {
+): UIElement( bounds) {
 
     constructor(
         bounds: Rectangle,
@@ -167,7 +166,7 @@ open class Slider<T: Comparable<T>>(
 
         drawer.fill = ColorRGBa.BLACK
         drawer.stroke = null
-        drawer.fontMap = style.font
+        drawer.fontMap = effectiveStyle.font
         drawer.writer {
             box = Rectangle(railStart.x, railStart.y + 5.0, ls.length, 15.0)
             horizontalAlign = 0.0
@@ -177,7 +176,7 @@ open class Slider<T: Comparable<T>>(
 
         drawer.fill = ColorRGBa.BLACK
         drawer.stroke = null
-        drawer.fontMap = style.font
+        drawer.fontMap = effectiveStyle.font
         drawer.writer {
             box = Rectangle(railStart.x, railStart.y + 5.0, ls.length, 15.0)
             horizontalAlign = 1.0

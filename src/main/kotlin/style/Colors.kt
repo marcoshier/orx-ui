@@ -2,6 +2,8 @@ package style
 
 import org.openrndr.color.rgb
 
+// this will go in favor of style library
+
 class Colors {
     companion object {
         val BACKGROUND = rgb("#f9f9f9")

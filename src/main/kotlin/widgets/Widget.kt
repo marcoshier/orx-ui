@@ -1,53 +1,109 @@
 package widgets
 
-import UIHost
+import lib.smoothing
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
-import ui.UIElement
+import org.openrndr.draw.isolated
 import org.openrndr.events.Event
+import ui.UIElement
 import org.openrndr.shape.Rectangle
+import org.openrndr.shape.bounds
 import style.Style
+import ui.updateAnimations
 
-/**
- * A widget provides a container for multiple ui.UIElement instances.
- *  It takes care of displaying them with a clip mask, scrolling
- *  local z-indexing and cleanup.
- */
+open class Widget(
+    var bounds: Rectangle,
+    var zIndex: Int = 0,
+    var parent: Widget? = null
+) {
 
-interface Widget {
-    val elements: List<UIElement>
-    val widgets: List<Widget>
-    var parent: Widget?
+    // TODO
+    var selectors = listOf(id())
+    open var label = selectors.first()
+    val description: String? = null
 
-    var style: Style
+    open val elements = mutableListOf<UIElement>()
+    val widgets = mutableListOf<Widget>()
 
-    val selectors: List<String>
-    val label: String
-    val description: String?
+    var style: Style = parent?.style?.copy() ?: UIHost.current.style.default.copy().apply {
+        backgroundColor = ColorRGBa.TRANSPARENT
+    }
 
-    var bounds: Rectangle
     val contentBounds: Rectangle
+        get() = (elements.map { it.bounds } + widgets.map { it.bounds }).bounds
 
-    var clip: Boolean
+    var clip = true
 
-    val effectiveXOffset: Double
+    var scrollSmoothing = 0.75
+
     val effectiveYOffset: Double
+        get() = (parent?.effectiveYOffset ?: 0.0) + smoothYoffset
+    val effectiveXOffset: Double
+        get() = (parent?.effectiveXOffset ?: 0.0) + smoothXoffset
 
-    var xOffset: Double
-    var yOffset: Double
+    var xOffset = 0.0
+        set(value) { field = value.coerceIn(maxXOffset, 0.0) }
+    var yOffset = 0.0
+        set(value) { field = value.coerceIn(maxYOffset, 0.0) }
 
-    val smoothXoffset: Double
-    val smoothYoffset: Double
-
-    val maxXOffset: Double
-    val maxYOffset: Double
+    val smoothXoffset by smoothing(::xOffset, scrollSmoothing)
+    val smoothYoffset by smoothing(::yOffset, scrollSmoothing)
 
     val xScrollable: Boolean
+        get() = contentBounds.width > bounds.width
     val yScrollable: Boolean
+        get() = contentBounds.height > bounds.height
 
-    val closed: Event<Unit>
+    val maxXOffset: Double
+        get() {
+            val overflow = (contentBounds.width + style.paddingX) - bounds.width
+            return if (overflow > 0) -overflow else 0.0
+        }
+    val maxYOffset: Double
+        get() {
+            val overflow = contentBounds.height + style.paddingY * 2 - bounds.height
+            return if (overflow > 0) -overflow else 0.0
+        }
 
-    var zIndex: Int
+    val closed = Event<Unit>("widget-closed--$label")
 
-    fun draw(drawer: Drawer)
+    open fun draw(drawer: Drawer) {
+            drawer.isolated {
+                if (clip) {
+                    drawer.drawStyle.clip = this@Widget.clipBounds()
+                }
+
+                drawer.stroke = style.strokeColor
+                drawer.fill = style.backgroundColor
+                drawer.rectangle(this@Widget.bounds)
+
+                val sorted = elements.sortedBy { it.zIndex }
+
+                for (el in sorted) {
+                    drawer.isolated {
+                        if (!el.fixed) drawer.translate(smoothXoffset, smoothYoffset)
+                        el.beforeDraw(el)
+                        el.updateAnimations()
+                        el.draw(drawer)
+                        el.afterDraw(el)
+                    }
+                }
+
+                for (child in widgets.sortedBy { it.zIndex }) {
+                    drawer.isolated {
+                        drawer.translate(smoothXoffset, smoothYoffset)
+                        child.draw(drawer)
+                    }
+                }
+
+                drawer.drawStyle.clip = null
+            }
+        }
+
+}
+
+
+fun Widget.id(): String {
+    // to finish
+    return this::class.simpleName?.lowercase() ?: ""
 }

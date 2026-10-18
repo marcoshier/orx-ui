@@ -15,9 +15,8 @@ import org.openrndr.math.map
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import registerElement
-import ui.UIElementImpl
+import ui.UIElement
 import widgets.WidgetBuilder
-import kotlin.math.abs
 import kotlin.reflect.KMutableProperty0
 
 class ScaleControl (
@@ -26,7 +25,7 @@ class ScaleControl (
     private val setter: (Vector2) -> Unit,
     val range: LinearRange1D<Vector2>,
     configure: ScaleControl.() -> Unit
-): UIElementImpl(bounds) {
+): UIElement(bounds) {
 
     private val ibounds = bounds.offsetEdges(-15.0)
     var invert = false
@@ -109,14 +108,14 @@ class ScaleControl (
         super.draw(drawer)
         if (!visible) return
 
-        drawer.fontMap = style.font
+        drawer.fontMap = effectiveStyle.font
 
-        drawer.stroke = style.strokeColor
-        drawer.fill = style.backgroundColor
+        drawer.stroke = effectiveStyle.strokeColor
+        drawer.fill = effectiveStyle.backgroundColor
         drawer.roundedRectangle(bounds.toRounded(2.0))
 
         drawer.strokeWeight = 15.0
-        drawer.stroke = style.hoverColor.mixOrNull(style.backgroundColor, 0.55)?.opacify(0.5)
+        drawer.stroke = effectiveStyle.hoverColor.mixOrNull(effectiveStyle.backgroundColor, 0.55)?.opacify(0.5)
         drawer.fill = null
         drawer.roundedRectangle(bounds.offsetEdges(-7.5).toRounded(2.0))
         drawer.strokeWeight = 1.0
@@ -125,7 +124,7 @@ class ScaleControl (
         val offsetBounds = bounds.offsetEdges(-15.0)
         val scaleRect = ibounds.scaledBy(mappedScale.x, mappedScale.y, 0.5, 0.5)
 
-        drawer.stroke = style.hoverColor.mixOrNull(style.backgroundColor, 0.4)
+        drawer.stroke = effectiveStyle.hoverColor.mixOrNull(effectiveStyle.backgroundColor, 0.4)
         drawer.strokeWeight = 0.1
         drawer.lineSegment(scaleRect.x, offsetBounds.y, scaleRect.x, offsetBounds.y + offsetBounds.height)
         drawer.lineSegment(scaleRect.x + scaleRect.width, offsetBounds.y, scaleRect.x + scaleRect.width, offsetBounds.y + offsetBounds.height)
@@ -134,7 +133,7 @@ class ScaleControl (
 
         if (scaleRect.area > 0.0) {
             drawer.stroke = null
-            drawer.fill = if (isDragged) style.selectColor else style.hoverColor
+            drawer.fill = if (isDragged) effectiveStyle.selectColor else effectiveStyle.hoverColor
             drawer.roundedRectangle(scaleRect.toRounded(2.0))
         }
 
@@ -147,7 +146,7 @@ class ScaleControl (
                     rotate(-90.0)
                     translate(-this@ScaleControl.bounds.center)
                 }
-                drawer.fill = style.textColor
+                drawer.fill = effectiveStyle.textColor
                 drawer.writer {
                     box = this@ScaleControl.bounds.offsetEdges(-textBoxOffset)
                     horizontalAlign = xAlign
@@ -182,9 +181,9 @@ class ScaleControl (
 
         val textRect = drawValueText(false)
         drawer.stroke = null
-        drawer.fill = style.hoverColor
+        drawer.fill = effectiveStyle.hoverColor
         drawer.rectangle(textRect)
-        drawer.fill = style.textColor
+        drawer.fill = effectiveStyle.textColor
         drawValueText(true)
     }
 }

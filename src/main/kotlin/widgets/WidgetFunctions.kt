@@ -34,7 +34,6 @@ fun Widget.clipBounds(): Rectangle {
     var a = parent
     while (a != null) {
         clip = clip.intersection(a.screenBounds())
-            .offsetEdges(-1.0)
         a = a.parent
     }
     return clip

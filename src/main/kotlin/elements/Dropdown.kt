@@ -12,7 +12,7 @@ import org.openrndr.shape.Rectangle
 import registerElement
 import style.Colors
 import transformPos
-import ui.UIElementImpl
+import ui.UIElement
 import widgets.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
@@ -22,7 +22,7 @@ open class Dropdown<T> (
     var getter: () -> T,
     val setter: (T) -> Unit,
     configure: Dropdown<T>.() -> Unit = {},
-): UIElementImpl(bounds) {
+): UIElement(bounds) {
 
     constructor(
         bounds: Rectangle,
@@ -97,10 +97,10 @@ open class Dropdown<T> (
         val box = Rectangle(collapsedBounds.x, collapsedBounds.y, collapsedBounds.width, boxHeight)
         val target = findTarget(transformPos(mousePosition(), this))
 
-        drawer.fontMap = style.font
+        drawer.fontMap = effectiveStyle.font
 
         if (label.isNotEmpty()) {
-            drawer.fill = style.textColor
+            drawer.fill = effectiveStyle.textColor
             drawer.stroke = null
             drawer.writer {
                 this.box = collapsedBounds
@@ -111,9 +111,9 @@ open class Dropdown<T> (
         }
 
         val mainFill = when {
-            open -> if (target == 0) style.hoverColor else style.focusColor
-            isHovered -> style.hoverColor
-            else -> style.backgroundColor
+            open -> if (target == 0) effectiveStyle.hoverColor else effectiveStyle.focusColor
+            isHovered -> effectiveStyle.hoverColor
+            else -> effectiveStyle.backgroundColor
         }
 
         drawer.stroke = null
@@ -140,7 +140,7 @@ open class Dropdown<T> (
                 )
 
                 drawer.stroke = null
-                drawer.fill = if (target == (j + 1)) style.hoverColor else style.backgroundColor
+                drawer.fill = if (target == (j + 1)) effectiveStyle.hoverColor else effectiveStyle.backgroundColor
                 drawer.rectangle(r)
 
                 drawer.fill = ColorRGBa.BLACK

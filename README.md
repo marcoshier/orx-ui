@@ -8,11 +8,11 @@ ___
 Roadmap (highest priority first):
 
 - [x] Text support
-- [ ] Stylesheet (see Selectors) / themes (partially done)
+- [x] Stylesheets
 - [ ] Color Support
 - [ ] GUI hijack
 - [ ] Documentation
 - [ ] tests
 - [ ] resistance-based precision
-- [ ] Experimental controls (elastic, etc...)
+- [ ] Experimental controls (elastic pull, etc...)
 - [ ] Nodes

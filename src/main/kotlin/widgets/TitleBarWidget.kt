@@ -11,7 +11,7 @@ class TitleBarWidget(
     zIndex: Int,
     windowTitlebar: Boolean = false,
     widgetTitlebar: Boolean = false,
-): WidgetImpl(bounds, zIndex) {
+): Widget(bounds, zIndex) {
 
     val titleBar = TitleBar(label, bounds, windowTitlebar, widgetTitlebar)
 

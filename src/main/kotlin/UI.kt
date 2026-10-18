@@ -1,4 +1,5 @@
 import elements.TextInput
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.openrndr.CharacterEvent
 import org.openrndr.CursorType
 import org.openrndr.Extension
@@ -7,10 +8,16 @@ import org.openrndr.MouseEvent
 import org.openrndr.Program
 import org.openrndr.draw.Drawer
 import org.openrndr.math.Vector2
+import style.Style
+import style.StyleLibrary
+import style.Stylesheet
 import ui.UIElement
 import ui.updateAnimations
 import widgets.Widget
 import widgets.clipBounds
+import java.io.File
+
+private val logger = KotlinLogging.logger {  }
 
 class UI: Extension {
     override var enabled = true
@@ -36,10 +43,21 @@ class UI: Extension {
         Program.active!!.application.cursorType = type
     }
 
+    fun loadStyle(style: Style) {
+        host.style.default.apply(style)
+    }
+
+    fun loadStylesheet(file: File): Stylesheet {
+        if (!file.exists()) {
+            logger.warn { "File $file not found. Loading default style" }
+        }
+        host.style.fromStylesheet(Stylesheet.fromFile(file))
+        return host.style.toStylesheet()
+    }
+
     private fun requestDraw() {
         host.context.window.requestDraw()
     }
-
 
     private fun handleButtonDown(event: MouseEvent) {
         if (!event.propagationCancelled) {
@@ -80,6 +98,7 @@ class UI: Extension {
             }
 
             if (activeElement == null) {
+                focusElement?.isFocused = false
                 focusElement = null
                 focusWidget = null
             }
@@ -200,6 +219,7 @@ class UI: Extension {
     override fun setup(program: Program) {
         host = UIHost(program)
         UIHost.current = host
+        loadStyle(StyleLibrary.DEFAULT)
         UIRegistry.tree = host.tree
 
         program.mouse.apply {
@@ -227,7 +247,11 @@ class UI: Extension {
         for (element in host.tree.elements) {
             if (element !== focusElement) {
                 element.updateAnimations()
-                element.draw(drawer)
+                with(element) {
+                    beforeDraw()
+                    draw(drawer)
+                    afterDraw()
+                }
             }
         }
 
@@ -235,7 +259,13 @@ class UI: Extension {
             focusWidget?.draw(drawer)
         } else {
             focusElement?.updateAnimations()
-            focusElement?.draw(drawer)
+            focusElement?.let { el ->
+                with(el) {
+                    beforeDraw()
+                    draw(drawer)
+                    afterDraw()
+                }
+            }
         }
     }
 }

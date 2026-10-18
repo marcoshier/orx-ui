@@ -20,10 +20,12 @@ dependencies {
     implementation(orx.bundles.basic)
     implementation(orx.olive)
     implementation(orx.delegate.magic)
+    implementation(kotlin("reflect"))
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.serialization.hocon)
     implementation(libs.slf4j.api)
     implementation(libs.kotlin.logging)
     runtimeOnly(libs.bundles.logging.simple)

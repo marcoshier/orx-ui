@@ -17,7 +17,7 @@ class WidgetBuilder(
     val zIndex: Int,
     val parent: Widget? = null
 ) {
-    var widget = WidgetImpl(bounds, zIndex, parent)
+    var widget = Widget(bounds, zIndex, parent)
 
     var itemX = 0.0
         private set
@@ -135,7 +135,7 @@ fun widget(
     bounds: Rectangle,
     zIndex: Int = 0,
     build: WidgetBuilder.() -> Unit = {},
-): WidgetImpl {
+): Widget {
     val builder = WidgetBuilder(bounds, zIndex)
     builder.build()
     val widget = builder.widget
@@ -147,7 +147,7 @@ fun WidgetBuilder.widget(
     bounds: Rectangle,
     zIndex: Int = 0,
     build: WidgetBuilder.() -> Unit = {},
-): WidgetImpl {
+): Widget {
     val childBuilder = WidgetBuilder(bounds, zIndex, this.widget)
     childBuilder.gutterX = gutterX
     childBuilder.gutterY = gutterY

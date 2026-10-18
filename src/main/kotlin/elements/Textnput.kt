@@ -29,7 +29,7 @@ import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import registerElement
 import seconds
-import ui.UIElementImpl
+import ui.UIElement
 import widgets.WidgetBuilder
 import kotlin.math.absoluteValue
 import kotlin.math.max
@@ -45,7 +45,7 @@ class TextInput(
     private val getter: () -> String,
     private val setter: (String) -> Unit,
     configure: TextInput.() -> Unit = {}
-): UIElementImpl(bounds) {
+): UIElement(bounds) {
 
     constructor(
         bounds: Rectangle,
@@ -132,7 +132,7 @@ class TextInput(
             val after = cgr.after
             val uv = if (after) Vector2.ONE else Vector2(0.0, 1.0)
             cgr.glyphRectangle.position(uv)
-        } else Vector2(bounds.x + 7.0, bounds.y + 7.0 + style.font.height)
+        } else Vector2(bounds.x + 7.0, bounds.y + 7.0 + effectiveStyle.font.height)
     }
 
     private fun backspace() {
@@ -354,11 +354,11 @@ class TextInput(
 
     private fun resizeButton(): Button {
         return Button(resizeControlBounds) {
-            style.backgroundColor = this@TextInput.style.backgroundColor?.shade(0.95)
-            style.selectColor = style.backgroundColor?.shade(0.95)
-            style.focusColor = style.backgroundColor
+            effectiveStyle.backgroundColor = this@TextInput.effectiveStyle.backgroundColor?.shade(0.95)
+            effectiveStyle.selectColor = effectiveStyle.backgroundColor?.shade(0.95)
+            effectiveStyle.focusColor = effectiveStyle.backgroundColor
             iconOff = { drawer ->
-                drawer.stroke = style.hoverColor?.shade(0.75)
+                drawer.stroke = effectiveStyle.hoverColor?.shade(0.75)
                 for (i in 0 until 3) {
                     val b = bounds.offsetEdges(-1.0)
                     val t = (i / 3.0)
@@ -544,12 +544,12 @@ class TextInput(
         drawer.pushStyle()
         drawer.drawStyle.clip = bounds
         drawer.stroke = null
-        drawer.fill = style.backgroundColor
-        drawer.roundedRectangle(bounds.toRounded(style.borderRadius))
+        drawer.fill = effectiveStyle.backgroundColor
+        drawer.roundedRectangle(bounds.toRounded(effectiveStyle.borderRadius))
 
         tokens = getter().toTextInputTokens()
 
-        drawer.fontMap = style.font
+        drawer.fontMap = effectiveStyle.font
 
         fun drawText(visible: Boolean) {
             drawer.isolated {
@@ -588,9 +588,9 @@ class TextInput(
         }
 
         drawer.stroke = when {
-            isFocused -> style.selectColor
-            !isFocused && isHovered -> style.hoverColor
-            else -> style.backgroundColor.mixOrNull(style.hoverColor, 0.5)
+            isFocused -> effectiveStyle.selectColor
+            !isFocused && isHovered -> effectiveStyle.hoverColor
+            else -> effectiveStyle.backgroundColor.mixOrNull(effectiveStyle.hoverColor, 0.5)
         }
 
         val baselineY = if (multiline) {
@@ -607,12 +607,12 @@ class TextInput(
             translate(offsetAxis * offset)
             selectionRectangles().forEach {
                 drawer.stroke = null
-                drawer.fill = style.hoverColor?.opacify(0.5)
+                drawer.fill = effectiveStyle.hoverColor?.opacify(0.5)
                 drawer.rectangle(it)
             }
         }
 
-        drawer.fill = if (tokens.isEmpty()) style.hoverColor else style.textColor
+        drawer.fill = if (tokens.isEmpty()) effectiveStyle.hoverColor else effectiveStyle.textColor
         drawText(visible = true)
 
         if (isFocused) {
@@ -652,8 +652,8 @@ class TextInput(
                 drawer.stroke = null
                 drawer.fill = ColorRGBa.WHITE
                 drawer.shadeStyle = gradient<ColorRGBa> {
-                    stops[0.0] = style.backgroundColor ?: ColorRGBa.TRANSPARENT
-                    stops[1.0] = style.backgroundColor?.opacify(0.0) ?: ColorRGBa.TRANSPARENT
+                    stops[0.0] = effectiveStyle.backgroundColor ?: ColorRGBa.TRANSPARENT
+                    stops[1.0] = effectiveStyle.backgroundColor?.opacify(0.0) ?: ColorRGBa.TRANSPARENT
                     linear {
                         this.start = start
                         this.end = end
