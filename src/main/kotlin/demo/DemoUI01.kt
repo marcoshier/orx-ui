@@ -1,75 +1,80 @@
 package demo
 
 import UI
-import lib.fromParameters
-import org.openrndr.ExtensionStage
+import lib.Matrix44Parameter
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
-import org.openrndr.draw.defaultFontMap
-import org.openrndr.extra.color.spaces.ColorOKLCHa
-import org.openrndr.extra.color.tools.shiftHue
-import org.openrndr.extra.parameters.ActionParameter
-import org.openrndr.extra.parameters.BooleanParameter
+import org.openrndr.draw.DrawPrimitive
+import org.openrndr.draw.VertexFormat
+import org.openrndr.extra.camera.OrbitalManual
+import org.openrndr.extra.gui.GUI
+import org.openrndr.extra.meshgenerators.boxMesh
 import org.openrndr.extra.parameters.DoubleParameter
 import org.openrndr.extra.parameters.IntParameter
 import org.openrndr.extra.parameters.OptionParameter
-import org.openrndr.extra.parameters.TextParameter
-import org.openrndr.math.Vector2
-import org.openrndr.shape.Rectangle
-
-
-private enum class ShapeType {
-    RECTANGLE, CIRCLE
-}
+import org.openrndr.extra.parameters.Vector3Parameter
+import org.openrndr.math.Matrix44
+import org.openrndr.math.Vector3
+import ui.fromParameters
 
 fun main() {
     application {
         program {
-            var color = ColorRGBa.RED
-            val settings = object {
-                @DoubleParameter("x", 0.0, 5.0, precision = 3)
-                var x = 5.0
 
-                @IntParameter("y", 0, 10)
-                var y = 0
-
-                @DoubleParameter("size", 0.0, 10.0, precision = 3)
-                var size = 5.0
-
-                @BooleanParameter("visible")
-                var visible = true
-
-                @ActionParameter("change color")
-                fun changeColor() {
-                    color = color.shiftHue<ColorOKLCHa>(30.0)
-                }
-
-                @TextParameter("text")
-                var text = ""
-
-                @OptionParameter("shape type")
-                var type = ShapeType.CIRCLE
+            val orb = OrbitalManual().apply {
+                this.userInteraction = false
             }
 
+            val settings = object {
+                @Vector3Parameter("boxSize", 1.0, 64.0)
+                var boxSize = Vector3.ONE
+
+                // TODO IntVector annotations
+
+                @IntParameter("nx", 1, 64)
+                var nx = 1
+
+                @IntParameter("ny", 1, 64)
+                var ny = 1
+
+                @IntParameter("nz", 1, 64)
+                var nz = 1
+
+                @DoubleParameter("rx", 0.0, 360.0)
+                var rx = 0.0
+
+                @DoubleParameter("rx", 0.0, 360.0)
+                var ry = 0.0
+
+                @OptionParameter("draw type")
+                val option = DrawPrimitive.TRIANGLES
+
+            }
+
+            GUI()
 
             extend(UI()).fromParameters(settings)
-
+            extend(orb)
             extend {
-                if (settings.visible) {
-                    drawer.fill = color
-                    val p = drawer.bounds.center + Vector2(20.0 * settings.x, 20.0 * settings.y)
-                    val r = 20.0 * settings.size
-                    when(settings.type) {
-                        ShapeType.CIRCLE -> drawer.circle(p, r)
-                        ShapeType.RECTANGLE -> drawer.rectangle(Rectangle.fromCenter(p, r * 2))
-                    }
-                }
+                var mesh = boxMesh(
+                    settings.boxSize.x,
+                    settings.boxSize.y,
+                    settings.boxSize.z,
+                    settings.nx,
+                    settings.ny,
+                    settings.nz
+                )
 
-                drawer.stroke = null
+                orb.camera.rotateTo(
+                   settings.rx,
+                   settings.ry
+                )
+
                 drawer.fill = ColorRGBa.WHITE
-                drawer.fontMap = defaultFontMap
-                drawer.text(settings.text, drawer.bounds.center)
 
+                drawer.vertexBuffer(mesh, settings.option)
+
+                mesh.destroy()
             }
         }
     }

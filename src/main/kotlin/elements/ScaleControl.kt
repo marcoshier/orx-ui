@@ -18,6 +18,7 @@ import registerElement
 import ui.UIElement
 import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.KMutableProperty1
 
 class ScaleControl (
     bounds: Rectangle,
@@ -41,11 +42,37 @@ class ScaleControl (
     constructor(
         bounds: Rectangle,
         valueRef: KMutableProperty0<Double>,
-        range: ClosedFloatingPointRange<Double>,
+        range: ClosedRange<Double>,
         configure: ScaleControl.() -> Unit = {}
     ): this(
         bounds, { Vector2(valueRef.get()) }, { valueRef.set(it.x) },
         Vector2(range.start)..Vector2(range.endInclusive), configure
+    ) {
+        uniform = true
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    constructor(
+        bounds: Rectangle,
+        obj: Any,
+        valueRef: KMutableProperty1<Any, Vector2>,
+        range: LinearRange1D<Vector2>,
+        configure: ScaleControl.() -> Unit = {}
+    ) : this(bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
+
+    @Suppress("UNCHECKED_CAST")
+    constructor(
+        bounds: Rectangle,
+        obj: Any,
+        valueRef: KMutableProperty1<Any, Double>,
+        range: ClosedRange<Double>,
+        configure: ScaleControl.() -> Unit = {}
+    ) : this(
+        bounds,
+        { Vector2(valueRef.get(obj)) },
+        { valueRef.set(obj, it.x) },
+        Vector2(range.start)..Vector2(range.endInclusive),
+        configure
     ) {
         uniform = true
     }
@@ -229,6 +256,28 @@ fun WidgetBuilder.scaleControl(
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
     val b = ScaleControl(bounds, valueRef, range, configure)
+    add(b)
+    return b
+}
+
+fun WidgetBuilder.scaleControl(
+    range: LinearRange1D<Vector2>,
+    obj: Any,
+    valueRef: KMutableProperty1<Any, Vector2>,
+    configure: ScaleControl.() -> Unit = {},
+): ScaleControl {
+    val b = ScaleControl(currentElementBounds, obj, valueRef, range, configure)
+    add(b)
+    return b
+}
+
+fun WidgetBuilder.scaleControl(
+    range: ClosedRange<Double>,
+    obj: Any,
+    valueRef: KMutableProperty1<Any, Double>,
+    configure: ScaleControl.() -> Unit = {},
+): ScaleControl {
+    val b = ScaleControl(currentElementBounds, obj, valueRef, range, configure)
     add(b)
     return b
 }

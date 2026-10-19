@@ -786,3 +786,18 @@ fun WidgetBuilder.textboxInput(
     add(b)
     return b
 }
+
+
+fun WidgetBuilder.textboxInput(
+    obj: Any,
+    textRef: KMutableProperty1<Any, String>,
+    configure: TextInput.() -> Unit = {},
+): TextInput {
+    val b = TextInput(currentElementBounds, obj, textRef) {
+        multiline = true
+        resizable = true
+        configure()
+    }
+    add(b)
+    return b
+}

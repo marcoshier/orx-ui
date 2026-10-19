@@ -15,5 +15,6 @@ Roadmap (highest priority first):
 - [ ] resistance-based precision
 - [ ] Documentation
 - [ ] tests
+- [ ] auto value smoothing
 - [ ] Experimental controls (contour control, spring, etc...)
 - [ ] Nodes

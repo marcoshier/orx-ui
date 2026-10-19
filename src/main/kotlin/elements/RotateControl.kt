@@ -16,6 +16,7 @@ import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.KMutableProperty1
 
 class RotateControl(
     bounds: Rectangle,
@@ -30,6 +31,13 @@ class RotateControl(
         configure: RotateControl.() -> Unit = {}
     ): this(bounds, { valueRef.get() }, { valueRef.set(it) }, configure)
 
+    @Suppress("UNCHECKED_CAST")
+    constructor(
+        bounds: Rectangle,
+        obj: Any,
+        valueRef: KMutableProperty1<Any, Double>,
+        configure: RotateControl.() -> Unit = {}
+    ): this(bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, configure)
 
     val track = Circle(
         bounds.center,
@@ -148,6 +156,16 @@ fun WidgetBuilder.rotateControl(
     configure: RotateControl.() -> Unit = {},
 ): RotateControl {
     val b = RotateControl(bounds, valueRef, configure)
+    add(b)
+    return b
+}
+
+fun WidgetBuilder.rotateControl(
+    obj: Any,
+    valueRef: KMutableProperty1<Any, Double>,
+    configure: RotateControl.() -> Unit = {},
+): RotateControl {
+    val b = RotateControl(currentElementBounds, obj, valueRef, configure)
     add(b)
     return b
 }

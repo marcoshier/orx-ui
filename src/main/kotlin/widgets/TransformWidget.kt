@@ -22,6 +22,7 @@ import widget.WidgetBuilder
 import widget.asRadio
 import widget.close
 import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.KMutableProperty1
 
 enum class BoxSizing {
     CONTENT_BOX,
@@ -40,12 +41,39 @@ class TransformWidget(
     constructor(
         bounds: Rectangle,
         transform: KMutableProperty0<Matrix44>,
-        translateRange: ClosedFloatingPointRange<Double>,
-        scaleRange: ClosedFloatingPointRange<Double>,
+        translateRange: ClosedRange<Double>,
+        scaleRange: ClosedRange<Double>,
         configure: TransformWidget.() -> Unit = { }
     ): this(bounds, { transform.get() }, { transform.set(it) },
         Vector2(translateRange.start)..Vector2(translateRange.endInclusive),
         Vector2(scaleRange.start)..Vector2(scaleRange.endInclusive),
+        configure
+    )
+
+    @Suppress("UNCHECKED_CAST")
+    constructor(
+        bounds: Rectangle,
+        obj: Any,
+        transform: KMutableProperty1<Any, Matrix44>,
+        translateRange: ClosedRange<Double>,
+        scaleRange: ClosedRange<Double>,
+        configure: TransformWidget.() -> Unit = { }
+    ): this(bounds, { transform.get(obj) }, { transform.set(obj, it) },
+        Vector2(translateRange.start)..Vector2(translateRange.endInclusive),
+        Vector2(scaleRange.start)..Vector2(scaleRange.endInclusive),
+        configure
+    )
+
+    @Suppress("UNCHECKED_CAST")
+    constructor(
+        bounds: Rectangle,
+        obj: Any,
+        transform: KMutableProperty1<Any, Matrix44>,
+        translateRange: LinearRange1D<Vector2>,
+        scaleRange: LinearRange1D<Vector2>,
+        configure: TransformWidget.() -> Unit = { }
+    ): this(bounds, { transform.get(obj) }, { transform.set(obj, it) },
+        translateRange, scaleRange,
         configure
     )
 
@@ -160,8 +188,8 @@ fun transformWidget(
 fun transformWidget(
     bounds: Rectangle,
     transform: KMutableProperty0<Matrix44>,
-    translateRange: ClosedFloatingPointRange<Double>,
-    scaleRange: ClosedFloatingPointRange<Double>,
+    translateRange: ClosedRange<Double>,
+    scaleRange: ClosedRange<Double>,
     configure: TransformWidget.() -> Unit = {},
     zIndex: Int = 0,
 ): TransformWidget {
@@ -200,8 +228,8 @@ fun WidgetBuilder.transformWidget(
 
 fun WidgetBuilder.transformWidget(
    transform: KMutableProperty0<Matrix44>,
-   translateRange: ClosedFloatingPointRange<Double>,
-   scaleRange: ClosedFloatingPointRange<Double>,
+   translateRange: ClosedRange<Double>,
+   scaleRange: ClosedRange<Double>,
    configure: TransformWidget.() -> Unit = {}
 ): TransformWidget {
     val r = Rectangle(
@@ -217,7 +245,7 @@ fun WidgetBuilder.transformWidget(
     return b
 }
 
-fun WidgetBuilder.transformWidget( //mmh. TODO
+fun WidgetBuilder.transformWidget(
     bounds: Rectangle,
     transform: KMutableProperty0<Matrix44>,
     translateRange: LinearRange1D<Vector2>,
@@ -238,3 +266,28 @@ fun WidgetBuilder.transformWidget( //mmh. TODO
 }
 
 
+fun WidgetBuilder.transformWidget(
+    obj: Any,
+    transform: KMutableProperty1<Any, Matrix44>,
+    translateRange: ClosedRange<Double>,
+    scaleRange: ClosedRange<Double>,
+    configure: TransformWidget.() -> Unit = {}
+): TransformWidget {
+    val b = TransformWidget(currentElementBounds, obj, transform, translateRange, scaleRange, configure)
+    b.parent = this.widget
+    this.widget.widgets.add(b)
+    return b
+}
+
+fun WidgetBuilder.transformWidget(
+    obj: Any,
+    transform: KMutableProperty1<Any, Matrix44>,
+    translateRange: LinearRange1D<Vector2>,
+    scaleRange: LinearRange1D<Vector2>,
+    configure: TransformWidget.() -> Unit = {}
+): TransformWidget {
+    val b = TransformWidget(currentElementBounds, obj, transform, translateRange, scaleRange, configure)
+    b.parent = this.widget
+    this.widget.widgets.add(b)
+    return b
+}

@@ -8,6 +8,7 @@ import org.openrndr.KeyEvent
 import org.openrndr.MouseEvent
 import org.openrndr.Program
 import org.openrndr.draw.Drawer
+import org.openrndr.draw.isolated
 import org.openrndr.math.Vector2
 import style.Style
 import style.StyleLibrary
@@ -41,6 +42,13 @@ class UI: Extension {
     var pressPosition = Vector2.ZERO
 
     var extensionStage = ExtensionStage.AFTER_DRAW
+
+    fun setupAutoSave(save: () -> File) {
+        host.context.program.ended.listen {
+            val file = save()
+            logger.info { "UI Auto-saved ${file.path}" }
+        }
+    }
 
     fun setCursor(type: CursorType) {
         Program.active!!.application.cursorType = type
@@ -148,6 +156,7 @@ class UI: Extension {
     private fun handleScroll(event: MouseEvent) {
         if (focusElement is TextInput) {
             focusElement?.scrolled?.trigger(event)
+            event.cancelPropagation()
             return
         }
 
@@ -155,8 +164,14 @@ class UI: Extension {
 
         val widget = leafWidget(event.position) ?: return
         val speed = 30.0
-        if (widget.yScrollable) widget.yOffset += event.rotation.y * speed
-        if (widget.xScrollable) widget.xOffset += event.rotation.y * speed
+        if (widget.yScrollable) {
+            widget.yOffset += event.rotation.y * speed
+            event.cancelPropagation()
+        }
+        if (widget.xScrollable) {
+            widget.xOffset += event.rotation.y * speed
+            event.cancelPropagation()
+        }
         requestDraw()
     }
 
@@ -240,32 +255,35 @@ class UI: Extension {
     }
 
     private fun draw(drawer: Drawer, program: Program) {
-        for (widget in host.tree.widgets.sortedBy { it.zIndex }) {
-            if (widget !== focusWidget) {
-                widget.draw(drawer)
-            }
-        }
-
-        for (element in host.tree.elements) {
-            if (element !== focusElement) {
-                element.updateAnimations()
-                with(element) {
-                    beforeDraw()
-                    draw(drawer)
-                    afterDraw()
+        drawer.isolated {
+            drawer.defaults()
+            for (widget in host.tree.widgets.sortedBy { it.zIndex }) {
+                if (widget !== focusWidget) {
+                    widget.draw(drawer)
                 }
             }
-        }
 
-        if (focusWidget != null) {
-            focusWidget?.draw(drawer)
-        } else {
-            focusElement?.updateAnimations()
-            focusElement?.let { el ->
-                with(el) {
-                    beforeDraw()
-                    draw(drawer)
-                    afterDraw()
+            for (element in host.tree.elements) {
+                if (element !== focusElement) {
+                    element.updateAnimations()
+                    with(element) {
+                        beforeDraw()
+                        draw(drawer)
+                        afterDraw()
+                    }
+                }
+            }
+
+            if (focusWidget != null) {
+                focusWidget?.draw(drawer)
+            } else {
+                focusElement?.updateAnimations()
+                focusElement?.let { el ->
+                    with(el) {
+                        beforeDraw()
+                        draw(drawer)
+                        afterDraw()
+                    }
                 }
             }
         }

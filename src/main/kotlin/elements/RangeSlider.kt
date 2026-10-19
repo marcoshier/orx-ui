@@ -246,3 +246,61 @@ fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
     add(s)
     return s
 }
+
+fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
+    range: ClosedRange<T>,
+    valueRef: KMutableProperty0<ClosedRange<T>>,
+    configure: RangeSlider<T>.() -> Unit = {}
+): RangeSlider<T> {
+    val s = RangeSlider(currentElementBounds, range, valueRef, configure)
+    add(s)
+    return s
+}
+
+fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
+    range: ClosedRange<T>,
+    valueLeftRef: KMutableProperty0<T>,
+    valueRightRef: KMutableProperty0<T>,
+    configure: RangeSlider<T>.() -> Unit = {}
+): RangeSlider<T> {
+    val s = RangeSlider(currentElementBounds, range,
+        getter = { valueLeftRef.get()..valueRightRef.get() },
+        setter = {
+            valueLeftRef.set(it.start)
+            valueRightRef.set(it.endInclusive)
+        },
+        configure
+    )
+    add(s)
+    return s
+}
+
+fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
+    range: ClosedRange<T>,
+    obj: Any,
+    valueRef: KMutableProperty1<Any, ClosedRange<T>>,
+    configure: RangeSlider<T>.() -> Unit = {}
+): RangeSlider<T> {
+    val s = RangeSlider(currentElementBounds, range, obj, valueRef, configure)
+    add(s)
+    return s
+}
+
+fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
+    range: ClosedRange<T>,
+    obj: Any,
+    valueLeftRef: KMutableProperty1<Any, T>,
+    valueRightRef: KMutableProperty1<Any, T>,
+    configure: RangeSlider<T>.() -> Unit = {}
+): RangeSlider<T> {
+    val s = RangeSlider(currentElementBounds, range,
+        getter = { valueLeftRef.get(obj)..valueRightRef.get(obj) },
+        setter = {
+            valueLeftRef.set(obj, it.start)
+            valueRightRef.set(obj, it.endInclusive)
+        },
+        configure
+    )
+    add(s)
+    return s
+}
