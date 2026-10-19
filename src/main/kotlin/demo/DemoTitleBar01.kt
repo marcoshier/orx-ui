@@ -10,7 +10,7 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import style.Colors
 import widgets.titleBarWidget
-import widgets.widget
+import widget.widget
 
 fun main() = application {
     configure {

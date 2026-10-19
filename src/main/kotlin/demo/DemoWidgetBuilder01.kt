@@ -3,14 +3,12 @@ package demo
 import UI
 import elements.Button
 import elements.button
-import elements.dropdown
-import elements.slider
 import org.openrndr.application
 import org.openrndr.extra.shapes.primitives.grid
 import org.openrndr.shape.Rectangle
-import widgets.asCheckbox
-import widgets.asRadio
-import widgets.widget
+import widget.asCheckbox
+import widget.asRadio
+import widget.widget
 
 fun main() {
     application {

@@ -5,9 +5,9 @@ import elements.Button
 import elements.button
 import org.openrndr.application
 import org.openrndr.extra.shapes.primitives.grid
-import widgets.widget
-import widgets.gridIndexed
-import widgets.gridSlots
+import widget.widget
+import widget.gridIndexed
+import widget.gridSlots
 
 fun main() {
     application {

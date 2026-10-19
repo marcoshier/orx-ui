@@ -11,7 +11,7 @@ import org.openrndr.shape.Rectangle
 import registerElement
 import style.Colors
 import ui.UIElement
-import widgets.WidgetBuilder
+import widget.WidgetBuilder
 import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min

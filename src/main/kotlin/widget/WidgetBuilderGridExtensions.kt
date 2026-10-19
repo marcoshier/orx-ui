@@ -1,4 +1,4 @@
-package widgets
+package widget
 
 import org.openrndr.extra.shapes.primitives.grid
 import org.openrndr.extra.shapes.primitives.irregularGrid
@@ -135,7 +135,7 @@ fun <T> WidgetBuilder.irregularGrid(
         .map { element(it) }
 }
 
-fun <T> WidgetBuilder.irregularGrid(
+fun <T> WidgetBuilder.irregularGridIndexed(
     columnWeights: List<Double>,
     rowWeights: List<Double>,
     marginX: Double = 0.0,

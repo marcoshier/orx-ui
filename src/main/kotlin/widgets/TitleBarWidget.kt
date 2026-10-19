@@ -4,6 +4,9 @@ import elements.TitleBar
 import org.openrndr.shape.Rectangle
 import registerWidget
 import ui.UIElement
+import widget.Widget
+import widget.WidgetBuilder
+import widget.close
 
 class TitleBarWidget(
     override var label: String = "",

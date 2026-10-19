@@ -7,13 +7,21 @@ import elements.dropdown
 import elements.slider
 import elements.textInput
 import elements.titleBar
+import elements.xyControl
 import org.openrndr.extra.parameters.ParameterType
 import org.openrndr.extra.parameters.listParameters
+import org.openrndr.math.EuclideanVector
+import org.openrndr.math.LinearType
 import org.openrndr.math.Vector2
+import org.openrndr.math.Vector3
+import org.openrndr.math.Vector4
+import org.openrndr.panel.collections.SelectableList
+import org.openrndr.panel.collections.SelectableMutableList
 import org.openrndr.shape.Rectangle
 import style.Colors
-import widgets.Direction
-import widgets.widget
+import widget.Direction
+import widget.widget
+import widgets.vectorWidget
 import kotlin.reflect.KMutableProperty1
 
 @Suppress("UNCHECKED_CAST")
@@ -24,7 +32,6 @@ fun <T: Any> UI.fromParameters(objectWithParameters: T): UI {
     widget(Rectangle(10.0, 10.0, 260.0, 440.0)) {
         strokeColor = null
         backgroundColor = Colors.CLICKABLE
-        elementHeight = 70.0
         padding = Vector2(10.0)
 
         append(Direction.DOWN) {
@@ -34,6 +41,8 @@ fun <T: Any> UI.fromParameters(objectWithParameters: T): UI {
         }
 
         for (p in parameters) {
+            elementHeight = 70.0
+
             append(Direction.DOWN, spacing = 10.0) {
                 val e = when (p.parameterType) {
                     ParameterType.Double ->
@@ -65,14 +74,80 @@ fun <T: Any> UI.fromParameters(objectWithParameters: T): UI {
                     ParameterType.Option ->
                         dropdown(obj, p.property as KMutableProperty1<Any, Enum<*>>)
 
-                    else -> {
-                        error("")
+                    ParameterType.List, ParameterType.DoubleList -> {
+                        @Suppress("UNCHECKED_CAST")
+                        val prop = p.property!! as KMutableProperty1<Any, Any>
+                        val selectable = prop.get(obj) as? SelectableList<Any>
+                            ?: error("You can only use lists of SelectableList type")
+                        val options = selectable.toList()
+
+                        dropdown(
+                            getter = { (prop.get(obj) as SelectableList<Any>).selected },
+                            setter = { s ->
+                                val sl = prop.get(obj) as SelectableList<Any>
+                                sl.selectedIndex = options.indexOf(s).coerceAtLeast(0)
+                            },
+                            entries = { options },
+                            entryName = { it.toString() }
+                        ) {
+                            label = p.label
+                        }
                     }
+
+                    ParameterType.MutableList -> {
+                        @Suppress("UNCHECKED_CAST")
+                        val prop = p.property!! as KMutableProperty1<Any, Any>
+                        val selectable = prop.get(obj) as? SelectableMutableList<Any>
+                            ?: error("You can only use lists of SelectableMutableList type")
+                        val options = selectable.toList()
+
+                        val d = dropdown(
+                            getter = { (prop.get(obj) as SelectableMutableList<Any>).selected },
+                            setter = { s ->
+                                val sl = prop.get(obj) as SelectableMutableList<Any>
+                                sl.selectedIndex = options.indexOf(s).coerceAtLeast(0)
+                            },
+                            entries = { options },
+                            entryName = { it.toString() }
+                        ) {
+                            label = p.label
+                        }
+
+                        selectable.changed.listen {
+                            val l = it.toList()
+                            if (l.isNotEmpty() && it.selectedIndex == -1) {
+                                it.selectedIndex = 0
+                            }
+                            d.entries = { l }
+                        }
+
+                        d
+                    }
+
+                    ParameterType.XY -> {
+                        elementHeight = elementWidth
+                        val range = p.vectorRange!!.range
+                        xyControl(obj, p.property as KMutableProperty1<Any, Vector2>, range)
+                    }
+
+                    ParameterType.Vector2 -> {
+                        elementHeight = 50.0 * 2
+                        vectorWidget(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Vector2>)
+                    }
+                    ParameterType.Vector3 -> {
+                        elementHeight = 50.0 * 3
+                        vectorWidget(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Vector3>)
+                    }
+                    ParameterType.Vector4 -> {
+                        elementHeight = 50.0 * 4
+                        vectorWidget(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Vector4>)
+                    }
+
+                    ParameterType.Color -> TODO()
+                    ParameterType.Path -> TODO()
                 }
 
-                e.buttonUp.listen {
 
-                }
             }
         }
     }

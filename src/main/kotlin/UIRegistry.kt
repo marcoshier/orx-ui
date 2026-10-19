@@ -1,5 +1,5 @@
 import ui.UIElement
-import widgets.Widget
+import widget.Widget
 
 object UIRegistry {
     var tree: UITree? = null

@@ -14,7 +14,7 @@ import org.openrndr.shape.bounds
 import registerElement
 import style.Colors
 import ui.UIElement
-import widgets.WidgetBuilder
+import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
@@ -189,6 +189,23 @@ fun WidgetBuilder.xyControl(
     configure: XYControl.() -> Unit = {},
 ): XYControl {
     val b = XYControl(bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
+    add(b)
+    return b
+}
+
+fun WidgetBuilder.xyControl(
+    obj: Any,
+    valueRef: KMutableProperty1<Any, Vector2>,
+    range: LinearRange1D<Vector2>,
+    configure: XYControl.() -> Unit = {},
+): XYControl {
+    val r = Rectangle( // TODO replace with currentBounds
+        currentX,
+        currentY,
+        elementWidth,
+        elementHeight
+    )
+    val b = XYControl(r, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
     add(b)
     return b
 }

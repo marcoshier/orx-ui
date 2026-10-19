@@ -13,7 +13,7 @@ import registerElement
 import style.Colors
 import transformPos
 import ui.UIElement
-import widgets.WidgetBuilder
+import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
@@ -228,7 +228,6 @@ inline fun <reified T: Enum<T>> WidgetBuilder.dropdown(
     return b
 }
 
-// TODO
 @Suppress("UNCHECKED_CAST")
 fun WidgetBuilder.dropdown(
     obj: Any,
@@ -243,6 +242,23 @@ fun WidgetBuilder.dropdown(
 
         entries = { constants.toList() }
         entryName = { it.name }
+        configure()
+    }
+    add(b)
+    return b
+}
+
+fun <T> WidgetBuilder.dropdown(
+    getter: () -> T,
+    setter: (T) -> Unit,
+    entries: () -> List<T>,
+    entryName: (T) -> String,
+    configure: Dropdown<T>.() -> Unit = {},
+): Dropdown<T> {
+    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
+    val b = Dropdown(r, getter, setter) {
+        this.entries = entries
+        this.entryName = entryName
         configure()
     }
     add(b)

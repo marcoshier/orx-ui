@@ -1,7 +1,7 @@
 import org.openrndr.math.Vector2
 import ui.UIElement
-import widgets.Widget
-import widgets.screenBounds
+import widget.Widget
+import widget.screenBounds
 
 class UITree {
 

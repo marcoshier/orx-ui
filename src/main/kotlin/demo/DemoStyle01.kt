@@ -6,11 +6,9 @@ import org.openrndr.animatable.easing.Easing
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.extra.color.presets.ORANGE_RED
-import style.StyleModifier
 import style.style
-import widgets.gridSlots
-import widgets.widget
-import java.io.File
+import widget.gridSlots
+import widget.widget
 
 fun main() {
     application {

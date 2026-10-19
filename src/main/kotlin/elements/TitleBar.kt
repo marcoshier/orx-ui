@@ -8,9 +8,8 @@ import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import registerElement
-import style.Colors
 import ui.UIElement
-import widgets.WidgetBuilder
+import widget.WidgetBuilder
 import window
 
 class TitleBar(

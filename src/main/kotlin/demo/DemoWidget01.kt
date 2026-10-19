@@ -4,7 +4,7 @@ import UI
 import elements.button
 import org.openrndr.application
 import org.openrndr.shape.Rectangle
-import widgets.widget
+import widget.widget
 
 fun main() {
     application {

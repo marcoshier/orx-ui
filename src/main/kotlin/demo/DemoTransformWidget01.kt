@@ -7,9 +7,9 @@ import org.openrndr.math.Matrix44
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import widgets.BoxSizing
-import widgets.gridSlots
+import widget.gridSlots
 import widgets.transformWidget
-import widgets.widget
+import widget.widget
 
 
 fun main() {

@@ -14,7 +14,7 @@ import style.DoubleTransition
 import style.Style
 import style.styleColorProperties
 import style.styleDoubleProperties
-import widgets.Widget
+import widget.Widget
 
 open class UIElement(
     var bounds: Rectangle,

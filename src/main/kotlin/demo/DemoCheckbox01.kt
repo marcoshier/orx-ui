@@ -3,8 +3,8 @@ package demo
 import UI
 import elements.checkbox
 import org.openrndr.application
-import widgets.gridIndexed
-import widgets.widget
+import widget.gridIndexed
+import widget.widget
 
 fun main() {
     application {

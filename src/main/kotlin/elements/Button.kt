@@ -11,7 +11,7 @@ import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import registerElement
 import ui.UIElement
-import widgets.WidgetBuilder
+import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 
 open class Button(

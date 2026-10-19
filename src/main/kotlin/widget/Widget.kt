@@ -1,4 +1,4 @@
-package widgets
+package widget
 
 import lib.smoothing
 import org.openrndr.color.ColorRGBa

@@ -17,7 +17,10 @@ import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import registerWidget
 import style.Colors
-import ui.UIElement
+import widget.Widget
+import widget.WidgetBuilder
+import widget.asRadio
+import widget.close
 import kotlin.reflect.KMutableProperty0
 
 enum class BoxSizing {
@@ -113,7 +116,7 @@ class TransformWidget(
         configure()
     }
 
-    override val elements = (listOf<UIElement>(
+    override val elements = (listOf(
         XYControl(controlBounds, tb::translation, translateRange) { visibleIf = { currentTransformType == "translate" } },
         ScaleControl(controlBounds, tb::scale, scaleRange) { visibleIf = { currentTransformType == "scale" } },
         RotateControl(controlBounds, tb::rotation) { visibleIf = { currentTransformType == "rotate" } }
@@ -214,7 +217,7 @@ fun WidgetBuilder.transformWidget(
     return b
 }
 
-fun WidgetBuilder.transformWidget(
+fun WidgetBuilder.transformWidget( //mmh. TODO
     bounds: Rectangle,
     transform: KMutableProperty0<Matrix44>,
     translateRange: LinearRange1D<Vector2>,

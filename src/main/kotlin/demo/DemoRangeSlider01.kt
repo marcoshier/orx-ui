@@ -2,12 +2,9 @@ package demo
 
 import UI
 import elements.rangeSlider
-import elements.scaleControl
 import org.openrndr.application
-import org.openrndr.extra.math.linearrange.rangeTo
-import org.openrndr.math.Vector2
-import widgets.gridSlots
-import widgets.widget
+import widget.gridSlots
+import widget.widget
 
 fun main() {
     application {

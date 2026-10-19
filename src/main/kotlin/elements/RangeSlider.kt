@@ -12,7 +12,7 @@ import org.openrndr.shape.bounds
 import registerElement
 import style.Colors
 import ui.UIElement
-import widgets.WidgetBuilder
+import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 

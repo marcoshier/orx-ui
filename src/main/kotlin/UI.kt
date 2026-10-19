@@ -1,9 +1,4 @@
 import elements.TextInput
-import elements.button
-import elements.checkbox
-import elements.dropdown
-import elements.slider
-import elements.textInput
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.openrndr.CharacterEvent
 import org.openrndr.CursorType
@@ -13,22 +8,15 @@ import org.openrndr.KeyEvent
 import org.openrndr.MouseEvent
 import org.openrndr.Program
 import org.openrndr.draw.Drawer
-import org.openrndr.extra.gui.GUI
-import org.openrndr.extra.parameters.ParameterType
-import org.openrndr.extra.parameters.listParameters
 import org.openrndr.math.Vector2
-import org.openrndr.shape.Rectangle
 import style.Style
 import style.StyleLibrary
 import style.Stylesheet
 import ui.UIElement
 import ui.updateAnimations
-import widgets.Direction
-import widgets.Widget
-import widgets.clipBounds
-import widgets.widget
+import widget.Widget
+import widget.clipBounds
 import java.io.File
-import kotlin.reflect.KMutableProperty1
 
 private val logger = KotlinLogging.logger {  }
 

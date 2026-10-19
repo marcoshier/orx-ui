@@ -1,4 +1,4 @@
-package widgets
+package widget
 
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
@@ -26,6 +26,9 @@ class WidgetBuilder(
         private set
     var elementWidth = initialWidth()
     var elementHeight = initialHeight()
+
+    val currentElementBounds: Rectangle
+        get() = Rectangle(currentX, currentY, elementWidth, elementHeight)
 
     private fun initialX(): Double {
         return widget.bounds.x + widget.style.paddingX + widget.style.marginX

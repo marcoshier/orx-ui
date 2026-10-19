@@ -6,8 +6,8 @@ import lib.copy
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.math.Vector2
-import widgets.Direction
-import widgets.widget
+import widget.Direction
+import widget.widget
 
 fun main() {
     application {

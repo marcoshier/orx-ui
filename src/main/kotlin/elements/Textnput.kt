@@ -30,7 +30,7 @@ import org.openrndr.shape.bounds
 import registerElement
 import seconds
 import ui.UIElement
-import widgets.WidgetBuilder
+import widget.WidgetBuilder
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min

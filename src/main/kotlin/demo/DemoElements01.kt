@@ -5,11 +5,8 @@ import elements.button
 import elements.dropdown
 import elements.slider
 import org.openrndr.application
-import org.openrndr.extra.math.linearrange.rangeTo
 import org.openrndr.extra.shapes.primitives.grid
-import org.openrndr.math.Vector2
-import org.openrndr.shape.Rectangle
-import widgets.widget
+import widget.widget
 
 private enum class Test {
     OPTION_0, OPTION_1, OPTION_2, OPTION_3

@@ -3,9 +3,9 @@ package demo
 import UI
 import elements.button
 import org.openrndr.application
-import widgets.asCheckbox
-import widgets.widget
-import widgets.irregularGrid
+import widget.asCheckbox
+import widget.widget
+import widget.irregularGrid
 
 fun main() {
     application {
