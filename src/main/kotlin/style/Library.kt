@@ -8,10 +8,10 @@ object StyleLibrary {
         marginY = 0.0
         paddingX = 0.0
         paddingY = 0.0
-        minWidth = 5.0
-        maxWidth = 10.0
-        minHeight = 5.0
-        maxHeight = 10.0
+        minWidth = 10.0
+        maxWidth = Double.MAX_VALUE
+        minHeight = 10.0
+        maxHeight = Double.MAX_VALUE
         fontFamily = Font()
         fontSize = 16.0
         textColor = ColorRGBa.BLACK
@@ -23,4 +23,7 @@ object StyleLibrary {
         strokeWeight = 0.0
         borderRadius = 0.0
     }
+
+
+    fun fromUrl(): Style = Style() // todo
 }

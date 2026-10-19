@@ -5,6 +5,7 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.events.Event
+import org.openrndr.math.Vector2
 import ui.UIElement
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
@@ -65,40 +66,46 @@ open class Widget(
             return if (overflow > 0) -overflow else 0.0
         }
 
+    var dragOffset = Vector2.ZERO
+
     val closed = Event<Unit>("widget-closed--$label")
 
     open fun draw(drawer: Drawer) {
-            drawer.isolated {
-                if (clip) {
-                    drawer.drawStyle.clip = this@Widget.clipBounds()
-                }
-
-                drawer.stroke = style.strokeColor
-                drawer.fill = style.backgroundColor
-                drawer.rectangle(this@Widget.bounds)
-
-                val sorted = elements.sortedBy { it.zIndex }
-
-                for (el in sorted) {
-                    drawer.isolated {
-                        if (!el.fixed) drawer.translate(smoothXoffset, smoothYoffset)
-                        el.beforeDraw(el)
-                        el.updateAnimations()
-                        el.draw(drawer)
-                        el.afterDraw(el)
-                    }
-                }
-
-                for (child in widgets.sortedBy { it.zIndex }) {
-                    drawer.isolated {
-                        drawer.translate(smoothXoffset, smoothYoffset)
-                        child.draw(drawer)
-                    }
-                }
-
-                drawer.drawStyle.clip = null
+        drawer.isolated {
+            if (clip) {
+                drawer.drawStyle.clip = this@Widget.clipBounds()
             }
+
+            drawer.translate(dragOffset)
+
+            drawer.stroke = style.strokeColor
+            drawer.fill = style.backgroundColor
+            drawer.rectangle(this@Widget.bounds)
+
+            val sorted = elements.sortedBy { it.zIndex }
+
+            for (el in sorted) {
+                drawer.isolated {
+                    if (!el.fixed) {
+                        drawer.translate(smoothXoffset, smoothYoffset)
+                    }
+                    el.beforeDraw(el)
+                    el.updateAnimations()
+                    el.draw(drawer)
+                    el.afterDraw(el)
+                }
+            }
+
+            for (child in widgets.sortedBy { it.zIndex }) {
+                drawer.isolated {
+                    drawer.translate(smoothXoffset, smoothYoffset)
+                    child.draw(drawer)
+                }
+            }
+
+            drawer.drawStyle.clip = null
         }
+    }
 
 }
 

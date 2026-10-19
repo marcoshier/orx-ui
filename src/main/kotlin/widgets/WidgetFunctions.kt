@@ -1,10 +1,12 @@
 package widgets
 
 import UIHost
+import ancestors
 import deregisterWidget
 import org.openrndr.draw.isolated
 import org.openrndr.extra.shapes.primitives.intersection
 import org.openrndr.math.Vector2
+import org.openrndr.math.sum
 import org.openrndr.shape.Rectangle
 import ui.close
 import ui.updateAnimations
@@ -26,7 +28,8 @@ fun Widget.close() {
 fun Widget.screenBounds(): Rectangle {
     val px = parent?.effectiveXOffset ?: 0.0
     val py = parent?.effectiveYOffset ?: 0.0
-    return bounds.movedBy(Vector2(px, py))
+    val pd = ancestors().map { it.dragOffset }.sum() + dragOffset
+    return bounds.movedBy(Vector2(px, py) + pd)
 }
 
 fun Widget.clipBounds(): Rectangle {

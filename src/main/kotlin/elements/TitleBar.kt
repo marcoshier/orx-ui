@@ -21,15 +21,12 @@ class TitleBar(
     configure: TitleBar.() -> Unit = {}
 ): UIElement(bounds) {
 
-    override var fixed = !widgetTitlebar
-
-    var backgroundColor = Colors.CLICKABLE
-
     var dragMasks = listOf<Rectangle>()
     val icon: (TitleBar.() -> Unit)? = null
 
     init {
         interactable = widgetTitlebar
+        fixed = true
 
         var locked = false
         var dragPosition = Vector2.ZERO
@@ -38,7 +35,8 @@ class TitleBar(
             it.cancelPropagation()
             locked = true
             dragPosition = if (widgetTitlebar) {
-                it.position
+                val p = parent
+                it.position + Vector2(xOffset, yOffset) + (p?.dragOffset ?: Vector2.ZERO)
             } else {
                 val w = window()
                 it.position + w.position
@@ -50,10 +48,11 @@ class TitleBar(
             if (widgetTitlebar) {
                 val p = parent
                 if (p != null) {
-                    val delta = it.position - dragPosition
-                    p.bounds = p.bounds.movedBy(delta)
-                    this@TitleBar.bounds = this@TitleBar.bounds.movedBy(delta)
-                    dragPosition = it.position
+                    val screenPos = it.position + Vector2(xOffset, yOffset) + p.dragOffset
+
+                    val delta = screenPos - dragPosition
+                    p.dragOffset += delta
+                    dragPosition = screenPos
                 }
             } else {
                 val w = window()
@@ -85,11 +84,15 @@ class TitleBar(
         super.draw(drawer)
         if (!visible) return
 
+        parent?.elements?.maxOfOrNull { it.zIndex }?.let {
+            zIndex = it + 1
+        }
+
         drawer.isolated {
             val bb = this@TitleBar.bounds
 
             drawer.stroke = null
-            drawer.fill = backgroundColor
+            drawer.fill = style.backgroundColor
             drawer.rectangle(bb.x, bb.y, bb.width, bb.height)
 
             drawer.fill = ColorRGBa.BLACK

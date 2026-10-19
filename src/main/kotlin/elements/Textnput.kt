@@ -37,6 +37,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.KMutableProperty1
 
 private val logger = KotlinLogging.logger {  }
 
@@ -52,6 +53,13 @@ class TextInput(
         textRef: KMutableProperty0<String>,
         configure: TextInput.() -> Unit = {}
     ): this(bounds, { textRef.get() }, { textRef.set(it) }, configure)
+
+    constructor(
+        bounds: Rectangle,
+        obj: Any,
+        textRef: KMutableProperty1<Any, String>,
+        configure: TextInput.() -> Unit = {}
+    ): this(bounds, { textRef.get(obj) }, { textRef.set(obj, it) }, configure)
 
     var maxCharacters = Int.MAX_VALUE
     var allowedCharacters = allCharacters
@@ -114,7 +122,7 @@ class TextInput(
         }
 
     private fun transformedPosition(pos: Vector2): Vector2 {
-        return pos - (offsetAxis * offset)
+        return pos - (offsetAxis * offset)// - (parent?.dragOffset ?: Vector2.ZERO)
     }
 
     private fun insertAtCaretPosition(s: String) {
@@ -542,7 +550,6 @@ class TextInput(
         if (!visible) return
 
         drawer.pushStyle()
-        drawer.drawStyle.clip = bounds
         drawer.stroke = null
         drawer.fill = effectiveStyle.backgroundColor
         drawer.roundedRectangle(bounds.toRounded(effectiveStyle.borderRadius))
@@ -731,6 +738,26 @@ fun WidgetBuilder.textInput(
     add(b)
     return b
 }
+
+fun WidgetBuilder.textInput(
+    obj: Any,
+    textRef: KMutableProperty1<Any, String>,
+    configure: TextInput.() -> Unit = {},
+): TextInput {
+    val r =  Rectangle(
+        currentX,
+        currentY,
+        elementWidth,
+        50.0
+    )
+    val b = TextInput(r, obj, textRef) {
+        multiline = false
+        configure()
+    }
+    add(b)
+    return b
+}
+
 
 fun textboxInput(
     bounds: Rectangle,

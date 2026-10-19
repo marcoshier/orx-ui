@@ -180,10 +180,10 @@ fun WidgetBuilder.transformWidget(
     configure: TransformWidget.() -> Unit = {}
 ): TransformWidget {
     val r = Rectangle(
-        itemX,
-        itemY,
-        itemWidth,
-        itemHeight
+        currentX,
+        currentY,
+        elementWidth,
+        elementHeight
     )
     val b = TransformWidget(r,
         { transform.get() },
@@ -202,10 +202,10 @@ fun WidgetBuilder.transformWidget(
    configure: TransformWidget.() -> Unit = {}
 ): TransformWidget {
     val r = Rectangle(
-        itemX,
-        itemY,
-        itemWidth,
-        itemHeight
+        currentX,
+        currentY,
+        elementWidth,
+        elementHeight
     )
     val b = TransformWidget(r,
         transform, translateRange, scaleRange, configure

@@ -5,6 +5,7 @@ import kotlinx.serialization.Transient
 import org.openrndr.animatable.easing.Easing
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.loadFont
+import ui.UIElement
 import java.io.File
 import kotlin.math.roundToInt
 import kotlin.reflect.KMutableProperty1
@@ -159,7 +160,7 @@ data class Style(val name: String = "") {
 val styleProperties: List<KMutableProperty1<Style, Any?>> by lazy {
     Style::class.memberProperties
         .filterIsInstance<KMutableProperty1<Style, Any?>>()
-        .filter { it.name != "transitions" && it.name != "definedProperties" }
+        .filter { it.name != "transitions" && it.name != "setProperties" }
 }
 
 @Suppress("UNCHECKED_CAST")

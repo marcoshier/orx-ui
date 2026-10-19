@@ -19,6 +19,8 @@ dependencies {
     implementation(openrndr.orextensions)
     implementation(orx.bundles.basic)
     implementation(orx.olive)
+    implementation(orx.gui)
+    implementation(orx.parameters)
     implementation(orx.delegate.magic)
     implementation(kotlin("reflect"))
 

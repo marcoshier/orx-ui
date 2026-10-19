@@ -4,6 +4,7 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import registerWidget
 import ui.UIElement
+import walk
 
 enum class Direction {
     DOWN,
@@ -19,81 +20,92 @@ class WidgetBuilder(
 ) {
     var widget = Widget(bounds, zIndex, parent)
 
-    var itemX = 0.0
+    var currentX = initialX()
         private set
-
-    var itemY = 0.0
+    var currentY = initialY()
         private set
+    var elementWidth = initialWidth()
+    var elementHeight = initialHeight()
 
-    var itemWidth = widget.style.minWidth
-    var itemHeight = widget.style.minHeight
+    private fun initialX(): Double {
+        return widget.bounds.x + widget.style.paddingX + widget.style.marginX
+    }
 
-    fun step(direction: Direction) {
-        val elementBounds = widget.elements.map { it.bounds }
-        val widgetBounds = widget.widgets.map { it.bounds }
+    private fun initialY(): Double {
+        return widget.bounds.y + widget.style.paddingY + widget.style.marginY
+    }
 
-        val occupiedBounds = elementBounds + widgetBounds
-        val empty = occupiedBounds.isEmpty()
+    private fun initialWidth(): Double {
+        val wpx = widget.style.paddingX * 2
+        val wmx = widget.style.marginX * 2
+        val minw = widget.style.minWidth
+        val maxw = widget.style.maxWidth
+        return (widget.bounds.width - wpx - wmx).coerceIn(minw, maxw)
+    }
+
+    private fun initialHeight(): Double {
+        val wpy = widget.style.paddingY * 2
+        val wmy = widget.style.marginY * 2
+        val minh = widget.style.minHeight
+        val maxh = widget.style.maxHeight
+        return (widget.bounds.height - wpy - wmy).coerceIn(minh, maxh)
+    }
+
+    fun step(direction: Direction, spacing: Double = 0.0) {
+        val elementBounds = widget.walk().map { it.bounds }
+        val empty = elementBounds.isEmpty()
 
         when (direction) {
             Direction.DOWN -> {
-                itemX = bounds.x + paddingX
-
-                itemY =
-                    (occupiedBounds.maxOfOrNull { it.y + it.height } ?: bounds.y) +
-                            if (empty) paddingY else gutterY
-
-                itemWidth = bounds.width - 2 * paddingX
-                itemHeight = minHeight
+                currentX = initialX()
+                elementWidth = initialWidth()
+                elementHeight = elementHeight.coerceIn(minHeight, maxHeight)
+                currentY = if (empty) {
+                    initialY()
+                } else {
+                    elementBounds.maxOf { it.y + it.height } + spacing
+                }
             }
 
             Direction.UP -> {
-                itemX = bounds.x + paddingX
-
-                val topEdge =
-                    occupiedBounds.minOfOrNull { it.y }
-                        ?: (bounds.y + bounds.height)
-
-                itemWidth = bounds.width - 2 * paddingX
-                itemHeight = minHeight
-
-                itemY =
-                    topEdge -
-                            (if (empty) paddingY else gutterY) -
-                            itemHeight
+                currentX = initialX()
+                elementWidth = initialWidth()
+                elementHeight = minHeight
+                val bottomEdge = if (empty) {
+                    widget.bounds.y + widget.bounds.height - paddingY - marginY
+                } else {
+                    elementBounds.minOf { it.y } - spacing
+                }
+                currentY = bottomEdge - elementHeight
             }
 
             Direction.RIGHT -> {
-                itemY = bounds.y + paddingY
-
-                itemX =
-                    (occupiedBounds.maxOfOrNull { it.x + it.width } ?: bounds.x) +
-                            if (empty) paddingX else gutterX
-
-                itemWidth = minWidth
-                itemHeight = bounds.height - 2 * paddingY
+                currentY = initialY()
+                elementHeight = initialHeight()
+                elementWidth = minWidth
+                currentX = if (empty) {
+                    initialX()
+                } else {
+                    elementBounds.maxOf { it.x + it.width } + spacing
+                }
             }
 
             Direction.LEFT -> {
-                itemY = bounds.y + paddingY
-
-                val leftEdge =
-                    occupiedBounds.minOfOrNull { it.x }
-                        ?: (bounds.x + bounds.width)
-
-                itemWidth = minWidth
-                itemHeight = bounds.height - 2 * paddingY
-
-                itemX =
-                    leftEdge -
-                            (if (empty) paddingX else gutterX) -
-                            itemWidth
+                currentY = initialY()
+                elementHeight = initialHeight()
+                elementWidth = minWidth
+                val rightEdge = if (empty) {
+                    widget.bounds.x + widget.bounds.width - paddingX - marginX
+                } else {
+                    elementBounds.minOf { it.x } - spacing
+                }
+                currentX = rightEdge - elementWidth
             }
         }
     }
 
-    fun <T> append(direction: Direction, block: WidgetBuilder.() -> T): T {
-        step(direction)
+    fun <T> append(direction: Direction, spacing: Double = 0.0, block: WidgetBuilder.() -> T): T {
+        step(direction, spacing)
         return block()
     }
 
@@ -111,8 +123,15 @@ class WidgetBuilder(
         }
     }
 
-    var gutterX = 0.0
-    var gutterY = 0.0
+    var marginX by widget.style::marginX
+    var marginY by widget.style::marginY
+    var margin: Vector2
+        get() = Vector2(marginX, marginY)
+        set(value) {
+            marginX = value.x
+            marginY = value.y
+        }
+
     var paddingX by widget.style::paddingX
     var paddingY by widget.style::paddingY
     var padding: Vector2
@@ -122,13 +141,24 @@ class WidgetBuilder(
             paddingY = value.y
         }
 
-    var backgroundColor by widget.style::backgroundColor
-    var strokeColor by widget.style::strokeColor
     var minWidth by widget.style::minWidth
-    var minHeight by widget.style::minHeight
     var maxWidth by widget.style::maxWidth
+
+    var minHeight by widget.style::minHeight
     var maxHeight by widget.style::maxHeight
 
+    var fontFamily by widget.style::fontFamily
+    var fontSize by widget.style::fontSize
+    var textColor by widget.style::textColor
+
+    var backgroundColor by widget.style::backgroundColor
+    var hoverColor by widget.style::hoverColor
+    var focusColor by widget.style::focusColor
+    var selectColor by widget.style::selectColor
+    var strokeColor by widget.style::strokeColor
+
+    var strokeWeight by widget.style::strokeWeight
+    var borderRadius by widget.style::borderRadius
 }
 
 fun widget(
@@ -149,8 +179,6 @@ fun WidgetBuilder.widget(
     build: WidgetBuilder.() -> Unit = {},
 ): Widget {
     val childBuilder = WidgetBuilder(bounds, zIndex, this.widget)
-    childBuilder.gutterX = gutterX
-    childBuilder.gutterY = gutterY
     childBuilder.build()
     val child = childBuilder.widget
     this.widget.widgets.add(child)

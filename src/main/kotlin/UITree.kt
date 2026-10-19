@@ -1,6 +1,7 @@
 import org.openrndr.math.Vector2
 import ui.UIElement
 import widgets.Widget
+import widgets.screenBounds
 
 class UITree {
 
@@ -40,10 +41,10 @@ class UITree {
             val out = mutableListOf<UIElement>()
 
             for (widget in widgetRoots) {
-                walkWidget(widget, out)
+                traverseWidget(widget, out)
             }
             for (element in elementRoots) {
-                walk(element, out)
+                traverseElement(element, out)
             }
 
             out.sortBy { it.zIndex }
@@ -57,37 +58,72 @@ class UITree {
             val reversed = flattened.asReversed()
             return reversed.filter { it.isFocused } + reversed.filterNot { it.isFocused }
         }
+}
 
-    private fun walk(element: UIElement, out: MutableList<UIElement>) {
-        out.add(element)
-        if (element is Root) {
-            for (child in element.children) {
-                walk(child, out)
-            }
+private fun traverseElement(element: UIElement, out: MutableList<UIElement>) {
+    out.add(element)
+    if (element is Root) {
+        for (child in element.children) {
+            traverseElement(child, out)
         }
     }
+}
 
-    private fun walkWidget(w: Widget, out: MutableList<UIElement>) {
-        for (el in w.elements) {
-            walk(el, out)
-        }
-        for (child in w.widgets) {
-            walkWidget(child, out)
-        }
+private fun traverseWidget(widget: Widget, out: MutableList<UIElement>) {
+    for (el in widget.elements) {
+        traverseElement(el, out)
+    }
+    for (child in widget.widgets) {
+        traverseWidget(child, out)
+    }
+}
+
+fun UIElement.walk(): MutableList<UIElement> {
+    val out = mutableListOf<UIElement>()
+    traverseElement(this, out)
+    return out
+}
+
+fun UIElement.ancestors(): MutableList<Widget> {
+    val out = mutableListOf<Widget>()
+    var current = this.parent
+
+    while (current != null) {
+        out.add(current)
+        current = current.parent
     }
 
-    fun leafWidget(pos: Vector2, widgets: List<Widget> = this.widgets): Widget? {
-        for (w in widgets.sortedByDescending { it.zIndex }) {
-            val parentOffset = w.parent?.effectiveYOffset ?: 0.0
-            val screenBounds = w.bounds.movedBy(Vector2(0.0, parentOffset))
-            if (pos in screenBounds) {
-                val deeper = leafWidget(pos, w.widgets)
-                if (deeper != null) return deeper
-                if (w.yScrollable || w.xScrollable) return w
-            }
-        }
-        return null
+    return out
+}
+
+fun Widget.walk(): MutableList<UIElement> {
+    val out = mutableListOf<UIElement>()
+    traverseWidget(this, out)
+    return out
+}
+
+fun Widget.ancestors(): MutableList<Widget> {
+    val out = mutableListOf<Widget>()
+    var current = this.parent
+
+    while (current != null) {
+        out.add(current)
+        current = current.parent
     }
+
+    return out
+}
+
+fun leafWidget(pos: Vector2, widgets: List<Widget> = UIHost.current.tree.widgets): Widget? {
+    for (w in widgets.sortedByDescending { it.zIndex }) {
+        val screenBounds = w.screenBounds()
+        if (pos in screenBounds) {
+            val next = leafWidget(pos, w.widgets)
+            if (next != null) return next
+            if (w.yScrollable || w.xScrollable) return w
+        }
+    }
+    return null
 }
 
 interface Root {

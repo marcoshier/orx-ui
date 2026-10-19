@@ -183,6 +183,7 @@ open class Slider<T: Comparable<T>>(
             verticalAlign = 1.0
             text("${range.endInclusive}")
         }
+
     }
 
 }
@@ -220,4 +221,38 @@ fun <T : Comparable<T>> WidgetBuilder.slider(
     val s = Slider(bounds, range, valueRef, configure)
     add(s)
     return s
+}
+
+
+fun <T : Comparable<T>> WidgetBuilder.slider(
+    range: ClosedRange<T>,
+    valueRef: KMutableProperty0<T>,
+    configure: Slider<T>.() -> Unit = {},
+): Slider<T> {
+    val r = Rectangle(
+        currentX,
+        currentY,
+        elementWidth,
+        elementHeight
+    )
+    val b = Slider(r, range, valueRef, configure)
+    add(b)
+    return b
+}
+
+fun <T : Comparable<T>> WidgetBuilder.slider(
+    range: ClosedRange<T>,
+    obj: Any,
+    valueRef: KMutableProperty1<Any, T>,
+    configure: Slider<T>.() -> Unit = {},
+): Slider<T> {
+    val r = Rectangle(
+        currentX,
+        currentY,
+        elementWidth,
+        elementHeight
+    )
+    val b = Slider(r, range, obj, valueRef, configure)
+    add(b)
+    return b
 }

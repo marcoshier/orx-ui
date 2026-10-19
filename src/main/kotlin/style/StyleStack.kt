@@ -39,4 +39,5 @@ class StyleStack {
 
         return result
     }
+
 }

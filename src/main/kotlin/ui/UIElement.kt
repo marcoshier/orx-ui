@@ -18,7 +18,7 @@ import widgets.Widget
 
 open class UIElement(
     var bounds: Rectangle,
-    var zIndex: Int = 0,
+    open var zIndex: Int = 0,
     var parent: Widget? = null
 ) {
 

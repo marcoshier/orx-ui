@@ -1,7 +1,6 @@
 package elements
 
 import org.openrndr.MouseEvent
-import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.extra.shapes.primitives.roundedRectangle
@@ -170,10 +169,10 @@ fun WidgetBuilder.button(
     configure: Button.() -> Unit = {},
 ): Button {
     val r = Rectangle(
-        itemX,
-        itemY,
-        itemWidth,
-        itemHeight
+        currentX,
+        currentY,
+        elementWidth,
+        elementHeight
     )
     val b = Button(r, configure)
     add(b)

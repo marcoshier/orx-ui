@@ -197,6 +197,7 @@ inline fun <reified T: Enum<T>> dropdown(
     return b
 }
 
+
 fun <T> WidgetBuilder.dropdown(
     bounds: Rectangle,
     entries: () -> List<T>,
@@ -220,6 +221,27 @@ inline fun <reified T: Enum<T>> WidgetBuilder.dropdown(
 ): Dropdown<T> {
     val b = Dropdown(bounds, current) {
         entries = { enumValues<T>().toList() }
+        entryName = { it.name }
+        configure()
+    }
+    add(b)
+    return b
+}
+
+// TODO
+@Suppress("UNCHECKED_CAST")
+fun WidgetBuilder.dropdown(
+    obj: Any,
+    current: KMutableProperty1<Any, Enum<*>>,
+    configure: Dropdown<Enum<*>>.() -> Unit = {},
+): Dropdown<Enum<*>> {
+    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
+
+    val b = Dropdown(r, obj, current) {
+        val kClass = current.returnType.classifier as kotlin.reflect.KClass<*>
+        val constants = kClass.java.enumConstants as Array<Enum<*>>
+
+        entries = { constants.toList() }
         entryName = { it.name }
         configure()
     }

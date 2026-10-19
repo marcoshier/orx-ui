@@ -9,10 +9,11 @@ Roadmap (highest priority first):
 
 - [x] Text support
 - [x] Stylesheets
+- [ ] ~~GUI hijack~~ Direct orx-parameters binding
+- [ ] Collapsible Widgets
 - [ ] Color Support
-- [ ] GUI hijack
+- [ ] resistance-based precision
 - [ ] Documentation
 - [ ] tests
-- [ ] resistance-based precision
-- [ ] Experimental controls (elastic pull, etc...)
+- [ ] Experimental controls (contour control, spring, etc...)
 - [ ] Nodes
