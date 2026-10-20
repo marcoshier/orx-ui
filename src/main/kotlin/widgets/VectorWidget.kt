@@ -10,6 +10,7 @@ import registerWidget
 import ui.UIElement
 import widget.Widget
 import widget.WidgetBuilder
+import widget.addElements
 import widget.gridIndexed
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
@@ -61,7 +62,7 @@ class VectorWidget<T: EuclideanVector<T>>(
             gridIndexed(1, functions.size, marginY = 3.0, gutterY = 3.0) { i, r -> sliderFunc(i, r) }
         }
 
-        elements.addAll(sliders)
+        addElements(sliders)
         configure()
     }
 }

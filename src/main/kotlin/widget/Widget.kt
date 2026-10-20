@@ -70,7 +70,7 @@ open class Widget(
 
     val closed = Event<Unit>("widget-closed--$label")
 
-    open fun draw(drawer: Drawer) {
+    open fun draw(drawer: Drawer, focusElement: UIElement? = null) {
         drawer.isolated {
             if (clip) {
                 drawer.drawStyle.clip = this@Widget.clipBounds()
@@ -85,6 +85,8 @@ open class Widget(
             val sorted = elements.sortedBy { it.zIndex }
 
             for (el in sorted) {
+              //  if (el === focusElement) continue
+
                 drawer.isolated {
                     if (!el.fixed) {
                         drawer.translate(smoothXoffset, smoothYoffset)
@@ -99,7 +101,7 @@ open class Widget(
             for (child in widgets.sortedBy { it.zIndex }) {
                 drawer.isolated {
                     drawer.translate(smoothXoffset, smoothYoffset)
-                    child.draw(drawer)
+                    child.draw(drawer, focusElement)
                 }
             }
 

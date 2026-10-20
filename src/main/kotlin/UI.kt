@@ -10,6 +10,7 @@ import org.openrndr.Program
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.math.Vector2
+import org.openrndr.math.sum
 import style.Style
 import style.StyleLibrary
 import style.Stylesheet
@@ -17,6 +18,7 @@ import ui.UIElement
 import ui.updateAnimations
 import widget.Widget
 import widget.clipBounds
+import widget.screenBounds
 import java.io.File
 
 private val logger = KotlinLogging.logger {  }
@@ -32,8 +34,6 @@ class UI: Extension {
     var dragElement: UIElement? = null
     var textElement: UIElement? = null
     var lastClickElement: UIElement? = null
-
-    var focusWidget: Widget? = null
 
     var lastClicked = 0.0
     var lastClickPosition = Vector2.ZERO
@@ -91,7 +91,6 @@ class UI: Extension {
                 if (event.propagationCancelled) {
                     activeElement = el
                     focusElement = activeElement
-                    focusWidget = activeElement?.parent
                     dragElement = null
                     pressPosition = event.position
                     pressTime = host.context.program.seconds
@@ -111,7 +110,6 @@ class UI: Extension {
             if (activeElement == null) {
                 focusElement?.isFocused = false
                 focusElement = null
-                focusWidget = null
             }
         }
     }
@@ -254,50 +252,57 @@ class UI: Extension {
         }
     }
 
-    private fun draw(drawer: Drawer, program: Program) {
+    private fun draw(drawer: Drawer) {
         drawer.isolated {
             drawer.defaults()
             for (widget in host.tree.widgets.sortedBy { it.zIndex }) {
-                if (widget !== focusWidget) {
-                    widget.draw(drawer)
-                }
+                widget.draw(drawer, null)
             }
 
             for (element in host.tree.elements) {
-                if (element !== focusElement) {
+        //        if (element !== focusElement) {
                     element.updateAnimations()
                     with(element) {
                         beforeDraw()
                         draw(drawer)
                         afterDraw()
                     }
-                }
+               // }
             }
 
-            if (focusWidget != null) {
-                focusWidget?.draw(drawer)
-            } else {
-                focusElement?.updateAnimations()
-                focusElement?.let { el ->
-                    with(el) {
-                        beforeDraw()
-                        draw(drawer)
-                        afterDraw()
-                    }
-                }
-            }
+//            drawer.isolated {
+//                focusElement?.updateAnimations()
+//                focusElement?.let { el ->
+//                    with(el) {
+//                        if (!el.fixed) {
+//                            val ancestors = el.ancestors()
+//                            var tr = ancestors.map {
+//                                Vector2(it.smoothXoffset, it.smoothYoffset) + it.dragOffset
+//                            }.sum()
+//                            tr += Vector2(el.parent?.smoothXoffset ?: 0.0, el.parent?.smoothYoffset ?: 0.0)
+//                            tr += (el.parent?.dragOffset ?: Vector2.ZERO)
+//
+//                            drawer.translate(tr)
+//                        }
+//                        beforeDraw()
+//                        draw(drawer)
+//                        afterDraw()
+//                    }
+//                }
+//            }
+
         }
     }
 
     override fun beforeDraw(drawer: Drawer, program: Program) {
         if (extensionStage == ExtensionStage.BEFORE_DRAW) {
-            draw(drawer, program)
+            draw(drawer)
         }
     }
 
     override fun afterDraw(drawer: Drawer, program: Program) {
         if (extensionStage == ExtensionStage.AFTER_DRAW) {
-            draw(drawer, program)
+            draw(drawer)
         }
     }
 }
@@ -306,10 +311,24 @@ class UI: Extension {
 fun transformMouseEvent(event: MouseEvent, element: UIElement) = event.copy(
     position = transformPos(event.position, element)
 )
+fun UIElement.accumulatedOffset(): Vector2 {
+    var dx = 0.0
+    var dy = 0.0
+
+    ancestors().forEachIndexed { i, w ->
+        if (!this.fixed || i > 0) {
+            dx += w.smoothXoffset
+            dy += w.smoothYoffset
+        }
+        dx += w.dragOffset.x
+        dy += w.dragOffset.y
+    }
+
+    return Vector2(dx, dy)
+}
 
 fun transformPos(position: Vector2, element: UIElement): Vector2 {
-    val dragOffset = element.parent?.dragOffset ?: Vector2.ZERO
-    return Vector2(position.x - element.xOffset, position.y - element.yOffset) - dragOffset
+    return position - element.accumulatedOffset()
 }
 
 fun UIElement.contains(position: Vector2): Boolean {
@@ -318,5 +337,6 @@ fun UIElement.contains(position: Vector2): Boolean {
 
     val widget = parent ?: return true
     if (!widget.clip) return true
+
     return position in widget.clipBounds()
 }

@@ -7,6 +7,7 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.DrawPrimitive
 import org.openrndr.draw.VertexFormat
 import org.openrndr.extra.camera.OrbitalManual
+import org.openrndr.extra.camera.ProjectionType
 import org.openrndr.extra.gui.GUI
 import org.openrndr.extra.meshgenerators.boxMesh
 import org.openrndr.extra.parameters.DoubleParameter
@@ -23,6 +24,7 @@ fun main() {
 
             val orb = OrbitalManual().apply {
                 this.userInteraction = false
+                camera.projectionType = ProjectionType.ORTHOGONAL
             }
 
             val settings = object {
@@ -53,7 +55,7 @@ fun main() {
 
             GUI()
 
-            extend(UI()).fromParameters(settings)
+            val ui = extend(UI()).fromParameters(settings)
             extend(orb)
             extend {
                 var mesh = boxMesh(

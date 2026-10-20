@@ -17,6 +17,7 @@ import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import registerWidget
 import style.Colors
+import ui.UIElement
 import widget.Widget
 import widget.WidgetBuilder
 import widget.asRadio
@@ -150,12 +151,12 @@ class TransformWidget(
         RotateControl(controlBounds, tb::rotation) { visibleIf = { currentTransformType == "rotate" } }
     ) + buttons).toMutableList()
 
-    override fun draw(drawer: Drawer) {
+    override fun draw(drawer: Drawer, focusElement: UIElement?) {
         bounds = if (boxSizing == BoxSizing.CONTENT_BOX) {
            listOf(ibounds, buttonGrid.bounds.offsetEdges(0.0, offset * 2)).bounds
         } else ibounds
 
-        super.draw(drawer)
+        super.draw(drawer, focusElement)
 
         for ((i, button) in buttons.withIndex()) {
             button.bounds = buttonGrid[i]

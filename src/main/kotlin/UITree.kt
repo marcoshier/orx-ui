@@ -114,6 +114,12 @@ fun Widget.ancestors(): MutableList<Widget> {
     return out
 }
 
+fun Widget.root(): Widget {
+    var w = this
+    while (w.parent != null) w = w.parent!!
+    return w
+}
+
 fun leafWidget(pos: Vector2, widgets: List<Widget> = UIHost.current.tree.widgets): Widget? {
     for (w in widgets.sortedByDescending { it.zIndex }) {
         val screenBounds = w.screenBounds()
