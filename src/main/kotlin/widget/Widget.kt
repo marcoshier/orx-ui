@@ -50,9 +50,9 @@ open class Widget(
     val smoothXoffset by smoothing(::xOffset, scrollSmoothing)
     val smoothYoffset by smoothing(::yOffset, scrollSmoothing)
 
-    val xScrollable: Boolean
+    open val xScrollable: Boolean
         get() = contentBounds.width > bounds.width
-    val yScrollable: Boolean
+    open val yScrollable: Boolean
         get() = contentBounds.height > bounds.height
 
     val maxXOffset: Double

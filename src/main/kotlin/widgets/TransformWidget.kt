@@ -20,6 +20,7 @@ import style.Colors
 import ui.UIElement
 import widget.Widget
 import widget.WidgetBuilder
+import widget.addElements
 import widget.asRadio
 import widget.close
 import kotlin.reflect.KMutableProperty0
@@ -78,6 +79,9 @@ class TransformWidget(
         configure
     )
 
+    override val xScrollable = false
+    override val yScrollable = false
+
     val ibounds = bounds.copy()
     var boxSizing = BoxSizing.CONTENT_BOX
 
@@ -121,7 +125,7 @@ class TransformWidget(
     private fun getCurrentControlBounds(): Rectangle {
         return if (boxSizing == BoxSizing.CONTENT_BOX) {
             val bi = ibounds.offsetEdges(-offset)
-            bi
+            bi.copy(height = bi.width)
         } else {
             val bi = bounds.offsetEdges(-offset)
             val bo = Rectangle.fromCenter(
@@ -129,7 +133,7 @@ class TransformWidget(
                 bounds.width, bounds.height - maxButtonsHeight
             )
             val (_,target) = fitRectangle(bi, bo, fitMethod = FitMethod.Contain)
-            target.offsetEdges(-offset)
+            target.copy(height = target.width).offsetEdges(-offset)
         }
     }
 
@@ -141,15 +145,17 @@ class TransformWidget(
         get() = findCurrentTransformType()
 
     init {
-        style.backgroundColor = Colors.CLICKABLE.shade(1.5)
+        val controls = listOf(
+            XYControl(controlBounds, tb::translation, translateRange) { visibleIf = { currentTransformType == "translate" } },
+            ScaleControl(controlBounds, tb::scale, scaleRange) { visibleIf = { currentTransformType == "scale" } },
+            RotateControl(controlBounds, tb::rotation) { visibleIf = { currentTransformType == "rotate" } }
+        )
+
+        addElements(controls)
+        addElements(buttons)
+
         configure()
     }
-
-    override val elements = (listOf(
-        XYControl(controlBounds, tb::translation, translateRange) { visibleIf = { currentTransformType == "translate" } },
-        ScaleControl(controlBounds, tb::scale, scaleRange) { visibleIf = { currentTransformType == "scale" } },
-        RotateControl(controlBounds, tb::rotation) { visibleIf = { currentTransformType == "rotate" } }
-    ) + buttons).toMutableList()
 
     override fun draw(drawer: Drawer, focusElement: UIElement?) {
         bounds = if (boxSizing == BoxSizing.CONTENT_BOX) {

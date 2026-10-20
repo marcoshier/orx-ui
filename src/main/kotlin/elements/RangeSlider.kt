@@ -76,15 +76,30 @@ open class RangeSlider<T : Comparable<T>>(
     private fun setHandle(handle: Int, t: Double) {
         val clamped = t.coerceIn(0.0, 1.0)
         val cur = getter()
+
+        val newLow: T
+        val newHigh: T
+
         if (handle == 0) {
             val low = fromT(clamped)
             val high = cur.endInclusive
-            setter((if (low > high) high else low)..high)
+            newLow = if (low > high) high else low
+            newHigh = high
         } else {
             val high = fromT(clamped)
             val low = cur.start
-            setter(low..(if (high < low) low else high))
+            newLow = low
+            newHigh = if (high < low) low else high
         }
+
+        @Suppress("UNCHECKED_CAST")
+        val newRange: ClosedRange<T> = when (cur) {
+            is ClosedFloatingPointRange<*> -> (newLow as Double).rangeTo(newHigh as Double) as ClosedRange<T>
+            is IntRange -> (newLow as Int).rangeTo(newHigh as Int) as ClosedRange<T>
+            else -> newLow..newHigh
+        }
+
+        setter(newRange)
     }
 
     private fun tAt(x: Double) = x.map(railStart.x, railEnd.x, 0.0, 1.0, true)

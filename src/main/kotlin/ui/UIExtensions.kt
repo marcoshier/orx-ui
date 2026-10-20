@@ -29,7 +29,9 @@ import org.openrndr.panel.collections.SelectableMutableList
 import org.openrndr.shape.Rectangle
 import style.Colors
 import widget.Direction
+import widget.Widget
 import widget.widget
+import widgets.BoxSizing
 import widgets.transformWidget
 import widgets.vectorWidget
 import java.io.File
@@ -42,7 +44,7 @@ fun <T: Any> UI.fromParameters(
     objectWithParameters: T,
     file: File? = null,
     autosave: Boolean = true
-): UI {
+): Widget {
     val obj = objectWithParameters
     val parameters = objectWithParameters.listXParameters()
 
@@ -57,7 +59,7 @@ fun <T: Any> UI.fromParameters(
         return dest
     }
 
-    widget(Rectangle(10.0, 10.0, 260.0, 440.0)) {
+    val w = widget(Rectangle(10.0, 10.0, 260.0, 440.0)) {
         strokeColor = null
         backgroundColor = Colors.CLICKABLE
         padding = Vector2(10.0)
@@ -99,8 +101,9 @@ fun <T: Any> UI.fromParameters(
                             label = p.label
                         }
 
-                    XParameterType.Option ->
+                    XParameterType.Option ->{
                         dropdown(obj, p.property as KMutableProperty1<Any, Enum<*>>)
+                    }
 
                     XParameterType.List, XParameterType.DoubleList -> {
                         @Suppress("UNCHECKED_CAST")
@@ -129,14 +132,21 @@ fun <T: Any> UI.fromParameters(
                             ?: error("You can only use lists of SelectableMutableList type")
                         val options = selectable.toList()
 
+                        fun entryName(list: List<Any>, entry: Any?) =
+                            when(entry) {
+                                is List<*> -> "${p.label}-${list.indexOf(entry)}"
+                                else -> entry.toString()
+                            }
+
+
                         val d = dropdown(
                             getter = { (prop.get(obj) as SelectableMutableList<Any>).selected },
                             setter = { s ->
                                 val sl = prop.get(obj) as SelectableMutableList<Any>
-                                sl.selectedIndex = options.indexOf(s).coerceAtLeast(0)
+                                sl.selectedIndex = sl.indexOf(s).coerceAtLeast(0)
                             },
                             entries = { options },
-                            entryName = { it.toString() }
+                            entryName = { entryName(options, it) }
                         ) {
                             label = p.label
                         }
@@ -147,6 +157,7 @@ fun <T: Any> UI.fromParameters(
                                 it.selectedIndex = 0
                             }
                             d.entries = { l }
+                            d.entryName = { entryName(l, it) }
                         }
 
                         d
@@ -182,12 +193,15 @@ fun <T: Any> UI.fromParameters(
                         vectorWidget(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Vector4>)
                     }
                     XParameterType.IntVector2 -> {
+                        elementHeight = 50.0 * 2
                         vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector2>)
                     }
                     XParameterType.IntVector3 -> {
+                        elementHeight = 50.0 * 3
                         vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector3>)
                     }
                     XParameterType.IntVector4 -> {
+                        elementHeight = 50.0 * 4
                         vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector4>)
                     }
                     XParameterType.Matrix44 -> {
@@ -195,7 +209,7 @@ fun <T: Any> UI.fromParameters(
                         transformWidget(obj, p.property as KMutableProperty1<Any, Matrix44>,
                             p.doubleRange ?: -100.0..100.0,
                             0.01..10.0 // TODO rotation
-                        )
+                        ) { boxSizing = BoxSizing.CONTENT_BOX }
                     }
                     XParameterType.IntRange -> {
                         rangeSlider(p.intRange!!, obj, p.property as KMutableProperty1<Any, ClosedRange<Int>>)
@@ -220,5 +234,5 @@ fun <T: Any> UI.fromParameters(
         setupAutoSave(::save)
     }
 
-    return this
+    return w
 }
