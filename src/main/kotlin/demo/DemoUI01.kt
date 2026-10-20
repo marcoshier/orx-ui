@@ -31,8 +31,6 @@ fun main() {
                 @Vector3Parameter("boxSize", 1.0, 64.0)
                 var boxSize = Vector3.ONE
 
-                // TODO IntVector annotations
-
                 @IntParameter("nx", 1, 64)
                 var nx = 1
 

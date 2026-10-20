@@ -79,6 +79,9 @@ enum class XParameterType(val annotationClass: KClass<out Annotation>) {
     Vector2(Vector2Parameter::class),
     Vector3(Vector3Parameter::class),
     Vector4(Vector4Parameter::class),
+    IntVector2(Vector2Parameter::class),
+    IntVector3(Vector3Parameter::class),
+    IntVector4(Vector4Parameter::class),
     Option(OptionParameter::class),
     List(ListParameter::class),
     MutableList(MutableListParameter::class),
@@ -184,6 +187,24 @@ fun Any.listXParameters(): List<XParameter> {
                     label = it.label
                     order = it.order
                     doubleRange = it.min..it.max
+                    precision = it.precision
+                }
+                is IntVector2Parameter -> {
+                    label = it.label
+                    order = it.order
+                    intRange = it.min..it.max
+                    precision = it.precision
+                }
+                is IntVector3Parameter -> {
+                    label = it.label
+                    order = it.order
+                    intRange = it.min..it.max
+                    precision = it.precision
+                }
+                is IntVector4Parameter -> {
+                    label = it.label
+                    order = it.order
+                    intRange = it.min..it.max
                     precision = it.precision
                 }
                 is OptionParameter -> {

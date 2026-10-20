@@ -17,6 +17,9 @@ import lib.ParameterStore
 import lib.XParameterType
 import lib.listXParameters
 import lib.range
+import org.openrndr.math.IntVector2
+import org.openrndr.math.IntVector3
+import org.openrndr.math.IntVector4
 import org.openrndr.math.Matrix44
 import org.openrndr.math.Vector2
 import org.openrndr.math.Vector3
@@ -178,6 +181,15 @@ fun <T: Any> UI.fromParameters(
                         elementHeight = 50.0 * 4
                         vectorWidget(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Vector4>)
                     }
+                    XParameterType.IntVector2 -> {
+                        vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector2>)
+                    }
+                    XParameterType.IntVector3 -> {
+                        vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector3>)
+                    }
+                    XParameterType.IntVector4 -> {
+                        vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector4>)
+                    }
                     XParameterType.Matrix44 -> {
                         elementHeight = elementWidth + 50.0
                         transformWidget(obj, p.property as KMutableProperty1<Any, Matrix44>,
@@ -199,7 +211,7 @@ fun <T: Any> UI.fromParameters(
                     XParameterType.Contour -> TODO()
                     XParameterType.Color -> TODO()
                     XParameterType.Path -> TODO()
-                }
+               }
             }
         }
     }

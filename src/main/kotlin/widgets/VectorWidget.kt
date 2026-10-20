@@ -1,7 +1,9 @@
 package widgets
 
 import elements.Slider
-import org.openrndr.math.EuclideanVector
+import org.openrndr.math.IntVector2
+import org.openrndr.math.IntVector3
+import org.openrndr.math.IntVector4
 import org.openrndr.math.Vector2
 import org.openrndr.math.Vector3
 import org.openrndr.math.Vector4
@@ -15,31 +17,48 @@ import widget.gridIndexed
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
-class VectorWidget<T: EuclideanVector<T>>(
+// I don't like using Any but IntVector and Vector don't share any interface (weird)
+
+class VectorWidget<V : Any, C : Comparable<C>>(
     bounds: Rectangle,
-    var range: ClosedRange<Double>,
-    private val getter: () -> T,
-    private val setter: (T) -> Unit,
+    var range: ClosedRange<C>,
+    private val getter: () -> V,
+    private val setter: (V) -> Unit,
     rowHeight: Double? = null,
-    configure: VectorWidget<T>.() -> Unit = {}
+    configure: VectorWidget<V, C>.() -> Unit = {}
 ): Widget(bounds) {
 
     @Suppress("UNCHECKED_CAST")
     private val functions = when(getter()) {
         is Vector2 -> listOf(
-            { v: T -> (v as Vector2).x } to { v: T, n: Double -> (v as Vector2).copy(x = n) as T },
-            { v: T -> (v as Vector2).y } to { v: T, n: Double -> (v as Vector2).copy(y = n) as T }
+            { v: V -> (v as Vector2).x as C } to { v: V, n: C -> (v as Vector2).copy(x = n as Double) as V },
+            { v: V -> (v as Vector2).y as C } to { v: V, n: C -> (v as Vector2).copy(y = n as Double) as V }
         )
         is Vector3 -> listOf(
-            { v: T -> (v as Vector3).x } to { v: T, n: Double -> (v as Vector3).copy(x = n) as T },
-            { v: T -> (v as Vector3).y } to { v: T, n: Double -> (v as Vector3).copy(y = n) as T },
-            { v: T -> (v as Vector3).z } to { v: T, n: Double -> (v as Vector3).copy(z = n) as T }
+            { v: V -> (v as Vector3).x as C } to { v: V, n: C -> (v as Vector3).copy(x = n as Double) as V },
+            { v: V -> (v as Vector3).y as C } to { v: V, n: C -> (v as Vector3).copy(y = n as Double) as V },
+            { v: V -> (v as Vector3).z as C } to { v: V, n: C -> (v as Vector3).copy(z = n as Double) as V }
         )
         is Vector4 -> listOf(
-            { v: T -> (v as Vector4).x } to { v: T, n: Double -> (v as Vector4).copy(x = n) as T },
-            { v: T -> (v as Vector4).y } to { v: T, n: Double -> (v as Vector4).copy(y = n) as T },
-            { v: T -> (v as Vector4).z } to { v: T, n: Double -> (v as Vector4).copy(z = n) as T },
-            { v: T -> (v as Vector4).w } to { v: T, n: Double -> (v as Vector4).copy(w = n) as T }
+            { v: V -> (v as Vector4).x as C } to { v: V, n: C -> (v as Vector4).copy(x = n as Double) as V },
+            { v: V -> (v as Vector4).y as C } to { v: V, n: C -> (v as Vector4).copy(y = n as Double) as V },
+            { v: V -> (v as Vector4).z as C } to { v: V, n: C -> (v as Vector4).copy(z = n as Double) as V },
+            { v: V -> (v as Vector4).w as C } to { v: V, n: C -> (v as Vector4).copy(w = n as Double) as V }
+        )
+        is IntVector2 -> listOf(
+            { v: V -> (v as IntVector2).x as C } to { v: V, n: C -> (v as IntVector2).copy(x = n as Int) as V },
+            { v: V -> (v as IntVector2).y as C } to { v: V, n: C -> (v as IntVector2).copy(y = n as Int) as V }
+        )
+        is IntVector3 -> listOf(
+            { v: V -> (v as IntVector3).x as C } to { v: V, n: C -> (v as IntVector3).copy(x = n as Int) as V },
+            { v: V -> (v as IntVector3).y as C } to { v: V, n: C -> (v as IntVector3).copy(y = n as Int) as V },
+            { v: V -> (v as IntVector3).z as C } to { v: V, n: C -> (v as IntVector3).copy(z = n as Int) as V }
+        )
+        is IntVector4 -> listOf(
+            { v: V -> (v as IntVector4).x as C } to { v: V, n: C -> (v as IntVector4).copy(x = n as Int) as V },
+            { v: V -> (v as IntVector4).y as C } to { v: V, n: C -> (v as IntVector4).copy(y = n as Int) as V },
+            { v: V -> (v as IntVector4).z as C } to { v: V, n: C -> (v as IntVector4).copy(z = n as Int) as V },
+            { v: V -> (v as IntVector4).w as C } to { v: V, n: C -> (v as IntVector4).copy(w = n as Int) as V }
         )
         else -> error("Unsupported vector type")
     }
@@ -47,6 +66,7 @@ class VectorWidget<T: EuclideanVector<T>>(
     override val elements: MutableList<UIElement> = mutableListOf()
 
     init {
+        Vector2
         val sliderFunc: (Int, Rectangle) -> UIElement = { i, r ->
             val (read, write) = functions[i]
             val axes = "xyzw"
@@ -67,37 +87,37 @@ class VectorWidget<T: EuclideanVector<T>>(
     }
 }
 
-fun <T : EuclideanVector<T>> vectorWidget(
+fun <V : Any, C : Comparable<C>> vectorWidget(
     bounds: Rectangle,
-    range: ClosedRange<Double>,
-    valueRef: KMutableProperty0<T>,
+    range: ClosedRange<C>,
+    valueRef: KMutableProperty0<V>,
     rowHeight: Double? = null,
-    configure: VectorWidget<T>.() -> Unit = {}
-): VectorWidget<T> {
+    configure: VectorWidget<V, C>.() -> Unit = {}
+): VectorWidget<V, C> {
     val w = VectorWidget(bounds, range, { valueRef.get() }, { valueRef.set(it) }, rowHeight, configure)
     registerWidget(w)
     return w
 }
 
-fun <T : EuclideanVector<T>> WidgetBuilder.vectorWidget(
+fun <V : Any, C : Comparable<C>> WidgetBuilder.vectorWidget(
     bounds: Rectangle,
-    range: ClosedRange<Double>,
-    valueRef: KMutableProperty0<T>,
+    range: ClosedRange<C>,
+    valueRef: KMutableProperty0<V>,
     rowHeight: Double? = null,
-    configure: VectorWidget<T>.() -> Unit = {}
-): VectorWidget<T> {
+    configure: VectorWidget<V, C>.() -> Unit = {}
+): VectorWidget<V, C> {
     val w = VectorWidget(bounds, range, { valueRef.get() }, { valueRef.set(it) }, rowHeight, configure)
     w.parent = this.widget
     this.widget.widgets.add(w)
     return w
 }
 
-fun <T : EuclideanVector<T>> WidgetBuilder.vectorWidget(
-    range: ClosedRange<Double>,
-    valueRef: KMutableProperty0<T>,
+fun <V : Any, C : Comparable<C>> WidgetBuilder.vectorWidget(
+    range: ClosedRange<C>,
+    valueRef: KMutableProperty0<V>,
     rowHeight: Double? = null,
-    configure: VectorWidget<T>.() -> Unit = {},
-): VectorWidget<T> {
+    configure: VectorWidget<V, C>.() -> Unit = {},
+): VectorWidget<V, C> {
     val r = Rectangle(
         currentX,
         currentY,
@@ -110,13 +130,13 @@ fun <T : EuclideanVector<T>> WidgetBuilder.vectorWidget(
     return w
 }
 
-fun <T : EuclideanVector<T>> WidgetBuilder.vectorWidget(
-    range: ClosedRange<Double>,
+fun <V : Any, C : Comparable<C>> WidgetBuilder.vectorWidget(
+    range: ClosedRange<C>,
     obj: Any,
-    valueRef: KMutableProperty1<Any, T>,
+    valueRef: KMutableProperty1<Any, V>,
     rowHeight: Double? = null,
-    configure: VectorWidget<T>.() -> Unit = {},
-): VectorWidget<T> {
+    configure: VectorWidget<V, C>.() -> Unit = {},
+): VectorWidget<V, C> {
     val r = Rectangle(
         currentX,
         currentY,

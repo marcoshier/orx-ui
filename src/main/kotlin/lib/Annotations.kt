@@ -38,6 +38,35 @@ annotation class Matrix44Parameter(
     val precision: Int = 1
 )
 
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class IntVector2Parameter(
+    val label: String,
+    val min: Int,
+    val max: Int,
+    val order: Int = Int.MAX_VALUE,
+    val precision: Int = 1
+)
+
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class IntVector3Parameter(
+    val label: String,
+    val min: Int,
+    val max: Int,
+    val order: Int = Int.MAX_VALUE,
+    val precision: Int = 1
+)
+
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class IntVector4Parameter(
+    val label: String,
+    val min: Int,
+    val max: Int,
+    val order: Int = Int.MAX_VALUE,
+    val precision: Int = 1
+)
 
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
