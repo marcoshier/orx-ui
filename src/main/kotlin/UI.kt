@@ -256,40 +256,34 @@ class UI: Extension {
         drawer.isolated {
             drawer.defaults()
             for (widget in host.tree.widgets.sortedBy { it.zIndex }) {
-                widget.draw(drawer, null)
+                widget.draw(drawer, focusElement)
             }
 
             for (element in host.tree.elements) {
-        //        if (element !== focusElement) {
+                if (element !== focusElement) {
                     element.updateAnimations()
                     with(element) {
                         beforeDraw()
                         draw(drawer)
                         afterDraw()
                     }
-               // }
+                }
             }
 
-//            drawer.isolated {
-//                focusElement?.updateAnimations()
-//                focusElement?.let { el ->
-//                    with(el) {
-//                        if (!el.fixed) {
-//                            val ancestors = el.ancestors()
-//                            var tr = ancestors.map {
-//                                Vector2(it.smoothXoffset, it.smoothYoffset) + it.dragOffset
-//                            }.sum()
-//                            tr += Vector2(el.parent?.smoothXoffset ?: 0.0, el.parent?.smoothYoffset ?: 0.0)
-//                            tr += (el.parent?.dragOffset ?: Vector2.ZERO)
-//
-//                            drawer.translate(tr)
-//                        }
-//                        beforeDraw()
-//                        draw(drawer)
-//                        afterDraw()
-//                    }
-//                }
-//            }
+            drawer.isolated {
+                focusElement?.let { el ->
+                    drawer.drawStyle.clip = el.parent?.clipBounds()
+                    drawer.isolated {
+                        el.updateAnimations()
+                        drawer.translate(el.accumulatedOffset())
+                        with(el) {
+                            beforeDraw()
+                            draw(drawer)
+                            afterDraw()
+                        }
+                    }
+                }
+            }
 
         }
     }

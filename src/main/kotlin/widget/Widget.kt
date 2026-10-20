@@ -85,7 +85,7 @@ open class Widget(
             val sorted = elements.sortedBy { it.zIndex }
 
             for (el in sorted) {
-              //  if (el === focusElement) continue
+                if (el === focusElement) continue
 
                 drawer.isolated {
                     if (!el.fixed) {
