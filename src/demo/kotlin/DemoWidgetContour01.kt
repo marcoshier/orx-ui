@@ -1,6 +1,9 @@
+import elements.button
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
+import org.openrndr.extra.color.presets.ORANGE_RED
 import org.openrndr.extra.noise.shapes.uniform
+import org.openrndr.shape.Rectangle
 import org.openrndr.shape.ShapeContour
 import widgets.contourWidget
 
@@ -16,17 +19,14 @@ fun main() {
                 var contour = ShapeContour.fromPoints(points, false)
             }
 
-            contourWidget(state::contour)
-
+            contourWidget(state::contour, true)
 
             extend {
                 drawer.strokeWeight = 3.0
-                drawer.stroke = ColorRGBa.RED
+                drawer.stroke = ColorRGBa.ORANGE_RED
                 drawer.fill = null
                 drawer.contour(state.contour)
             }
-
-
 
         }
     }

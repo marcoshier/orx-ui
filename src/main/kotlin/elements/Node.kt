@@ -36,17 +36,19 @@ class HandleNode(
     Rectangle.fromCenter(initialPosition, 17.0),
     a, b
 ) {
+    var radius = bounds.width / 2.0
+        set(value) {
+            bounds = Rectangle.fromCenter(bounds.center, value * 2.0)
+            field = value
+        }
 
     init {
         configure()
     }
 
-    val radius: Double
-        get() = bounds.width / 2.0
-
     override fun draw(drawer: Drawer) {
         drawer.fill = if (isSelected) {
-            style.selectColor
+            ColorRGBa.WHITE.opacify(0.85)
         } else null
 
         drawer.stroke = when {
@@ -54,7 +56,7 @@ class HandleNode(
             isDragged -> style.selectColor
             else -> Colors.CLICKABLE
         }
-        drawer.circle(position, radius / 2.0)
+        drawer.circle(position, radius)
 
         drawer.stroke = ColorRGBa.WHITE
         drawer.strokeWeight = 0.01

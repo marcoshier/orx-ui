@@ -2,6 +2,7 @@ package widgets
 
 import elements.HandleNode
 import elements.button
+import mousePosition
 import org.openrndr.KeyModifier
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
@@ -17,6 +18,7 @@ import widget.Widget
 import widget.WidgetBuilder
 import widget.addElement
 import widget.addElements
+import widget.close
 import widget.gridSlots
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
@@ -38,9 +40,8 @@ class ContourWidget(
         configure: ContourWidget.() -> Unit = {}
     ) : this({ contour.get() }, { contour.set(it) }, configure)
 
-
+    var editable = true
     var distanceThreshold = 7.5
-    var contourStroke: ColorRGBa = ColorRGBa.GREEN
 
     private var contourClosed = getter().closed
     private var anchors = getter().toAnchors()
@@ -213,7 +214,9 @@ class ContourWidget(
         val pos = anchors[i].p
 
         return HandleNode(pos) {
+            radius = 6.0
             var lastPos = pos
+            interactable = { editable }
 
             onButtonDown = { event ->
                 if (KeyModifier.SHIFT in event.modifiers) {
@@ -252,7 +255,10 @@ class ContourWidget(
     private fun controlHandle(i: Int, vertex: HandleNode, directionOut: Boolean): HandleNode {
         val control = if (directionOut) anchors[i].cOut else anchors[i].cIn
         val startPos = control ?: anchors[i].p
-        val handle = HandleNode(startPos, null, vertex)
+        val handle = HandleNode(startPos, null, vertex) {
+            interactable = { editable }
+            radius = 6.0
+        }
 
         handle.visible = {
             if (directionOut) {
@@ -296,16 +302,27 @@ class ContourWidget(
 
     inner class ContourElement : UIElement(getter().bounds) {
 
+        fun isNear(contour: ShapeContour, pos: Vector2): Boolean {
+            val p = contour.nearest(pos)
+            val d = p.position.distanceTo(pos)
+            return d < distanceThreshold
+        }
+
         init {
-            buttonDown.listen { it.cancelPropagation() }
+            buttonDown.listen {
+                if (!editable) return@listen
+                it.cancelPropagation()
+            }
+
             buttonUp.listen {
+                if (!editable) return@listen
+
                 isFocused = false
                 if (KeyModifier.SHIFT in it.modifiers) {
                     val c = anchors.toContour(contourClosed)
                     if (c !== ShapeContour.EMPTY) {
-                        val p = c.nearest(it.position)
-                        val d = p.position.distanceTo(it.position)
-                        if (d < distanceThreshold) {
+                        if (isNear(c, it.position)) {
+                            val p = c.nearest(it.position)
                             val idx = c.segments.indexOf(p.segment)
                             if (idx != -1) {
                                 insertAt(idx, p.segmentT)
@@ -319,13 +336,16 @@ class ContourWidget(
         }
 
         override fun draw(drawer: Drawer) {
-            bounds = anchors.toContour(contourClosed).let {
+            val contour = anchors.toContour(contourClosed)
+            bounds = contour.let {
                 if (it === ShapeContour.EMPTY) {
                     bounds
                 } else {
                     it.bounds.offsetEdges(50.0)
                 }
             }
+
+            interactable = { editable && isNear(contour, mousePosition()) }
         }
     }
 
@@ -351,34 +371,58 @@ class ContourWidget(
         }
 
         syncHandles()
-
         bounds = contourElement.bounds
-        super.draw(drawer, focusElement)
 
-        drawer.isolated {
-            drawer.translate(dragOffset)
-            drawer.stroke = contourStroke
-            drawer.strokeWeight = 1.0
-            drawer.fill = null
-            drawer.contour(anchors.toContour(contourClosed))
+        if (editable) {
+            super.draw(drawer, focusElement)
         }
     }
 }
 
-class ContourWidgetControl(bounds: Rectangle, widget: ContourWidget): Widget(bounds) {
-    override val elements = gridSlots(1, 2, 5.0, 20.0, 5.0, 5.0) {
-        button(it[0]) {
+class ContourWidgetControl(
+    bounds: Rectangle,
+    widget: ContourWidget,
+    draggable: Boolean,
+    configure: ContourWidgetControl.() -> Unit = {}
+): Widget(bounds) {
+
+    private val my = if (draggable) 20.0 else 5.0
+    override val elements = gridSlots(1, 3, 5.0, my, 5.0, 5.0) {
+        val rs = it.map {
+            val off = if (draggable) 10.0 else 0.0
+            it.movedBy(Vector2.UNIT_Y * off)
+        }
+        button(rs[0]) {
             label = "SELECT ALL"
             action = { widget.selectAll() }
         }
-        button(it[1]) {
+        button(rs[1]) {
             label = "DESELECT ALL"
             action = { widget.deselectAll() }
         }
+        button(rs[2]) {
+            label = "EDITABLE"
+            action = { widget.editable = !widget.editable }
+        }
     }
-//    override val widgets: MutableList<Widget> = mutableListOf(
-//        titleBarWidget("CONTOUR", bounds.copy(height = 20.0), widgetTitlebar = true)
-//    )
+
+    override val widgets: MutableList<Widget> = run {
+        if (draggable) mutableListOf(
+            titleBarWidget("CONTOUR",
+                bounds.copy(height = 20.0),
+                widgetTitlebar = true,
+                zIndex = 1000
+            )
+        ) else mutableListOf()
+    }
+
+    init {
+        style.strokeColor = null
+        if (draggable) {
+            style.backgroundColor = ColorRGBa.WHITE
+        }
+        configure()
+    }
 }
 
 fun ShapeContour.toAnchors(): MutableList<Anchor> {
@@ -416,12 +460,18 @@ fun List<Anchor>.toContour(closed: Boolean): ShapeContour {
 
 fun contourWidget(
     contour: KMutableProperty0<ShapeContour>,
+    showControls: Boolean = true,
+    draggableControls: Boolean = true,
     configure: ContourWidget.() -> Unit = {}
 ): ContourWidget {
     val w = ContourWidget(contour, configure)
-    val c = ContourWidgetControl(Rectangle(10.0, 10.0, 200.0, 170.0), w)
     registerWidget(w)
-    registerWidget(c)
+
+    if (showControls) {
+        val c = ContourWidgetControl(Rectangle(10.0, 10.0, 200.0, 170.0), w, draggableControls)
+        registerWidget(c)
+    }
+
     return w
 }
 
@@ -431,7 +481,7 @@ fun contourWidget(
     configure: ContourWidget.() -> Unit = {}
 ): ContourWidget {
     val w = ContourWidget({ valueRef.get(obj) }, { valueRef.set(obj, it) }, configure)
-    val c = ContourWidgetControl(Rectangle(10.0, 10.0, 200.0, 170.0), w)
+    val c = ContourWidgetControl(Rectangle(10.0, 10.0, 200.0, 170.0), w, false)
     registerWidget(w)
     registerWidget(c)
     return w
@@ -442,8 +492,8 @@ fun WidgetBuilder.contourWidget(
     configure: ContourWidget.() -> Unit = {}
 ): ContourWidget {
     val w = ContourWidget(contour, configure)
-    w.parent = this.widget
-    this.widget.widgets.add(w)
+    registerWidget(w)
+    this.widget.closed.listen { w.close() }
     return w
 }
 
@@ -453,10 +503,10 @@ fun WidgetBuilder.contourWidget(
     configure: ContourWidget.() -> Unit = {},
 ): ContourWidget {
     val w = ContourWidget({ valueRef.get(obj) }, { valueRef.set(obj, it) }, configure)
-    val c = ContourWidgetControl(currentElementBounds.copy(height = 170.0), w)
-    w.parent = this.widget
+    registerWidget(w)
+    val c = ContourWidgetControl(currentElementBounds.copy(height = 170.0), w, false)
     c.parent = this.widget
-    this.widget.widgets.add(w)
     this.widget.widgets.add(c)
+    this.widget.closed.listen { w.close() }
     return w
 }

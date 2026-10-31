@@ -229,8 +229,6 @@ fun <T: Any> UI.fromParameters(
                             label = p.label
                         }
                     XParameterType.Contour -> {
-                        // contour widget is registered as a root such that when controls
-                        // are closed the contour remains visible
                         contourWidget(obj, p.property as KMutableProperty1<Any, ShapeContour>)
                     }
                     XParameterType.Color -> TODO()
