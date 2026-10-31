@@ -1,6 +1,3 @@
-package demo
-
-import UI
 import elements.checkbox
 import org.openrndr.application
 import widget.gridIndexed

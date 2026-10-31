@@ -9,13 +9,12 @@ Roadmap (highest priority first):
 
 - [x] Text support
 - [x] Stylesheets
-- [x] ~~GUI hijack~~ Direct orx-parameters binding
+- [x] orx-parameters binding
+- [x] Other controls (Nodes/contour control, Color Widget, Spring control, etc...)
 - [ ] Collapsible Widgets
 - [ ] resistance-based precision
 - [ ] Documentation
 - [ ] tests
 - [ ] auto value smoothing
 - [ ] Flexbox builder
-- [ ] Experimental controls (contour control, spring, etc...)
-- [ ] Color Widget
-- [ ] Nodes
+- [ ] Windowed UI

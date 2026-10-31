@@ -1,6 +1,3 @@
-package demo
-
-import UI
 import lib.IntVector3Parameter
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
@@ -8,7 +5,6 @@ import org.openrndr.draw.DrawPrimitive
 import org.openrndr.draw.shadeStyle
 import org.openrndr.extra.camera.OrbitalManual
 import org.openrndr.extra.camera.ProjectionType
-import org.openrndr.extra.gui.GUI
 import org.openrndr.extra.meshgenerators.boxMesh
 import org.openrndr.extra.parameters.IntParameter
 import org.openrndr.extra.parameters.OptionParameter

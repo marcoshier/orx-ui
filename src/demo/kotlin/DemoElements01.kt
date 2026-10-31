@@ -1,6 +1,3 @@
-package demo
-
-import UI
 import elements.button
 import elements.dropdown
 import elements.slider

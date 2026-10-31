@@ -66,7 +66,6 @@ class VectorWidget<V : Any, C : Comparable<C>>(
     override val elements: MutableList<UIElement> = mutableListOf()
 
     init {
-        Vector2
         val sliderFunc: (Int, Rectangle) -> UIElement = { i, r ->
             val (read, write) = functions[i]
             val axes = "xyzw"

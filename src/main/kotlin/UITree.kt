@@ -1,3 +1,4 @@
+import org.openrndr.events.Event
 import org.openrndr.math.Vector2
 import ui.UIElement
 import widget.Widget
@@ -11,21 +12,23 @@ class UITree {
     val widgets: List<Widget> get() = widgetRoots.toList()
     val elements: List<UIElement> get() = elementRoots.toList()
 
-    fun addWidget(widget: Widget): Widget {
+    val elementClosed = Event<UIElement>()
+
+    fun <T: Widget> addWidget(widget: T): T {
         if (widgetRoots.add(widget)) invalidateCache()
         return widget
     }
 
-    fun addElement(element: UIElement): UIElement {
+    fun <T: UIElement> addElement(element: T): T {
         if (elementRoots.add(element)) invalidateCache()
         return element
     }
 
-    fun removeWidget(widget: Widget) {
+    fun  <T: Widget> removeWidget(widget: T) {
         if (widgetRoots.remove(widget)) invalidateCache()
     }
 
-    fun removeElement(element: UIElement) {
+    fun <T: UIElement> removeElement(element: T) {
         if (elementRoots.remove(element)) invalidateCache()
     }
 

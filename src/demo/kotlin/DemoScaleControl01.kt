@@ -1,6 +1,3 @@
-package demo
-
-import UI
 import elements.scaleControl
 import org.openrndr.application
 import org.openrndr.extra.math.linearrange.rangeTo

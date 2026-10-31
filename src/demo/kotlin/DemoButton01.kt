@@ -1,11 +1,5 @@
-package demo
-
-import UI
-import UIHost
 import elements.button
 import org.openrndr.application
-import org.openrndr.color.ColorRGBa
-import org.openrndr.draw.defaultFontMap
 import org.openrndr.shape.Rectangle
 
 fun main() = application {

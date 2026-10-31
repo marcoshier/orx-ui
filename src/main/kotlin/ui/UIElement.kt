@@ -38,11 +38,8 @@ open class UIElement(
     val yOffset: Double
         get() = parent?.effectiveYOffset ?: 0.0
 
-    var visible = true
-    var interactable = true
-
-    var visibleIf = { true }
-    var interactableIf = { true }
+    var visible = { true }
+    var interactable = { true }
 
     open var fixed = false
 
@@ -67,6 +64,10 @@ open class UIElement(
         }
     var isSelected = false
     var isDragged = false
+    var dragPosition: Vector2 = Vector2.ZERO
+
+    val position: Vector2
+        get() = bounds.center
 
     val hovered = Event<Boolean>("ui-element-hovered--$label")
     val focused = Event<Boolean>("ui-element-focused--$label")
@@ -75,9 +76,6 @@ open class UIElement(
     val dropped = Event<DropEvent>("ui-element-dropped--$label")
     val keyDown = Event<KeyEvent>("ui-element-keyDown--$label")
     val character = Event<CharacterEvent>("ui-element-character--$label")
-
-    val position: Vector2
-        get() = error("dont use this")
 
     val buttonDown = Event<MouseEvent>("ui-element-button-down-$label")
     val buttonUp = Event<MouseEvent>("ui-element-button-up-$label")
@@ -173,9 +171,7 @@ open class UIElement(
     }
 
     open fun draw(drawer: Drawer) {
-        visible = visibleIf()
-        interactable = interactableIf()
-        if (!visible) {
+        if (!visible()) {
             isFocused = false
         }
     }
@@ -183,3 +179,4 @@ open class UIElement(
 
 fun UIElement.getId() = this::class.simpleName?.lowercase()
 fun getUniqueId() = UIHost.current.nextUniqueId()
+

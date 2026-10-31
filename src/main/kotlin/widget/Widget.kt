@@ -24,7 +24,7 @@ open class Widget(
     val description: String? = null
 
     open val elements = mutableListOf<UIElement>()
-    val widgets = mutableListOf<Widget>()
+    open val widgets = mutableListOf<Widget>()
 
     var style: Style = parent?.style?.copy() ?: UIHost.current.style.default.copy().apply {
         backgroundColor = ColorRGBa.TRANSPARENT

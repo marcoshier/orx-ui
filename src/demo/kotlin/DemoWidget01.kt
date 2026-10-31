@@ -1,6 +1,3 @@
-package demo
-
-import UI
 import elements.button
 import org.openrndr.application
 import org.openrndr.shape.Rectangle

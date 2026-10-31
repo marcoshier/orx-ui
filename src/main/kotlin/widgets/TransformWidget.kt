@@ -146,9 +146,9 @@ class TransformWidget(
 
     init {
         val controls = listOf(
-            XYControl(controlBounds, tb::translation, translateRange) { visibleIf = { currentTransformType == "translate" } },
-            ScaleControl(controlBounds, tb::scale, scaleRange) { visibleIf = { currentTransformType == "scale" } },
-            RotateControl(controlBounds, tb::rotation) { visibleIf = { currentTransformType == "rotate" } }
+            XYControl(controlBounds, tb::translation, translateRange) { visible = { currentTransformType == "translate" } },
+            ScaleControl(controlBounds, tb::scale, scaleRange) { visible = { currentTransformType == "scale" } },
+            RotateControl(controlBounds, tb::rotation) { visible = { currentTransformType == "rotate" } }
         )
 
         addElements(controls)

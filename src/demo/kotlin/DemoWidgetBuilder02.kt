@@ -1,6 +1,3 @@
-package demo
-
-import UI
 import elements.Button
 import elements.button
 import org.openrndr.application

@@ -27,11 +27,14 @@ import org.openrndr.math.Vector4
 import org.openrndr.panel.collections.SelectableList
 import org.openrndr.panel.collections.SelectableMutableList
 import org.openrndr.shape.Rectangle
+import org.openrndr.shape.ShapeContour
 import style.Colors
 import widget.Direction
 import widget.Widget
+import widget.WidgetBuilder
 import widget.widget
 import widgets.BoxSizing
+import widgets.contourWidget
 import widgets.transformWidget
 import widgets.vectorWidget
 import java.io.File
@@ -57,6 +60,10 @@ fun <T: Any> UI.fromParameters(
         logger.info { "saving to $file" }
         store.save(key, obj, parameters)
         return dest
+    }
+
+    fun contourWidgetFromObject(p: KMutableProperty1<Any, ShapeContour>, widget: WidgetBuilder) {
+        widget.contourWidget(obj, p)
     }
 
     val w = widget(Rectangle(10.0, 10.0, 260.0, 440.0)) {
@@ -221,8 +228,11 @@ fun <T: Any> UI.fromParameters(
                         textboxInput(obj, p.property as KMutableProperty1<Any, String>) {
                             label = p.label
                         }
-
-                    XParameterType.Contour -> TODO()
+                    XParameterType.Contour -> {
+                        // contour widget is registered as a root such that when controls
+                        // are closed the contour remains visible
+                        contourWidget(obj, p.property as KMutableProperty1<Any, ShapeContour>)
+                    }
                     XParameterType.Color -> TODO()
                     XParameterType.Path -> TODO()
                }

@@ -1,6 +1,3 @@
-package demo
-
-import UI
 import elements.textboxInput
 import elements.textInput
 import org.openrndr.application

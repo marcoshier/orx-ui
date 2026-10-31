@@ -24,11 +24,10 @@ class TitleBar(
     val icon: (TitleBar.() -> Unit)? = null
 
     init {
-        interactable = widgetTitlebar
+        interactable = { widgetTitlebar }
         fixed = true
 
         var locked = false
-        var dragPosition = Vector2.ZERO
 
         buttonDown.listen {
             it.cancelPropagation()
@@ -81,7 +80,7 @@ class TitleBar(
 
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
-        if (!visible) return
+        if (!visible()) return
 
         parent?.elements?.maxOfOrNull { it.zIndex }?.let {
             zIndex = it + 1

@@ -3,36 +3,7 @@ package widget
 import org.openrndr.extra.shapes.primitives.grid
 import org.openrndr.extra.shapes.primitives.irregularGrid
 import org.openrndr.shape.Rectangle
-
-fun <T> Widget.grid(
-    columns: Int,
-    rows: Int,
-    marginX: Double = 0.0,
-    marginY: Double = 0.0,
-    gutterX: Double = 0.0,
-    gutterY: Double = 0.0,
-    element: Widget.(Rectangle) -> T
-): List<T> {
-    return bounds
-        .grid(columns, rows, marginX, marginY, gutterX, gutterY)
-        .flatten()
-        .map { element(it) }
-}
-
-fun <T> Widget.gridIndexed(
-    columns: Int,
-    rows: Int,
-    marginX: Double = 0.0,
-    marginY: Double = 0.0,
-    gutterX: Double = 0.0,
-    gutterY: Double = 0.0,
-    element: Widget.(Int, Rectangle) -> T
-): List<T> {
-    return bounds
-        .grid(columns, rows, marginX, marginY, gutterX, gutterY)
-        .flatten()
-        .mapIndexed { i, r -> element(i, r) }
-}
+import ui.UIElement
 
 fun Widget.gridSlots(
     columns: Int,
@@ -41,57 +12,15 @@ fun Widget.gridSlots(
     marginY: Double = 0.0,
     gutterX: Double = 0.0,
     gutterY: Double = 0.0,
-    elements: Widget.(List<Rectangle>) -> Unit
-) {
-    elements(
-        bounds
-            .grid(columns, rows, marginX, marginY, gutterX, gutterY)
-            .flatten()
-    )
-}
-
-fun <T> Widget.grid(
-    cellWidth: Double,
-    cellHeight: Double,
-    minMarginX: Double = 0.0,
-    minMarginY: Double = 0.0,
-    gutterX: Double = 0.0,
-    gutterY: Double = 0.0,
-    element: Widget.(Rectangle) -> T
-): List<T> {
-    return bounds
-        .grid(
-            cellWidth,
-            cellHeight,
-            minMarginX,
-            minMarginY,
-            gutterX,
-            gutterY
-        )
-        .flatten()
-        .map { element(it) }
-}
-
-fun <T> Widget.gridIndexed(
-    cellWidth: Double,
-    cellHeight: Double,
-    minMarginX: Double = 0.0,
-    minMarginY: Double = 0.0,
-    gutterX: Double = 0.0,
-    gutterY: Double = 0.0,
-    element: Widget.(Int, Rectangle) -> T
-): List<T> {
-    return bounds
-        .grid(
-            cellWidth,
-            cellHeight,
-            minMarginX,
-            minMarginY,
-            gutterX,
-            gutterY
-        )
-        .flatten()
-        .mapIndexed { i, r -> element(i, r) }
+    elements: WidgetBuilder.(List<Rectangle>) -> Unit
+): MutableList<UIElement> {
+    val builder = WidgetBuilder(bounds, zIndex, parent)
+    val slots = bounds.grid(columns, rows, marginX, marginY, gutterX, gutterY).flatten()
+    builder.elements(slots)
+    for (child in builder.widget.elements) {
+        child.parent = this
+    }
+    return builder.widget.elements
 }
 
 fun Widget.gridSlots(
@@ -101,56 +30,15 @@ fun Widget.gridSlots(
     minMarginY: Double = 0.0,
     gutterX: Double = 0.0,
     gutterY: Double = 0.0,
-    elements: Widget.(List<Rectangle>) -> Unit
-) {
-    elements(
-        bounds
-            .grid(
-                cellWidth,
-                cellHeight,
-                minMarginX,
-                minMarginY,
-                gutterX,
-                gutterY
-            )
-            .flatten()
-    )
-}
-
-fun <T> Widget.irregularGrid(
-    columnWeights: List<Double>,
-    rowWeights: List<Double>,
-    marginX: Double = 0.0,
-    marginY: Double = 0.0,
-    element: Widget.(Rectangle) -> T
-): List<T> {
-    return bounds
-        .irregularGrid(
-            columnWeights,
-            rowWeights,
-            marginX,
-            marginY
-        )
-        .flatten()
-        .map { element(it) }
-}
-
-fun <T> Widget.irregularGridIndexed(
-    columnWeights: List<Double>,
-    rowWeights: List<Double>,
-    marginX: Double = 0.0,
-    marginY: Double = 0.0,
-    element: Widget.(Int, Rectangle) -> T
-): List<T> {
-    return bounds
-        .irregularGrid(
-            columnWeights,
-            rowWeights,
-            marginX,
-            marginY
-        )
-        .flatten()
-        .mapIndexed { i, r -> element(i, r) }
+    elements: WidgetBuilder.(List<Rectangle>) -> Unit
+): MutableList<UIElement> {
+    val builder = WidgetBuilder(bounds, zIndex, parent)
+    val slots = bounds.grid(cellWidth, cellHeight, minMarginX, minMarginY, gutterX, gutterY).flatten()
+    builder.elements(slots)
+    for (child in builder.widget.elements) {
+        child.parent = this
+    }
+    return builder.widget.elements
 }
 
 fun Widget.irregularGridSlots(
@@ -158,16 +46,135 @@ fun Widget.irregularGridSlots(
     rowWeights: List<Double>,
     marginX: Double = 0.0,
     marginY: Double = 0.0,
-    elements: Widget.(List<Rectangle>) -> Unit
-) {
-    elements(
-        bounds
-            .irregularGrid(
-                columnWeights,
-                rowWeights,
-                marginX,
-                marginY
-            )
-            .flatten()
-    )
+    elements: WidgetBuilder.(List<Rectangle>) -> Unit
+): MutableList<UIElement> {
+    val builder = WidgetBuilder(bounds, zIndex, parent)
+    val slots = bounds.irregularGrid(columnWeights, rowWeights, marginX, marginY).flatten()
+    builder.elements(slots)
+    for (child in builder.widget.elements) {
+        child.parent = this
+    }
+    return builder.widget.elements
+}
+
+fun <T> Widget.grid(
+    columns: Int,
+    rows: Int,
+    marginX: Double = 0.0,
+    marginY: Double = 0.0,
+    gutterX: Double = 0.0,
+    gutterY: Double = 0.0,
+    element: WidgetBuilder.(Rectangle) -> T
+): List<T> {
+    val builder = WidgetBuilder(bounds, zIndex, parent)
+    val slots = bounds.grid(columns, rows, marginX, marginY, gutterX, gutterY).flatten()
+    val items = slots.map { builder.element(it) }
+    for (child in builder.widget.elements) {
+        child.parent = this
+    }
+    for (item in items) {
+        if (item is UIElement) item.parent = this
+    }
+    return items
+}
+
+fun <T> Widget.gridIndexed(
+    columns: Int,
+    rows: Int,
+    marginX: Double = 0.0,
+    marginY: Double = 0.0,
+    gutterX: Double = 0.0,
+    gutterY: Double = 0.0,
+    element: WidgetBuilder.(Int, Rectangle) -> T
+): List<T> {
+    val builder = WidgetBuilder(bounds, zIndex, parent)
+    val slots = bounds.grid(columns, rows, marginX, marginY, gutterX, gutterY).flatten()
+    val items = slots.mapIndexed { i, r -> builder.element(i, r) }
+    for (child in builder.widget.elements) {
+        child.parent = this
+    }
+    for (item in items) {
+        if (item is UIElement) item.parent = this
+    }
+    return items
+}
+
+fun <T> Widget.grid(
+    cellWidth: Double,
+    cellHeight: Double,
+    minMarginX: Double = 0.0,
+    minMarginY: Double = 0.0,
+    gutterX: Double = 0.0,
+    gutterY: Double = 0.0,
+    element: WidgetBuilder.(Rectangle) -> T
+): List<T> {
+    val builder = WidgetBuilder(bounds, zIndex, parent)
+    val slots = bounds.grid(cellWidth, cellHeight, minMarginX, minMarginY, gutterX, gutterY).flatten()
+    val items = slots.map { builder.element(it) }
+    for (child in builder.widget.elements) {
+        child.parent = this
+    }
+    for (item in items) {
+        if (item is UIElement) item.parent = this
+    }
+    return items
+}
+
+fun <T> Widget.gridIndexed(
+    cellWidth: Double,
+    cellHeight: Double,
+    minMarginX: Double = 0.0,
+    minMarginY: Double = 0.0,
+    gutterX: Double = 0.0,
+    gutterY: Double = 0.0,
+    element: WidgetBuilder.(Int, Rectangle) -> T
+): List<T> {
+    val builder = WidgetBuilder(bounds, zIndex, parent)
+    val slots = bounds.grid(cellWidth, cellHeight, minMarginX, minMarginY, gutterX, gutterY).flatten()
+    val items = slots.mapIndexed { i, r -> builder.element(i, r) }
+    for (child in builder.widget.elements) {
+        child.parent = this
+    }
+    for (item in items) {
+        if (item is UIElement) item.parent = this
+    }
+    return items
+}
+
+fun <T> Widget.irregularGrid(
+    columnWeights: List<Double>,
+    rowWeights: List<Double>,
+    marginX: Double = 0.0,
+    marginY: Double = 0.0,
+    element: WidgetBuilder.(Rectangle) -> T
+): List<T> {
+    val builder = WidgetBuilder(bounds, zIndex, parent)
+    val slots = bounds.irregularGrid(columnWeights, rowWeights, marginX, marginY).flatten()
+    val items = slots.map { builder.element(it) }
+    for (child in builder.widget.elements) {
+        child.parent = this
+    }
+    for (item in items) {
+        if (item is UIElement) item.parent = this
+    }
+    return items
+}
+
+fun <T> Widget.irregularGridIndexed(
+    columnWeights: List<Double>,
+    rowWeights: List<Double>,
+    marginX: Double = 0.0,
+    marginY: Double = 0.0,
+    element: WidgetBuilder.(Int, Rectangle) -> T
+): List<T> {
+    val builder = WidgetBuilder(bounds, zIndex, parent)
+    val slots = bounds.irregularGrid(columnWeights, rowWeights, marginX, marginY).flatten()
+    val items = slots.mapIndexed { i, r -> builder.element(i, r) }
+    for (child in builder.widget.elements) {
+        child.parent = this
+    }
+    for (item in items) {
+        if (item is UIElement) item.parent = this
+    }
+    return items
 }

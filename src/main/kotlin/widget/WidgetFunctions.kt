@@ -12,6 +12,7 @@ import ui.close
 fun Widget.addElement(element: UIElement) {
     element.parent = this
     elements.add(element)
+    UIHost.current.tree.invalidateCache() // TODO smart List
 }
 
 fun Widget.addElements(elements: List<UIElement>) {

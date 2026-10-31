@@ -43,7 +43,7 @@ class Checkbox(
 
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
-        if (!visible) return
+        if (!visible()) return
 
         val bgFill = when {
             isHovered && !isSelected -> effectiveStyle.hoverColor

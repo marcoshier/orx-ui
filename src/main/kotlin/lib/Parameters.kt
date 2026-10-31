@@ -5,6 +5,7 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigUtil
 import com.typesafe.config.ConfigValueFactory
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.serialization.json.Json
 import org.openrndr.color.ColorRGBa
 import org.openrndr.extra.parameters.ActionParameter
 import org.openrndr.extra.parameters.BooleanParameter
@@ -27,6 +28,7 @@ import org.openrndr.math.Vector3
 import org.openrndr.math.Vector4
 import org.openrndr.panel.collections.SelectableList
 import org.openrndr.panel.collections.SelectableMutableList
+import org.openrndr.shape.ShapeContour
 import java.io.File
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
@@ -95,9 +97,7 @@ enum class XParameterType(val annotationClass: KClass<out Annotation>) {
     Contour(ContourParameter::class)
     ;
 
-    companion object {
-
-    }
+    companion object
 
 }
 
@@ -291,7 +291,6 @@ fun Any.listXParameters(): List<XParameter> {
             pathExtensions = pathExtensions,
             pathIsDirectory = pathIsDirectory,
             order = order,
-
             )
     } + this::class.declaredMemberFunctions.filter {
         it.findAnnotation<ActionParameter>() != null
@@ -379,6 +378,7 @@ class ParameterStore(private val file: File) {
             is Matrix44 -> v.toDoubleArray().toList()
             is ColorRGBa -> listOf(v.r, v.g, v.b, v.alpha)
             is ClosedRange<*> -> listOf(v.start, v.endInclusive)
+            is ShapeContour -> Json.encodeToString(v)
             else -> null
         }
     }
@@ -386,8 +386,7 @@ class ParameterStore(private val file: File) {
     @Suppress("UNCHECKED_CAST")
     private fun decode(p: XParameter, obj: Any, c: Config, k: String) {
         val prop = p.property as KMutableProperty1<Any, Any?>
-        val current = prop.get(obj)
-        val value: Any? = when (current) {
+        val value: Any? = when (val current = prop.get(obj)) {
             is Double -> c.getDouble(k).let { d -> p.doubleRange?.let { d.coerceIn(it) } ?: d }
             is Int -> c.getInt(k).let { i -> p.intRange?.let { i.coerceIn(it) } ?: i }
             is Boolean -> c.getBoolean(k)
@@ -402,7 +401,9 @@ class ParameterStore(private val file: File) {
             is ColorRGBa -> c.getDoubleList(k).let { ColorRGBa(it[0], it[1], it[2], it[3]) }
             is ClosedRange<*> -> if (current.start is Int)
                 c.getIntList(k).let { it[0]..it[1] } else c.getDoubleList(k).let { it[0]..it[1] }
+            is ShapeContour -> Json.decodeFromString<ShapeContour>(c.getString(k))
             else -> return
+
         }
         prop.set(obj, value)
     }

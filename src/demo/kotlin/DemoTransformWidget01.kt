@@ -1,6 +1,3 @@
-package demo
-
-import UI
 import org.openrndr.application
 import org.openrndr.extra.math.linearrange.rangeTo
 import org.openrndr.math.Matrix44

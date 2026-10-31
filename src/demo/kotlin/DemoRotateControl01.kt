@@ -1,6 +1,3 @@
-package demo
-
-import UI
 import elements.rotateControl
 import org.openrndr.application
 

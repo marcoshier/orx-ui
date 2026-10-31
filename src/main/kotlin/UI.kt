@@ -10,15 +10,12 @@ import org.openrndr.Program
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.math.Vector2
-import org.openrndr.math.sum
 import style.Style
 import style.StyleLibrary
 import style.Stylesheet
 import ui.UIElement
 import ui.updateAnimations
-import widget.Widget
 import widget.clipBounds
-import widget.screenBounds
 import java.io.File
 
 private val logger = KotlinLogging.logger {  }
@@ -75,8 +72,8 @@ class UI: Extension {
             val tree = host.tree
 
             for (el in tree.hitOrder) {
-                if (!el.visible) continue
-                if (!el.interactable) continue
+                if (!el.visible()) continue
+                if (!el.interactable()) continue
                 if (!el.contains(event.position)) continue
 
                 val transformedEvent = transformMouseEvent(event, el)
@@ -121,7 +118,7 @@ class UI: Extension {
         var hit: UIElement? = null
 
         for (el in tree.hitOrder) {
-            if (!el.visible || !el.interactable) continue
+            if (!el.visible() || !el.interactable()) continue
             if (hit == null && el.contains(event.position)) {
                 hit = el
             }
@@ -130,12 +127,14 @@ class UI: Extension {
         var hoveredElement: UIElement? = null
 
         for (el in tree.flattened) {
-            val nowHovered = el === hit
-            if (nowHovered) hoveredElement = el
+            val isHovered = el === hit
+            if (isHovered && el.interactable()) {
+                hoveredElement = el
+            }
 
-            if (el.isHovered != nowHovered) {
-                el.isHovered = nowHovered
-                el.hovered.trigger(nowHovered)
+            if (el.isHovered != isHovered) {
+                el.isHovered = isHovered
+                el.hovered.trigger(isHovered)
                 requestDraw()
             }
         }
@@ -250,6 +249,14 @@ class UI: Extension {
             character.listen(::handleCharacter)
             keyDown.listen(::handleKeydown)
         }
+
+        host.tree.elementClosed.listen {
+            if (focusElement === it) focusElement = null
+            if (activeElement === it) activeElement = null
+            if (dragElement === it) dragElement = null
+            if (textElement === it) textElement = null
+            if (lastClickElement === it) lastClickElement = null
+        }
     }
 
     private fun draw(drawer: Drawer) {
@@ -272,7 +279,9 @@ class UI: Extension {
 
             drawer.isolated {
                 focusElement?.let { el ->
-                    drawer.drawStyle.clip = el.parent?.clipBounds()
+                    if (el.parent?.clip == true) {
+                        drawer.drawStyle.clip = el.parent?.clipBounds()
+                    }
                     drawer.isolated {
                         el.updateAnimations()
                         drawer.translate(el.accumulatedOffset())

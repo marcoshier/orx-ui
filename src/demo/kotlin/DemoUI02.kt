@@ -1,7 +1,4 @@
-package demo
-
-import UI
-import elements.selectableMutableListOf
+import lib.selectableMutableListOf
 import lib.DoubleRangeParameter
 import lib.Matrix44Parameter
 import org.openrndr.application
@@ -45,7 +42,7 @@ fun main() {
                     sets.add(generate())
                     sets.selectedIndex = sets.lastIndex
                 }
-                
+
                 @Matrix44Parameter("camera view",
                     -100.0, 100.0, -100.0, 100.0,
                     1.0, 3.0, -360.0, 360.0

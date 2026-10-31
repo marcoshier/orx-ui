@@ -1,6 +1,3 @@
-package demo
-
-import UI
 import elements.button
 import lib.sdf3
 import org.openrndr.animatable.easing.Easing

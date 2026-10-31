@@ -1,6 +1,3 @@
-package demo
-
-import UI
 import elements.rangeSlider
 import org.openrndr.application
 import widget.gridSlots
