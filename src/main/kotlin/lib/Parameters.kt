@@ -2,8 +2,10 @@ package lib
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigRenderOptions
 import com.typesafe.config.ConfigUtil
 import com.typesafe.config.ConfigValueFactory
+import com.typesafe.config.ConfigValueType
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.serialization.json.Json
 import org.openrndr.color.ColorRGBa
@@ -378,7 +380,7 @@ class ParameterStore(private val file: File) {
             is Matrix44 -> v.toDoubleArray().toList()
             is ColorRGBa -> listOf(v.r, v.g, v.b, v.alpha)
             is ClosedRange<*> -> listOf(v.start, v.endInclusive)
-            is ShapeContour -> Json.encodeToString(v)
+            is ShapeContour -> ConfigFactory.parseString(Json.encodeToString(v)).root().unwrapped()
             else -> null
         }
     }
@@ -401,7 +403,15 @@ class ParameterStore(private val file: File) {
             is ColorRGBa -> c.getDoubleList(k).let { ColorRGBa(it[0], it[1], it[2], it[3]) }
             is ClosedRange<*> -> if (current.start is Int)
                 c.getIntList(k).let { it[0]..it[1] } else c.getDoubleList(k).let { it[0]..it[1] }
-            is ShapeContour -> Json.decodeFromString<ShapeContour>(c.getString(k))
+            is ShapeContour -> {
+                val cv = c.getValue(k)
+                val json = if (cv.valueType() == ConfigValueType.STRING) {
+                    cv.unwrapped() as String
+                } else {
+                    cv.render(ConfigRenderOptions.concise())
+                }
+                Json.decodeFromString<ShapeContour>(json)
+            }
             else -> return
 
         }
