@@ -2,7 +2,7 @@ import elements.button
 import org.openrndr.animatable.easing.Easing
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
-import style.style
+import style.stylesheet
 import widget.grid
 import widget.widget
 import java.io.File
@@ -12,7 +12,7 @@ fun main() {
         program {
             extend(UI())
 
-            val style = style {
+            val style = stylesheet {
                 "high-contrast" {
                     hoverColor = null
                     borderRadius = 0.0

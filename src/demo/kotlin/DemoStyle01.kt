@@ -3,7 +3,7 @@ import org.openrndr.animatable.easing.Easing
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.extra.color.presets.ORANGE_RED
-import style.style
+import style.stylesheet
 import widget.gridSlots
 import widget.widget
 
@@ -29,7 +29,7 @@ fun main() {
                 }
             }
 
-            style {
+            stylesheet {
                 "nf" {
                     hoverColor = null
                 }

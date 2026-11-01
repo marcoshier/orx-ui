@@ -12,7 +12,7 @@ fun main() {
             val points = (0..4).map { drawer.bounds.uniform() }
 
             val state = object {
-                @ContourParameter("contour")
+                @ContourParameter("contour-01")
                 var contour = ShapeContour.fromPoints(points, false)
             }
 

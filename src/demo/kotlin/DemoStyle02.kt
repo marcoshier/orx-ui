@@ -3,7 +3,7 @@ import org.openrndr.animatable.easing.Easing
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.extra.color.presets.ORANGE_RED
-import style.style
+import style.stylesheet
 import widget.grid
 import widget.widget
 
@@ -18,7 +18,7 @@ fun main() {
                 }
             }
 
-            style {
+            stylesheet {
                 "round" {
                     hoverColor = null
                     transition(0.5, Easing.SineInOut)

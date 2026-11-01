@@ -29,6 +29,7 @@ import org.openrndr.panel.collections.SelectableMutableList
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.ShapeContour
 import style.Colors
+import style.Style
 import widget.Direction
 import widget.Widget
 import widget.WidgetBuilder
@@ -46,34 +47,34 @@ private val logger = KotlinLogging.logger {  }
 fun <T: Any> UI.fromParameters(
     objectWithParameters: T,
     file: File? = null,
-    autosave: Boolean = true
+    style: Style? = null,
+    autosave: Boolean = true,
+    configure: Widget.() -> Unit = {}
 ): Widget {
     val obj = objectWithParameters
     val parameters = objectWithParameters.listXParameters()
 
-    val dest = file ?: File("ui-parameters/${UIHost.context.program.name}.conf")
-    val store = ParameterStore(dest)
+    val saveFile = file ?: File("ui-parameters/${UIHost.context.program.name}.conf")
+    val store = ParameterStore(saveFile)
+
     val key = obj::class.simpleName ?: "parameters"
     store.load(key, obj, parameters)
 
     fun save(): File {
-        logger.info { "saving to $file" }
+        logger.info { "saving to $saveFile" }
         store.save(key, obj, parameters)
-        return dest
-    }
-
-    fun contourWidgetFromObject(p: KMutableProperty1<Any, ShapeContour>, widget: WidgetBuilder) {
-        widget.contourWidget(obj, p)
+        return saveFile
     }
 
     val w = widget(Rectangle(10.0, 10.0, 260.0, 440.0)) {
-        strokeColor = null
-        backgroundColor = Colors.CLICKABLE
-        padding = Vector2(10.0)
+        strokeColor = style?.strokeColor
+        backgroundColor = style?.backgroundColor ?: Colors.CLICKABLE
+        padding = Vector2(style?.paddingX ?: 10.0, style?.paddingY ?: 10.0)
+        style?.let { widget.style = it }
 
         append(Direction.DOWN) {
             titleBar("PARAMETERS", bounds.copy(height = 15.0), widgetTitlebar = true) {
-                style.backgroundColor = Colors.FOCUSED
+                this.style.backgroundColor = Colors.FOCUSED
             }
         }
 
@@ -229,7 +230,9 @@ fun <T: Any> UI.fromParameters(
                             label = p.label
                         }
                     XParameterType.Contour -> {
-                        contourWidget(obj, p.property as KMutableProperty1<Any, ShapeContour>)
+                        contourWidget(obj, p.property as KMutableProperty1<Any, ShapeContour>) {
+                            label = p.label
+                        }
                     }
                     XParameterType.Color -> TODO()
                     XParameterType.Path -> TODO()
@@ -241,6 +244,8 @@ fun <T: Any> UI.fromParameters(
     if (autosave) {
         setupAutoSave(::save)
     }
+
+    configure(w)
 
     return w
 }

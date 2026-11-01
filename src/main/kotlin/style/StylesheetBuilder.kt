@@ -1,6 +1,6 @@
 package style
 
-class StyleBuilder {
+class StylesheetBuilder {
     val stack: StyleStack get() = UIHost.current.style
 
     operator fun String.invoke(vararg modifiers: StyleModifier, block: Style.() -> Unit = {}) {
@@ -23,8 +23,12 @@ class StyleBuilder {
     val focus = StyleModifier.FOCUS
 }
 
-fun style(block: StyleBuilder.() -> Unit): Stylesheet {
-    val sb = StyleBuilder()
+fun stylesheet(block: StylesheetBuilder.() -> Unit): Stylesheet {
+    val sb = StylesheetBuilder()
     sb.block()
     return sb.stack.toStylesheet()
+}
+
+fun style(block: Style.() -> Unit): Style {
+    return Style().apply { block() }
 }
