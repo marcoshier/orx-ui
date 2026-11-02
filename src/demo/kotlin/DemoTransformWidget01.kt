@@ -29,7 +29,7 @@ fun main() {
                     transformWidget(r[0], state::tr0,
                         Vector2(-5.0)..Vector2(5.0),
                         Vector2.ONE..Vector2(5.0)
-                    )
+                    ) { precision = 3 }
                     transformWidget(r[1], state::tr1,
                         Vector2(-5.0)..Vector2(5.0),
                         Vector2.ONE..Vector2(5.0)

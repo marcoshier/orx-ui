@@ -8,6 +8,7 @@ import org.openrndr.extra.shapes.primitives.roundedRectangle
 import org.openrndr.extra.shapes.primitives.toRounded
 import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
+import org.openrndr.math.clamp
 import org.openrndr.math.map
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
@@ -61,17 +62,24 @@ class XYControl(
     }
 
     init {
+        var lastPos = Vector2.ZERO
+
         buttonDown.listen {
             it.cancelPropagation()
+            lastPos = it.position
         }
 
         listOf(dragged, buttonUp).listen {
-            setUV(it.position)
+            val delta = it.position - lastPos
+            lastPos = it.position
+
+            val friction = precision.coerceAtLeast(1).toDouble()
+            val duv = Vector2(delta.x / ibounds.width, delta.y / ibounds.height) / friction
+            uv = (uv + duv).clamp(Vector2.ZERO, Vector2.ONE)
         }
 
         configure()
     }
-
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
 
@@ -108,8 +116,8 @@ class XYControl(
                 horizontalAlign = 0.5
                 verticalAlign = 0.5
                 val value = getter()
-                val x = "%.1f".format(value.x)
-                val y = "%.1f".format(value.y)
+                val x = "%.${precision}f".format(value.x)
+                val y = "%.${precision}f".format(value.y)
                 text("$x,$y", visible)
                 glyphOutput.rectangles.map { it.second }.bounds
             }

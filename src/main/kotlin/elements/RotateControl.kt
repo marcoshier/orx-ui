@@ -68,19 +68,14 @@ class RotateControl(
         fun setAngle(pos: Vector2) {
             val angle = getAngle(pos)
             var delta = angle - lastAngleDeg
-
             if (delta > 180.0) delta -= 360.0
             if (delta < -180.0) delta += 360.0
 
-            totalAngleDeg += delta
+            val friction = precision.coerceAtLeast(1).toDouble()
+            totalAngleDeg += delta / friction
+
             lastAngleDeg = angle
-
-            val newAngle = startAngle + totalAngleDeg
-
-            minAngle = min(newAngle, t)
-            maxAngle = max(newAngle, t)
-
-            t = newAngle
+            t = startAngle + totalAngleDeg
         }
 
         buttonDown.listen {
@@ -134,7 +129,7 @@ class RotateControl(
             horizontalAlign = 0.5
             verticalAlign = 0.5
             val value = getter()
-            text("%.1f°".format(value))
+            text("%.${precision}f°".format(value))
         }
     }
 }

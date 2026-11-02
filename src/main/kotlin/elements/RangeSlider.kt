@@ -105,19 +105,44 @@ open class RangeSlider<T : Comparable<T>>(
     private fun tAt(x: Double) = x.map(railStart.x, railEnd.x, 0.0, 1.0, true)
 
     init {
+        var lastX = 0.0
+        var dragging = false
         buttonDown.listen {
             it.cancelPropagation()
             val t = tAt(it.position.x)
             activeHandle = if (kotlin.math.abs(t - tLow) <= kotlin.math.abs(t - tHigh)) 0 else 1
-            setHandle(activeHandle, t)
+
+            lastX = it.position.x
+            dragging = false
         }
 
         dragged.listen {
-            if (activeHandle >= 0) setHandle(activeHandle, tAt(it.position.x))
+            if (activeHandle < 0) return@listen
+            dragging = true
+
+            val length = railEnd.x - railStart.x
+            val dx = it.position.x - lastX
+            lastX = it.position.x
+
+            val friction = precision * 1.0
+            val dt = (dx / length) / friction
+            val currentT = if (activeHandle == 0) tLow else tHigh
+
+            val v: T = getter().start
+
+            when(v) {
+                is Int -> setHandle(activeHandle, tAt(it.position.x))
+                is Double -> setHandle(activeHandle, (currentT + dt).coerceIn(0.0, 1.0))
+                else -> error("type not supported")
+            }
         }
 
         buttonUp.listen {
+            if (!dragging) {
+                setHandle(activeHandle, tAt(it.position.x))
+            }
             activeHandle = -1
+            dragging = false
         }
 
         configure()
@@ -141,8 +166,8 @@ open class RangeSlider<T : Comparable<T>>(
                 horizontalAlign = 1.0
                 verticalAlign = 0.0
                 val v = getter()
-                val s = if (v.start is Double) "%.1f".format(v.start) else "${v.start}"
-                val e = if (v.endInclusive is Double) "%.1f".format(v.endInclusive) else "${v.endInclusive}"
+                val s = if (v.start is Double) "%.${precision}f".format(v.start) else "${v.start}"
+                val e = if (v.endInclusive is Double) "%.${precision}f".format(v.endInclusive) else "${v.endInclusive}"
                 text("$s..$e", visible)
                 glyphOutput.rectangles.map { it.second }.bounds
             }

@@ -1,5 +1,7 @@
 package elements
 
+import UI
+import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.color.mix
 import org.openrndr.draw.Drawer
@@ -13,6 +15,9 @@ import registerElement
 import style.Colors
 import ui.UIElement
 import widget.WidgetBuilder
+import widget.grid
+import widget.gridIndexed
+import widget.widget
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
@@ -73,35 +78,43 @@ open class Slider<T: Comparable<T>>(
             setter(ranged)
         }
 
-    private fun getDoubleValue(): Double {
-        val valueDouble = when(val value =  getter()) {
-            is Double -> value
-            is Int -> value.toDouble()
-            else -> error("Unsupported type: ${value::class}")
-        }
-
-        return valueDouble
-    }
-
     private var dragStartValue: T? = null
 
     fun updateT(x: Double) {
        t = x.map(railStart.x, railEnd.x, 0.0, 1.0, true)
     }
 
+    fun updateT(x: Double, friction: Double) {
+        t = (t + (x / friction)).coerceIn(0.0, 1.0)
+    }
+
     init {
+        var lastX = 0.0
+        var dragging = false
+
         buttonDown.listen {
             it.cancelPropagation()
             dragStartValue = getter()
-        }
-
-        buttonUp.listen {
-            updateT(it.position.x)
-            dragStartValue = null
+            lastX = it.position.x
         }
 
         dragged.listen {
-            updateT(it.position.x)
+            dragging = true
+            var length = railEnd.x - railStart.x
+            val dx = it.position.x - lastX
+            lastX = it.position.x
+
+            val friction = (precision.coerceAtLeast(1) * 1.0)
+            updateT(dx / length, friction)
+        }
+
+        buttonUp.listen {
+            if (!dragging) {
+                updateT(it.position.x)
+            }
+
+            dragStartValue = null
+            dragging = false
         }
 
         configure()
@@ -125,7 +138,7 @@ open class Slider<T: Comparable<T>>(
                 horizontalAlign = 1.0
                 verticalAlign = 0.0
                 val displayValue = when (val v = getter()) {
-                    is Double -> "%.1f".format(v)
+                    is Double -> "%.${precision}f".format(v)
                     else -> "$v"
                 }
                 text(displayValue, visible)

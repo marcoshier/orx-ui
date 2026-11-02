@@ -102,6 +102,7 @@ class ScaleControl (
 
     init {
         var dragSign = Vector2.ONE
+        var lastPos = Vector2.ZERO
 
         buttonDown.listen {
             it.cancelPropagation()
@@ -110,15 +111,23 @@ class ScaleControl (
                 if (diff.x < 0) -1.0 else 1.0,
                 if (diff.y < 0) -1.0 else 1.0
             )
+            lastPos = it.position
         }
 
         listOf(dragged, buttonUp).listen {
+            val delta = it.position - lastPos
+            lastPos = it.position
+
             val half = Vector2(ibounds.width / 2.0, ibounds.height / 2.0)
-            val diff = it.position - ibounds.center
+            val friction = precision.coerceAtLeast(1).toDouble()
+            val dn = Vector2(
+                delta.x * dragSign.x / half.x,
+                delta.y * dragSign.y / half.y
+            ) / friction
 
             var n = Vector2(
-                (diff.x * dragSign.x / half.x).coerceIn(0.0, 1.0),
-                (diff.y * dragSign.y / half.y).coerceIn(0.0, 1.0)
+                (mappedScale.x + dn.x).coerceIn(0.0, 1.0),
+                (mappedScale.y + dn.y).coerceIn(0.0, 1.0)
             )
 
             if (uniform) {
@@ -192,8 +201,8 @@ class ScaleControl (
                 horizontalAlign = 0.5
                 verticalAlign = 0.5
                 val value = getter()
-                val x = "%.1f".format(value.x)
-                val y = "%.1f".format(value.y)
+                val x = "%.${precision}f".format(value.x)
+                val y = "%.${precision}f".format(value.y)
                 val text = if (uniform) x else "$x,$y"
                 text(text, visible)
                 glyphOutput.rectangles.map { it.second }.bounds

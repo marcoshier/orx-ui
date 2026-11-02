@@ -82,6 +82,14 @@ class TransformWidget(
     override val xScrollable = false
     override val yScrollable = false
 
+    var precision = 1
+        set(value) {
+            field = value
+            for (element in elements) {
+                element.precision = field
+            }
+        }
+
     val ibounds = bounds.copy()
     var boxSizing = BoxSizing.CONTENT_BOX
 

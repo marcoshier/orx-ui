@@ -48,6 +48,11 @@ open class UIElement(
 
     var dirty = false
 
+    var precision = 1
+        set(value) {
+            field = value.coerceIn(1, 4)
+        }
+
     var isHovered = false
         set(value) {
             if (field != value) {

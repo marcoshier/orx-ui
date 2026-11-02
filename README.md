@@ -11,8 +11,8 @@ Roadmap (highest priority first):
 - [x] Stylesheets
 - [x] orx-parameters binding
 - [x] Other controls (Nodes/contour control, Color Widget, Spring control, etc...)
+- [x] friction-based precision
 - [ ] Collapsible Widgets
-- [ ] resistance-based precision
 - [ ] Documentation
 - [ ] tests
 - [ ] auto value smoothing

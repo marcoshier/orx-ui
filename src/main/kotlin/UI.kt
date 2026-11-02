@@ -313,7 +313,8 @@ class UI: Extension {
 
 
 fun transformMouseEvent(event: MouseEvent, element: UIElement) = event.copy(
-    position = transformPos(event.position, element)
+    position = transformPos(event.position, element),
+    dragDisplacement = event.dragDisplacement * element.precision.toDouble()
 )
 fun UIElement.accumulatedOffset(): Vector2 {
     var dx = 0.0

@@ -86,11 +86,13 @@ fun <T: Any> UI.fromParameters(
                     XParameterType.Double ->
                         slider(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Double>) {
                             label = p.label
+                            precision = p.precision ?: 1
                         }
 
                     XParameterType.Int ->
                         slider(p.intRange!!, obj, p.property as KMutableProperty1<Any, Int>) {
                             label = p.label
+                            precision = p.precision ?: 1
                         }
 
                     XParameterType.Boolean ->
@@ -173,57 +175,84 @@ fun <T: Any> UI.fromParameters(
 
                     XParameterType.XY -> {
                         elementHeight = elementWidth
-                        xyControl(obj, p.property as KMutableProperty1<Any, Vector2>, p.vectorRange!!.range)
+                        xyControl(obj, p.property as KMutableProperty1<Any, Vector2>, p.vectorRange!!.range) {
+                            precision = p.precision ?: 1
+                        }
                     }
                     XParameterType.Scale -> {
                         elementHeight = elementWidth
                         val vrange = p.vectorRange?.range
                         if (vrange != null) {
-                            scaleControl(vrange, obj, p.property as KMutableProperty1<Any, Vector2>)
+                            scaleControl(vrange, obj, p.property as KMutableProperty1<Any, Vector2>) {
+                                precision = p.precision ?: 1
+                            }
                         } else {
-                            scaleControl(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Double>)
+                            scaleControl(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Double>) {
+                                precision = p.precision ?: 1
+                            }
                         }
                     }
                     XParameterType.Rotation -> {
                         elementHeight = elementWidth
-                        rotateControl(obj, p.property as KMutableProperty1<Any, Double>)
+                        rotateControl(obj, p.property as KMutableProperty1<Any, Double>) {
+                            precision = p.precision ?: 1
+                        }
                     }
                     XParameterType.Vector2 -> {
                         elementHeight = 50.0 * 2
-                        vectorWidget(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Vector2>)
+                        vectorWidget(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Vector2>) {
+                            elements.forEach { it.precision = p.precision ?: 1 }
+                        }
                     }
                     XParameterType.Vector3 -> {
                         elementHeight = 50.0 * 3
-                        vectorWidget(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Vector3>)
+                        vectorWidget(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Vector3>) {
+                            elements.forEach { it.precision = p.precision ?: 1 }
+                        }
                     }
                     XParameterType.Vector4 -> {
                         elementHeight = 50.0 * 4
-                        vectorWidget(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Vector4>)
+                        vectorWidget(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Vector4>) {
+                            elements.forEach { it.precision = p.precision ?: 1 }
+                        }
                     }
                     XParameterType.IntVector2 -> {
                         elementHeight = 50.0 * 2
-                        vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector2>)
+                        vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector2>) {
+                            elements.forEach { it.precision = p.precision ?: 1 }
+                        }
                     }
                     XParameterType.IntVector3 -> {
                         elementHeight = 50.0 * 3
-                        vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector3>)
+                        vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector3>) {
+                            elements.forEach { it.precision = p.precision ?: 1 }
+                        }
                     }
                     XParameterType.IntVector4 -> {
                         elementHeight = 50.0 * 4
-                        vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector4>)
+                        vectorWidget(p.intRange!!, obj, p.property as KMutableProperty1<Any, IntVector4>) {
+                            elements.forEach { it.precision = p.precision ?: 1 }
+                        }
                     }
                     XParameterType.Matrix44 -> {
                         elementHeight = elementWidth + 50.0
                         transformWidget(obj, p.property as KMutableProperty1<Any, Matrix44>,
                             p.doubleRange ?: -100.0..100.0,
                             0.01..10.0 // TODO rotation
-                        ) { boxSizing = BoxSizing.CONTENT_BOX }
+                        ) {
+                            boxSizing = BoxSizing.CONTENT_BOX
+                            elements.forEach { it.precision = p.precision ?: 1 }
+                        }
                     }
                     XParameterType.IntRange -> {
-                        rangeSlider(p.intRange!!, obj, p.property as KMutableProperty1<Any, ClosedRange<Int>>)
+                        rangeSlider(p.intRange!!, obj, p.property as KMutableProperty1<Any, ClosedRange<Int>>) {
+                            precision = p.precision ?: 1
+                        }
                     }
                     XParameterType.DoubleRange -> {
-                        rangeSlider(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, ClosedRange<Double>>)
+                        rangeSlider(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, ClosedRange<Double>>) {
+                            precision = p.precision ?: 1
+                        }
                     }
                     XParameterType.Textbox ->
                         textboxInput(obj, p.property as KMutableProperty1<Any, String>) {
