@@ -19,7 +19,7 @@ fun main() {
                 var contour = ShapeContour.fromPoints(points, false)
             }
 
-            contourWidget(state::contour, true)
+            contourWidget(state::contour)
 
             extend {
                 drawer.strokeWeight = 3.0

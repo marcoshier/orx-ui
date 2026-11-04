@@ -1,5 +1,7 @@
+import elements.button
 import elements.checkbox
 import org.openrndr.application
+import org.openrndr.shape.Rectangle
 import widget.gridIndexed
 import widget.widget
 
@@ -7,7 +9,7 @@ fun main() {
     application {
         configure {
             width = 480
-            height = 480
+            height = 120
         }
         program {
             extend(UI())
@@ -17,8 +19,9 @@ fun main() {
             }
 
             widget(drawer.bounds.offsetEdges(-10.0)) {
-                gridIndexed(2, 2, gutterX = 10.0, gutterY = 10.0) { i, box ->
-                    checkbox(box, states[i]::on)
+                for ((i, state) in states.withIndex()) {
+                    val r = Rectangle(i * 120.0, 0.0, 120.0).offsetEdges(-10.0)
+                    checkbox(r, state::on)
                 }
             }
         }

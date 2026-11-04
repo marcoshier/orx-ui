@@ -108,6 +108,9 @@ class WidgetBuilder(
     }
 
     fun <T> append(direction: Direction, spacing: Double = 0.0, block: WidgetBuilder.() -> T): T {
+//        widget.elements.added.listen {
+//            //step()
+//        }
         step(direction, spacing)
         return block()
     }

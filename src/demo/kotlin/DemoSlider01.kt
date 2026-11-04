@@ -14,17 +14,14 @@ fun main() {
             extend(UI())
 
             var state = object {
-                var v = 0.0
+                var d = 0.0
+                var i = 5
             }
 
-            slider(Rectangle.fromCenter(drawer.bounds.center, 300.0, 200.0), 0.0..10.0, state::v) {
-                style.strokeColor = ColorRGBa.GREEN
-                afterDraw = {
-                    drawer.stroke = ColorRGBa.RED
-                    drawer.fill = null
-                    drawer.rectangle(this@slider.bounds)
-                }
-            }
+            val r = drawer.bounds.offsetEdges(-10.0)
+
+            slider(r, 0.0..10.0, state::d)
+            slider(r, 0..10, state::i)
         }
     }
 }

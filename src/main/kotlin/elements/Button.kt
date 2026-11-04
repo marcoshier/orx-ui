@@ -27,20 +27,25 @@ open class Button(
             field = value
             if (iconOn == null) iconOn = field
         }
-
     var iconOn: (Drawer.() -> Unit)? = null
 
     var textAlign = Vector2(0.5)
 
-    var buttonDownPosition = Vector2.ZERO
-
     init {
         buttonDown.listen {
             it.cancelPropagation()
-            buttonDownPosition = it.position
             action(it)
+            isSelected = true
         }
-        dragged.listen { dragAction(it) }
+
+        buttonUp.listen {
+            isSelected = false
+        }
+
+        dragged.listen {
+            isSelected = true
+            dragAction(it)
+        }
 
         configure()
     }

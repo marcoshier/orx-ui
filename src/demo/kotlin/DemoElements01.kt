@@ -42,10 +42,6 @@ fun main() {
 
                 slider(grid[3], 0.0..10.0, state::value)
             }
-
-            extend {
-
-            }
         }
     }
 }

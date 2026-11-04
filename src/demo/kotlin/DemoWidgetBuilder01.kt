@@ -19,9 +19,15 @@ fun main() {
         program {
             extend(UI())
 
-            val grid = drawer.bounds.offsetEdges(-100.0).grid(2, 2, gutterX = 10.0, gutterY = 10.0,).flatten()
+            val grid = drawer.bounds
+                .offsetEdges(-100.0)
+                .grid(2, 2, gutterX = 10.0, gutterY = 10.0,)
+                .flatten()
 
-            class RoundButton(bounds: Rectangle): Button(bounds, { style.borderRadius = 20.0; beforeDraw = { label = "${isSelected}" } })
+            class RoundButton(bounds: Rectangle): Button(bounds, {
+                style.borderRadius = 20.0
+                beforeDraw = { label = "${isSelected}" } }
+            )
 
             widget(drawer.bounds) {
                 asCheckbox {

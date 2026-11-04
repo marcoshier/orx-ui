@@ -16,10 +16,11 @@ fun main() = application {
     program {
         extend(UI())
 
+        // TODO we dont need this. just a titleBar in Widget is enough
         titleBarWidget("OPENRNDR",
             drawer.bounds.copy(height = 30.0),
             windowTitlebar = true,
-            zIndex = 10
+            zIndex = 10 //TODO
         ) {
             button(Rectangle(bounds.width - 30.0, 5.0, 20.0)) {
                 label = ""

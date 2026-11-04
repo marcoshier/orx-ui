@@ -8,6 +8,8 @@ import org.openrndr.extra.shapes.primitives.roundedRectangle
 import org.openrndr.extra.shapes.primitives.toRounded
 import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
+import org.openrndr.panel.collections.SelectableList
+import org.openrndr.panel.collections.SelectableMutableList
 import org.openrndr.shape.Rectangle
 import registerElement
 import style.Colors
@@ -262,5 +264,137 @@ fun <T> WidgetBuilder.dropdown(
         configure()
     }
     add(b)
+    return b
+}
+
+@JvmName("dropdownWidgetSelectableList0")
+fun <T : Any> WidgetBuilder.dropdown(
+    listRef: KMutableProperty0<SelectableList<T>>,
+    entryName: (T) -> String = { it.toString() },
+    configure: Dropdown<T>.() -> Unit = {},
+): Dropdown<T> {
+    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
+    val b = Dropdown<T>(
+        r,
+        getter = { listRef.get().let { (it.selected ?: it.firstOrNull()) as T } },
+        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
+    ) {
+        entries = { listRef.get().toList() }
+        this.entryName = entryName
+        configure()
+    }
+    add(b)
+    return b
+}
+
+@JvmName("dropdownWidgetSelectableList1")
+fun <T : Any> WidgetBuilder.dropdown(
+    obj: Any,
+    listRef: KMutableProperty1<Any, SelectableList<T>>,
+    entryName: (T) -> String = { it.toString() },
+    configure: Dropdown<T>.() -> Unit = {},
+): Dropdown<T> {
+    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
+    val b = Dropdown<T>(
+        r,
+        getter = { listRef.get(obj).let { (it.selected ?: it.firstOrNull()) as T } },
+        setter = { s -> listRef.get(obj).let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
+    ) {
+        entries = { listRef.get(obj).toList() }
+        this.entryName = entryName
+        configure()
+    }
+    add(b)
+    return b
+}
+
+
+@JvmName("dropdownWidgetSelectableMutableList0")
+fun <T : Any> WidgetBuilder.dropdown(
+    listRef: KMutableProperty0<SelectableMutableList<T>>,
+    entryName: (T) -> String = { it.toString() },
+    configure: Dropdown<T>.() -> Unit = {},
+): Dropdown<T> {
+    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
+    val b = Dropdown<T>(
+        r,
+        getter = { listRef.get().let { (it.selected ?: it.firstOrNull()) as T } },
+        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
+    ) {
+        entries = { listRef.get().toList() }
+        this.entryName = entryName
+        configure()
+    }
+    listRef.get().changed.listen {
+        if (it.isNotEmpty() && it.selectedIndex == -1) it.selectedIndex = 0
+    }
+    add(b)
+    return b
+}
+
+@JvmName("dropdownWidgetSelectableMutableList1")
+fun <T : Any> WidgetBuilder.dropdown(
+    obj: Any,
+    listRef: KMutableProperty1<Any, SelectableMutableList<T>>,
+    entryName: (T) -> String = { it.toString() },
+    configure: Dropdown<T>.() -> Unit = {},
+): Dropdown<T> {
+    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
+    val b = Dropdown<T>(
+        r,
+        getter = { listRef.get(obj).let { (it.selected ?: it.firstOrNull()) as T } },
+        setter = { s -> listRef.get(obj).let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
+    ) {
+        entries = { listRef.get(obj).toList() }
+        this.entryName = entryName
+        configure()
+    }
+    listRef.get(obj).changed.listen {
+        if (it.isNotEmpty() && it.selectedIndex == -1) it.selectedIndex = 0
+    }
+    add(b)
+    return b
+}
+
+@JvmName("dropdownSelectableList0")
+fun <T : Any> dropdown(
+    bounds: Rectangle,
+    listRef: KMutableProperty0<SelectableList<T>>,
+    entryName: (T) -> String = { it.toString() },
+    configure: Dropdown<T>.() -> Unit = {},
+): Dropdown<T> {
+    val b = Dropdown<T>(
+        bounds,
+        getter = { listRef.get().let { (it.selected ?: it.firstOrNull()) as T } },
+        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
+    ) {
+        entries = { listRef.get().toList() }
+        this.entryName = entryName
+        configure()
+    }
+    registerElement(b)
+    return b
+}
+
+@JvmName("dropdownSelectableMutableList0")
+fun <T : Any> dropdown(
+    bounds: Rectangle,
+    listRef: KMutableProperty0<SelectableMutableList<T>>,
+    entryName: (T) -> String = { it.toString() },
+    configure: Dropdown<T>.() -> Unit = {},
+): Dropdown<T> {
+    val b = Dropdown<T>(
+        bounds,
+        getter = { listRef.get().let { (it.selected ?: it.firstOrNull()) as T } },
+        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
+    ) {
+        entries = { listRef.get().toList() }
+        this.entryName = entryName
+        configure()
+    }
+    listRef.get().changed.listen {
+        if (it.isNotEmpty() && it.selectedIndex == -1) it.selectedIndex = 0
+    }
+    registerElement(b)
     return b
 }

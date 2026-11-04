@@ -115,63 +115,19 @@ fun <T: Any> UI.fromParameters(
                         dropdown(obj, p.property as KMutableProperty1<Any, Enum<*>>)
                     }
 
-                    XParameterType.List, XParameterType.DoubleList -> {
-                        @Suppress("UNCHECKED_CAST")
-                        val prop = p.property!! as KMutableProperty1<Any, Any>
-                        val selectable = prop.get(obj) as? SelectableList<Any>
-                            ?: error("You can only use lists of SelectableList type")
-                        val options = selectable.toList()
+                   XParameterType.List, XParameterType.DoubleList -> {
+                       @Suppress("UNCHECKED_CAST")
+                       val prop = p.property!! as KMutableProperty1<Any, SelectableList<Any>>
+                       dropdown(obj, prop) { label = p.label }
+                   }
 
-                        dropdown(
-                            getter = { (prop.get(obj) as SelectableList<Any>).selected },
-                            setter = { s ->
-                                val sl = prop.get(obj) as SelectableList<Any>
-                                sl.selectedIndex = options.indexOf(s).coerceAtLeast(0)
-                            },
-                            entries = { options },
-                            entryName = { it.toString() }
-                        ) {
-                            label = p.label
-                        }
-                    }
-
-                    XParameterType.MutableList -> {
-                        @Suppress("UNCHECKED_CAST")
-                        val prop = p.property!! as KMutableProperty1<Any, Any>
-                        val selectable = prop.get(obj) as? SelectableMutableList<Any>
-                            ?: error("You can only use lists of SelectableMutableList type")
-                        val options = selectable.toList()
-
-                        fun entryName(list: List<Any>, entry: Any?) =
-                            when(entry) {
-                                is List<*> -> "${p.label}-${list.indexOf(entry)}"
-                                else -> entry.toString()
-                            }
-
-
-                        val d = dropdown(
-                            getter = { (prop.get(obj) as SelectableMutableList<Any>).selected },
-                            setter = { s ->
-                                val sl = prop.get(obj) as SelectableMutableList<Any>
-                                sl.selectedIndex = sl.indexOf(s).coerceAtLeast(0)
-                            },
-                            entries = { options },
-                            entryName = { entryName(options, it) }
-                        ) {
-                            label = p.label
-                        }
-
-                        selectable.changed.listen {
-                            val l = it.toList()
-                            if (l.isNotEmpty() && it.selectedIndex == -1) {
-                                it.selectedIndex = 0
-                            }
-                            d.entries = { l }
-                            d.entryName = { entryName(l, it) }
-                        }
-
-                        d
-                    }
+                   XParameterType.MutableList -> {
+                       @Suppress("UNCHECKED_CAST")
+                       val prop = p.property!! as KMutableProperty1<Any, SelectableMutableList<Any>>
+                       dropdown(obj, prop, entryName = { e ->
+                           if (e is List<*>) "${p.label}-${prop.get(obj).indexOf(e)}" else e.toString()
+                       }) { label = p.label }
+                   }
 
                     XParameterType.XY -> {
                         elementHeight = elementWidth
@@ -179,6 +135,7 @@ fun <T: Any> UI.fromParameters(
                             precision = p.precision ?: 1
                         }
                     }
+
                     XParameterType.Scale -> {
                         elementHeight = elementWidth
                         val vrange = p.vectorRange?.range

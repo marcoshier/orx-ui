@@ -42,11 +42,9 @@ class Checkbox(
     }
 
     override fun draw(drawer: Drawer) {
-        super.draw(drawer)
         if (!visible()) return
-
         val bgFill = when {
-            isHovered && !isSelected -> effectiveStyle.hoverColor
+            isHovered -> effectiveStyle.hoverColor
             else -> effectiveStyle.backgroundColor
         }
 
@@ -55,7 +53,7 @@ class Checkbox(
         drawer.fill = bgFill
 
         if (effectiveStyle.borderRadius > 0.0) {
-            drawer.roundedRectangle(bounds.toRounded(effectiveStyle.borderRadius))
+            drawer.rectangle(bounds)
         } else {
             drawer.rectangle(bounds)
         }
@@ -63,13 +61,15 @@ class Checkbox(
         val mainFill = if (isSelected) effectiveStyle.selectColor else ColorRGBa.TRANSPARENT
 
         drawer.fill = mainFill
+        drawer.stroke = null
         if (effectiveStyle.borderRadius > 0.0) {
-            drawer.roundedRectangle(bounds.offsetEdges(-3.0).toRounded(effectiveStyle.borderRadius))
+            drawer.rectangle(bounds.offsetEdges(-10.0))
         } else {
-            drawer.rectangle(bounds.offsetEdges(-3.0))
+            drawer.rectangle(bounds.offsetEdges(-10.0))
         }
 
-        if (label.isEmpty()) {
+
+        if (iconOn != null || iconOff != null) {
             drawer.isolated {
                 if (isFocused) {
                     iconOn?.invoke(drawer)

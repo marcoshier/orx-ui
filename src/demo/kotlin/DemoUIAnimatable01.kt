@@ -17,6 +17,7 @@ fun main() = application {
             var t = 0.01
 
             fun fadeIn() {
+                t = 0.01
                 ::t.animate(1.0, 500, Easing.CubicInOut)
             }
 
@@ -26,36 +27,11 @@ fun main() = application {
             }
         }
 
-
-        fun placeButton(from: Rectangle) {
-            button(from) {
-                label = ""
-                animations = listOf(SpawnAnimation().apply { fadeIn() })
-                action = {
-                    val existing = ui.host.tree.flattened.map { it.boundsCopy }
-
-                    val size = Double.uniform(from.width * 0.4, from.width)
-                    val angle = Int.uniform(0, 5) * 90.0
-                    val step = from.width / 2.0 + size / 2.0 + 5.0
-                    var candidate = Rectangle.fromCenter(
-                        from.center + Polar(angle, step).cartesian,
-                        size, size
-                    )
-
-                    repeat(100) {
-                        val hit = existing.firstOrNull { it.sdf3(candidate).z < 0.0 }
-                            ?: return@repeat
-                        val push = hit.sdf3(candidate)
-                        candidate = candidate.movedBy(Vector2(push.x, push.y))
-                    }
-
-                    val clear = existing.none { it.sdf3(candidate).z < 0.0 }
-                    if (clear) placeButton(candidate)
-                }
-            }
+        button(Rectangle.fromCenter(drawer.bounds.center, 50.0)) {
+            label = ""
+            animations = listOf(SpawnAnimation().apply { fadeIn() })
+            action = { (animations[0] as SpawnAnimation).fadeIn() }
         }
-
-        placeButton(Rectangle.fromCenter(drawer.bounds.center, 50.0))
     }
 }
 

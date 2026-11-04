@@ -1,15 +1,12 @@
 import elements.button
 import org.openrndr.application
-import org.openrndr.shape.Rectangle
 
 fun main() = application {
     program {
         extend(UI())
 
-        button(Rectangle(10.0, 10.0, 100.0)) {
+        button(drawer.bounds.offsetEdges(-10.0)) {
             action = { println("clicked") }
         }
     }
 }
-
-
