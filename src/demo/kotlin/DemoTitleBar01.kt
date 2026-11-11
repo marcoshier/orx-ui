@@ -5,8 +5,6 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.extra.color.presets.DARK_SALMON
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
-import style.Colors
-import widgets.titleBarWidget
 import widget.widget
 
 fun main() = application {
@@ -16,23 +14,17 @@ fun main() = application {
     program {
         extend(UI())
 
-        // TODO we dont need this. just a titleBar in Widget is enough
-        titleBarWidget("OPENRNDR",
-            drawer.bounds.copy(height = 30.0),
-            windowTitlebar = true,
-            zIndex = 10 //TODO
-        ) {
-            button(Rectangle(bounds.width - 30.0, 5.0, 20.0)) {
-                label = ""
-                style.backgroundColor = Colors.CLICKABLE.shade(0.9)
-                action = { application.exit() }
-            }
+        val t = titleBar("WINDOW TITLE BAR", drawer.bounds.copy(height = 30.0), windowTitlebar = true)
+        val b = button(Rectangle(t.bounds.width - 25.0, 5.0, 20.0)) {
+            label = ""
+            action = { window.close() }
         }
+        t.dragMasks = listOf(b.bounds)
 
         widget(drawer.bounds.offsetEdges(-80.0).movedBy(Vector2(0.0, 30.0))) {
             this.backgroundColor = ColorRGBa.DARK_SALMON
             this.strokeColor = null
-            titleBar("TITLEBAR-WIDGET", bounds.copy(height = 20.0), widgetTitlebar = true)
+            titleBar("TITLE BAR", bounds.copy(height = 20.0), widgetTitlebar = true)
         }
     }
 

@@ -10,6 +10,8 @@ import ui.UIElement
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import style.Style
+import ui.getId
+import ui.getUniqueId
 import ui.updateAnimations
 
 open class Widget(
@@ -18,10 +20,10 @@ open class Widget(
     var parent: Widget? = null
 ) {
 
-    // TODO
-    var selectors = listOf(id())
+    val id = "#${getId()}-${getUniqueId()}"
+    var selectors = setOf(id)
+
     open var label = selectors.first()
-    val description: String? = null
 
     open val elements = mutableListOf<UIElement>()
     open val widgets = mutableListOf<Widget>()
@@ -112,7 +114,4 @@ open class Widget(
 }
 
 
-fun Widget.id(): String {
-    // to finish
-    return this::class.simpleName?.lowercase() ?: ""
-}
+fun Widget.getId() = this::class.simpleName?.lowercase()

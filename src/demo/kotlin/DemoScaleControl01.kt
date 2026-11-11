@@ -2,7 +2,7 @@ import elements.scaleControl
 import org.openrndr.application
 import org.openrndr.extra.math.linearrange.rangeTo
 import org.openrndr.math.Vector2
-import widget.gridSlots
+import widget.grid
 import widget.widget
 
 fun main() {
@@ -21,7 +21,7 @@ fun main() {
             }
 
             widget(drawer.bounds.offsetEdges(-5.0)) {
-                gridSlots(1, 2) { rects ->
+                grid(1, 2) { rects ->
                     scaleControl(
                         rects[0].offsetEdges(-5.0),
                         state::scale1, 0.0..5.0,

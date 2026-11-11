@@ -32,9 +32,9 @@ fun main() {
 
             widget(drawer.bounds.offsetEdges(-10.0)) {
                 grid(2, 2, gutterX = 10.0, gutterY = 10.0) {
-                    button(it) {
-                        selectors = setOf("high-contrast")
-                    }
+//                    button(it) {
+//                        selectors = setOf("high-contrast")
+//                    }
                 }
             }
 

@@ -8,9 +8,14 @@ import org.openrndr.ExtensionStage
 import org.openrndr.KeyEvent
 import org.openrndr.MouseEvent
 import org.openrndr.Program
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
+import org.openrndr.draw.defaultFontMap
 import org.openrndr.draw.isolated
+import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
+import org.openrndr.shape.Rectangle
+import panel.ParameterPanel
 import style.Style
 import style.StyleLibrary
 import style.Stylesheet
@@ -18,6 +23,7 @@ import ui.UIElement
 import ui.updateAnimations
 import widget.clipBounds
 import java.io.File
+import kotlin.collections.fill
 
 private val logger = KotlinLogging.logger {  }
 
@@ -31,15 +37,21 @@ class UI: Extension {
     var focusElement: UIElement? = null
     var dragElement: UIElement? = null
     var textElement: UIElement? = null
+    var hoverElement: UIElement? = null
     var lastClickElement: UIElement? = null
 
     var lastClicked = 0.0
     var lastClickPosition = Vector2.ZERO
     val doubleClickThreshold = 0.3
     var pressTime = 0.0
+    var hoverTime = 0.0
     var pressPosition = Vector2.ZERO
 
+    var descriptionElementStyle = Style()
+
     var extensionStage = ExtensionStage.AFTER_DRAW
+
+    val parameters by lazy { ParameterPanel(this) }
 
     fun setupAutoSave(save: () -> File) {
         host.context.program.ended.listen {
@@ -63,6 +75,8 @@ class UI: Extension {
         host.style.fromStylesheet(Stylesheet.fromFile(file))
         return host.style.toStylesheet()
     }
+
+    fun <T : Any> addParameters(obj: T, key: String? = null): T = parameters.add(obj, key)
 
     private fun requestDraw() {
         host.context.window.requestDraw()
@@ -125,12 +139,15 @@ class UI: Extension {
             }
         }
 
-        var hoveredElement: UIElement? = null
+        if (hit == null) {
+            hoverElement = null
+        }
 
         for (el in tree.flattened) {
             val isHovered = el === hit
             if (isHovered && el.interactable()) {
-                hoveredElement = el
+                hoverElement = el
+                hoverTime = seconds()
             }
 
             if (el.isHovered != isHovered) {
@@ -140,8 +157,8 @@ class UI: Extension {
             }
         }
 
-        if (hoveredElement != null) {
-            if (hoveredElement.acceptsText) {
+        if (hoverElement != null) {
+            if (hoverElement!!.acceptsText) {
                 setCursor(CursorType.IBEAM_CURSOR)
             } else {
                 setCursor(CursorType.HAND_CURSOR)
@@ -295,7 +312,34 @@ class UI: Extension {
                 }
             }
 
+            if (hoverElement != null && (seconds() - hoverTime) > 1.5 && hoverElement?.description != null) {
+                var bb = hoverElement!!.bounds
+
+                fun drawText(visible: Boolean): Rectangle {
+                    drawer.fontMap = descriptionElementStyle.font
+                    drawer.fill = ColorRGBa.BLACK
+                    return drawer.writer {
+                        val start = bb.corner.y
+                        box = bb.offsetEdges(-10.0)
+                        newLine()
+                        text(hoverElement?.description!!, visible)
+                        val end = cursor.y + drawer.fontMap!!.ascenderLength
+                        val h = end - start
+                        Rectangle(mousePosition() - Vector2(0.0, h), 250.0, h)
+                    }
+                }
+
+                bb = drawText(false)
+
+                drawer.strokeWeight = descriptionElementStyle.strokeWeight
+                drawer.stroke = descriptionElementStyle.strokeColor
+                drawer.fill = descriptionElementStyle.backgroundColor
+                drawer.rectangle(bb)
+
+                drawText(true)
+            }
         }
+
     }
 
     override fun beforeDraw(drawer: Drawer, program: Program) {

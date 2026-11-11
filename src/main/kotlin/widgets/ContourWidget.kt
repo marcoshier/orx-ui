@@ -2,11 +2,11 @@ package widgets
 
 import elements.HandleNode
 import elements.button
+import elements.titleBar
 import mousePosition
 import org.openrndr.KeyModifier
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
-import org.openrndr.draw.isolated
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.Segment2D
@@ -19,7 +19,7 @@ import widget.WidgetBuilder
 import widget.addElement
 import widget.addElements
 import widget.close
-import widget.gridSlots
+import widget.grid
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
@@ -387,10 +387,16 @@ class ContourWidgetControl(
 ): Widget(bounds) {
 
     private val my = if (draggable) 20.0 else 5.0
-    override val elements = gridSlots(1, 3, 5.0, my, 5.0, 5.0) {
+    override val elements = grid(1, 3, 5.0, my, 5.0, 5.0) {
         val rs = it.map {
             val off = if (draggable) 10.0 else 0.0
             it.movedBy(Vector2.UNIT_Y * off)
+        }
+        if (draggable) {
+            titleBar("CONTOUR",
+                bounds.copy(height = 20.0),
+                widgetTitlebar = true
+            )
         }
         button(rs[0]) {
             label = "SELECT ALL"
@@ -404,16 +410,6 @@ class ContourWidgetControl(
             label = "EDITABLE"
             action = { widget.editable = !widget.editable }
         }
-    }
-
-    override val widgets: MutableList<Widget> = run {
-        if (draggable) mutableListOf(
-            titleBarWidget("CONTOUR",
-                bounds.copy(height = 20.0),
-                widgetTitlebar = true,
-                zIndex = 1000
-            )
-        ) else mutableListOf()
     }
 
     init {

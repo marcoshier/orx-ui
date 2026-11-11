@@ -1,8 +1,6 @@
-import elements.button
 import elements.checkbox
 import org.openrndr.application
 import org.openrndr.shape.Rectangle
-import widget.gridIndexed
 import widget.widget
 
 fun main() {

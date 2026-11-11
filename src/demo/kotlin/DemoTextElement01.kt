@@ -14,6 +14,7 @@ fun main() {
 
             val state = object {
                 var text = "Hi! I am a single-line text. Cut me, scroll me, paste me, replace me."
+
                 var text2 = "This is a multi-line text-box. I am resizable (drag bottom corner)." +
                         "You can use me like any traditional textbox. Double click on words to select them," +
                         "SHIFT+arrows to select characters, CTRL+A to select all, CTRL+C to copy" +

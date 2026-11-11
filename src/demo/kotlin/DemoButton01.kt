@@ -5,7 +5,7 @@ fun main() = application {
     program {
         extend(UI())
 
-        button(drawer.bounds.offsetEdges(-10.0)) {
+        button(drawer.bounds.offsetEdges(-200.0)) {
             action = { println("clicked") }
         }
     }

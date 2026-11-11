@@ -13,7 +13,7 @@ fun main() {
         program {
             extend(UI())
 
-            var state = object {
+            val state = object {
                 var d = 0.0
                 var i = 5
             }

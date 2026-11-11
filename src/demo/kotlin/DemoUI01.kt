@@ -13,7 +13,6 @@ import org.openrndr.extra.parameters.Vector3Parameter
 import org.openrndr.math.IntVector3
 import org.openrndr.math.Vector2
 import org.openrndr.math.Vector3
-import ui.fromParameters
 
 fun main() {
     application {
@@ -42,7 +41,10 @@ fun main() {
             }
 
 
-            extend(UI()).fromParameters(settings)
+            val ui = extend(UI())
+
+            ui.addParameters(settings)
+
             extend(orb)
             extend {
                 drawer.translate(25.0, 0.0)

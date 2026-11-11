@@ -18,7 +18,6 @@ import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 // I don't like using Any but IntVector and Vector don't share any interface (weird)
-// TODO invert range and getter/setter
 
 class VectorWidget<V : Any, C : Comparable<C>>(
     bounds: Rectangle,

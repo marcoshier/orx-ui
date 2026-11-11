@@ -10,7 +10,6 @@ import org.openrndr.extra.parameters.ActionParameter
 import org.openrndr.extra.parameters.MutableListParameter
 import org.openrndr.math.Matrix44
 import org.openrndr.shape.Circle
-import ui.fromParameters
 
 fun main() {
     application {
@@ -51,7 +50,7 @@ fun main() {
 
             }
 
-            extend(UI()).fromParameters(settings)
+            extend(UI()).addParameters(settings)
             val c = extend(Camera2D())
             extend {
 

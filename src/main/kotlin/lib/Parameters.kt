@@ -32,6 +32,8 @@ import org.openrndr.panel.collections.SelectableList
 import org.openrndr.panel.collections.SelectableMutableList
 import org.openrndr.shape.ShapeContour
 import java.io.File
+import kotlin.collections.buildMap
+import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -39,6 +41,7 @@ import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
+import kotlin.to
 
 /** Lifted from GUI, integrated with new annotations/types */
 
@@ -65,6 +68,11 @@ class XParameter(
     val pathIsDirectory: Boolean?,
     val order: Int,
 )
+
+inline fun <reified T : Annotation> KAnnotatedElement.findAnnotation(): T? =
+    @Suppress("UNCHECKED_CAST")
+    annotations.firstOrNull { it is T } as T?
+
 
 fun XParameterType.Companion.forParameterAnnotationClass(annotation: Annotation): XParameterType =
     XParameterType.entries.find { it.annotationClass == annotation.annotationClass } ?: error("no type for $annotation")
@@ -351,19 +359,28 @@ class ParameterStore(private val file: File) {
         }
     }
 
-    fun save(key: String, obj: Any, params: List<XParameter>) {
+    fun put(key: String, obj: Any, params: List<XParameter>) {
         val values = params.mapNotNull { p ->
             val name = p.property?.name ?: return@mapNotNull null
-            val encoded = encode(p, obj)
+            val encoded = encode(p, obj) ?: return@mapNotNull null
 
-            name to encoded
+            val entry = mutableMapOf<String, Any>()
+            if (p.label.isNotBlank()) entry["label"] = p.label
+            entry["value"] = encoded
+            
+            name to entry
         }.toMap()
-
         config = config.withValue(ConfigUtil.quoteString(key), ConfigValueFactory.fromMap(values))
+    }
+
+    fun write() {
         file.parentFile?.mkdirs()
         file.writeText(config.root().render(hoconConfigOptions))
+    }
 
-        logger.debug { "Parameters saved." }
+    fun save(key: String, obj: Any, params: List<XParameter>) {
+        put(key, obj, params)
+        write()
     }
 
     @Suppress("UNCHECKED_CAST")

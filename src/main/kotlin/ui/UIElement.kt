@@ -163,16 +163,11 @@ open class UIElement(
     }
 
     private fun getCurrentSelectors(): Set<String> {
-        val activeList = selectors.toMutableSet()
-
-        if (isHovered) {
-            selectors.forEach { activeList.add("$it:hover") }
-        }
-        if (isFocused) {
-            selectors.forEach { activeList.add("$it:focus") }
-        }
-
-        return activeList
+        val base = selectors + id
+        val out = base.toMutableSet()
+        if (isHovered) base.forEach { out.add("$it:hover") }
+        if (isFocused) base.forEach { out.add("$it:focus") }
+        return out
     }
 
     open fun draw(drawer: Drawer) {

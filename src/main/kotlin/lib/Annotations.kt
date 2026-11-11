@@ -102,3 +102,7 @@ annotation class ContourParameter(
     val order: Int = Int.MAX_VALUE,
     val precision: Int = 1
 )
+
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ParameterDescription(val text: String)

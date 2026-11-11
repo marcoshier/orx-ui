@@ -1,6 +1,6 @@
 import elements.rangeSlider
 import org.openrndr.application
-import widget.gridSlots
+import widget.grid
 import widget.widget
 
 fun main() {
@@ -24,11 +24,11 @@ fun main() {
             }
 
             widget(drawer.bounds.offsetEdges(-5.0)) {
-                gridSlots(2, 2, gutterX = 10.0, gutterY = 10.0) { rects ->
-                    rangeSlider(rects[0], state::left, state::right, 0.0..12.0)
-                    rangeSlider(rects[1], state::range, 0.0..12.0)
-                    rangeSlider(rects[2], state::ileft, state::iright, 2..15)
-                    rangeSlider(rects[3], state::irange, 0..12)
+                grid(2, 2, gutterX = 10.0, gutterY = 10.0) { rects ->
+                    rangeSlider(rects[0], 0.0..12.0, state::left, state::right)
+                    rangeSlider(rects[1], 0.0..12.0, state::range)
+                    rangeSlider(rects[2], 2..15, state::ileft, state::iright)
+                    rangeSlider(rects[3], 0..12, state::irange)
                 }
             }
 

@@ -4,7 +4,7 @@ import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.extra.color.presets.ORANGE_RED
 import style.stylesheet
-import widget.gridSlots
+import widget.grid
 import widget.widget
 
 fun main() {
@@ -13,7 +13,7 @@ fun main() {
             extend(UI())
 
             widget(drawer.bounds.offsetEdges(-10.0)) {
-                gridSlots(2, 2, gutterX = 10.0, gutterY = 10.0) {
+                grid(2, 2, gutterX = 10.0, gutterY = 10.0) {
                     button(it[0]) {
                         selectors = setOf("orange", "nf")
                     }

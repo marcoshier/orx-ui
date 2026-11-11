@@ -4,7 +4,7 @@ import org.openrndr.application
 import org.openrndr.extra.shapes.primitives.grid
 import widget.widget
 import widget.gridIndexed
-import widget.gridSlots
+import widget.grid
 
 fun main() {
     application {
@@ -23,7 +23,7 @@ fun main() {
             }
 
             widget(grid[0]) {
-                gridSlots(1, 2, gutterX = 5.0, gutterY = 5.0) { slots ->
+                grid(1, 2, gutterX = 5.0, gutterY = 5.0) { slots ->
                     button(slots[0], configure)
                     button(slots[1], configure)
                 }

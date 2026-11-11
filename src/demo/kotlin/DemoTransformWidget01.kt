@@ -4,7 +4,7 @@ import org.openrndr.math.Matrix44
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import widgets.BoxSizing
-import widget.gridSlots
+import widget.grid
 import widgets.transformWidget
 import widget.widget
 
@@ -25,7 +25,7 @@ fun main() {
             }
 
             widget(Rectangle(0.0, 0.0, width * 1.0, 600.0)) {
-                gridSlots(2, 1, gutterX = 5.0, marginX = 5.0, marginY = 5.0) { r ->
+                grid(2, 1, gutterX = 5.0, marginX = 5.0, marginY = 5.0) { r ->
                     transformWidget(r[0], state::tr0,
                         Vector2(-5.0)..Vector2(5.0),
                         Vector2.ONE..Vector2(5.0)

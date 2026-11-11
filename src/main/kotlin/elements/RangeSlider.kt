@@ -229,8 +229,8 @@ open class RangeSlider<T : Comparable<T>>(
 
 fun <T : Comparable<T>> rangeSlider(
     bounds: Rectangle,
-    valueRef: KMutableProperty0<ClosedRange<T>>,
     range: ClosedRange<T>,
+    valueRef: KMutableProperty0<ClosedRange<T>>,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
     val s = RangeSlider(bounds, range, valueRef, configure)
@@ -240,9 +240,9 @@ fun <T : Comparable<T>> rangeSlider(
 
 fun <T : Comparable<T>> rangeSlider(
     bounds: Rectangle,
+    range: ClosedRange<T>,
     valueLeftRef: KMutableProperty0<T>,
     valueRightRef: KMutableProperty0<T>,
-    range: ClosedRange<T>,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
     val s = RangeSlider(bounds, range,
@@ -259,8 +259,8 @@ fun <T : Comparable<T>> rangeSlider(
 
 fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
     bounds: Rectangle,
-    valueRef: KMutableProperty0<ClosedRange<T>>,
     range: ClosedRange<T>,
+    valueRef: KMutableProperty0<ClosedRange<T>>,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
     val s = RangeSlider(bounds, range, valueRef, configure)
@@ -270,9 +270,9 @@ fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
 
 fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
     bounds: Rectangle,
+    range: ClosedRange<T>,
     valueLeftRef: KMutableProperty0<T>,
     valueRightRef: KMutableProperty0<T>,
-    range: ClosedRange<T>,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
     val s = RangeSlider(bounds, range,

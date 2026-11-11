@@ -16,7 +16,6 @@ fun main() {
             }
 
             rotateControl(drawer.bounds.offsetEdges(-70.0), state::angle)
-
         }
     }
 }
