@@ -21,8 +21,8 @@ fun main() {
                         "CTRL+X to cut, CTRL+V to paste. Scroll with mouse and arrow buttons."
             }
 
-            textInput(Vector2(10.0), width - 20.0, state::text)
-            textboxInput(Rectangle(10.0, 70.0, width - 20.0, 150.0), state::text2)
+            textInput(state::text, Vector2(10.0), width - 20.0)
+            textboxInput(state::text2, Rectangle(10.0, 70.0, width - 20.0, 150.0), )
         }
     }
 }

@@ -1,5 +1,7 @@
 package style
 
+import ui.UIHost
+
 class StylesheetBuilder {
     val stack: StyleStack get() = UIHost.current.style
 

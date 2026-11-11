@@ -19,7 +19,7 @@ fun main() {
             widget(drawer.bounds.offsetEdges(-10.0)) {
                 for ((i, state) in states.withIndex()) {
                     val r = Rectangle(i * 120.0, 0.0, 120.0).offsetEdges(-10.0)
-                    checkbox(r, state::on)
+                    checkbox(state::on, r)
                 }
             }
         }

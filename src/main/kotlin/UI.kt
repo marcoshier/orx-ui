@@ -1,6 +1,5 @@
 import elements.TextInput
 import io.github.oshai.kotlinlogging.KotlinLogging
-import lib.ParameterStore
 import org.openrndr.CharacterEvent
 import org.openrndr.CursorType
 import org.openrndr.Extension
@@ -10,7 +9,6 @@ import org.openrndr.MouseEvent
 import org.openrndr.Program
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
-import org.openrndr.draw.defaultFontMap
 import org.openrndr.draw.isolated
 import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
@@ -20,10 +18,14 @@ import style.Style
 import style.StyleLibrary
 import style.Stylesheet
 import ui.UIElement
+import ui.UIHost
+import ui.ancestors
+import ui.leafWidget
+import ui.mousePosition
+import ui.seconds
 import ui.updateAnimations
 import widget.clipBounds
 import java.io.File
-import kotlin.collections.fill
 
 private val logger = KotlinLogging.logger {  }
 

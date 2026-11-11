@@ -18,8 +18,8 @@ fun main() {
             }
 
             xyControl(
-                drawer.bounds.offsetEdges(-70.0),
-                state::position, -Vector2(100.0)..Vector2(100.0)
+                state::position, -Vector2(100.0)..Vector2(100.0),
+                drawer.bounds.offsetEdges(-70.0)
             )
         }
     }

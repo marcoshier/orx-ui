@@ -17,9 +17,9 @@ fun main() {
 
             widget(drawer.bounds) {
                 grid(1, 3) {
-                    slider(it[0], 0.0..5.0, state::x0) { precision = 1 }
-                    slider(it[1], 0.0..5.0, state::x1) { precision = 2 }
-                    rangeSlider(it[2], 0.0..5.0, state::x2) { precision = 3 }
+                    slider(0.0..5.0, state::x0, it[0]) { precision = 1 }
+                    slider(0.0..5.0, state::x1, it[1]) { precision = 2 }
+                    rangeSlider(0.0..5.0, state::x2, it[2]) { precision = 3 }
                 }
             }
 

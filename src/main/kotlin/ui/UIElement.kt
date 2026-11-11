@@ -5,10 +5,12 @@ import org.openrndr.DropEvent
 import org.openrndr.KeyEvent
 import org.openrndr.MouseEvent
 import org.openrndr.draw.Drawer
+import org.openrndr.draw.isolated
 import org.openrndr.events.Event
+import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
-import seconds
+import org.openrndr.shape.bounds
 import style.ColorRGBaTransition
 import style.DoubleTransition
 import style.Style
@@ -180,3 +182,24 @@ open class UIElement(
 fun UIElement.getId() = this::class.simpleName?.lowercase()
 fun getUniqueId() = UIHost.current.nextUniqueId()
 
+
+// todo turn this into a "place" function
+fun UIElement.applyBoundsFromText(
+    text: String = label,
+    position: Vector2 = Vector2(10.0)
+) {
+    val drawer = UIHost.current.drawer
+
+    drawer.isolated {
+        drawer.fontMap = style.font
+        this@applyBoundsFromText.bounds = writer {
+            val h = fontMap!!.ascenderLength * 3.0
+            box = Rectangle(position, 9999.0, h)
+            text(label, false)
+            glyphOutput.rectangles.map { it.second }.bounds.offsetEdges(
+                textWidth(text) * 3.0,
+                h
+            ).movedTo(position)
+        }
+    }
+}

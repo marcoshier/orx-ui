@@ -20,8 +20,8 @@ fun main() {
 
             val r = drawer.bounds.offsetEdges(-10.0)
 
-            slider(r, 0.0..10.0, state::d)
-            slider(r, 0..10, state::i)
+            slider(0.0..10.0, state::d, r)
+            slider(0..10, state::i, r)
         }
     }
 }

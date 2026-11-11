@@ -15,7 +15,7 @@ fun main() {
                 var angle = 0.0
             }
 
-            rotateControl(drawer.bounds.offsetEdges(-70.0), state::angle)
+            rotateControl(state::angle, drawer.bounds.offsetEdges(-70.0))
         }
     }
 }

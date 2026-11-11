@@ -21,7 +21,7 @@ fun main() {
                 asCheckbox {
                     states.mapIndexed { i, state ->
                         val r = Rectangle(i * 120.0, 0.0, 120.0).offsetEdges(-10.0)
-                        button(r, state::on) { label = "" }
+                        button(state::on, r) { label = "" }
                     }
                 }
             }

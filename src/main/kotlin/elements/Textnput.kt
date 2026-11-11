@@ -1,7 +1,7 @@
 package elements
 
-import clipboard
-import deregisterElement
+import ui.clipboard
+import ui.deregisterElement
 import io.github.oshai.kotlinlogging.KotlinLogging
 import lib.TextInputToken
 import lib.allCharacters
@@ -27,8 +27,8 @@ import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
-import registerElement
-import seconds
+import ui.registerElement
+import ui.seconds
 import ui.UIElement
 import widget.WidgetBuilder
 import kotlin.math.absoluteValue
@@ -42,24 +42,24 @@ import kotlin.reflect.KMutableProperty1
 private val logger = KotlinLogging.logger {  }
 
 class TextInput(
-    bounds: Rectangle,
     private val getter: () -> String,
     private val setter: (String) -> Unit,
+    bounds: Rectangle? = null,
     configure: TextInput.() -> Unit = {}
-): UIElement(bounds) {
+): UIElement(bounds ?: Rectangle(10.0, 10.0, 120.0, 30.0)) {
 
     constructor(
-        bounds: Rectangle,
         textRef: KMutableProperty0<String>,
+        bounds: Rectangle? = null,
         configure: TextInput.() -> Unit = {}
-    ): this(bounds, { textRef.get() }, { textRef.set(it) }, configure)
+    ): this({ textRef.get() }, { textRef.set(it) }, bounds, configure)
 
     constructor(
-        bounds: Rectangle,
         obj: Any,
         textRef: KMutableProperty1<Any, String>,
+        bounds: Rectangle? = null,
         configure: TextInput.() -> Unit = {}
-    ): this(bounds, { textRef.get(obj) }, { textRef.set(obj, it) }, configure)
+    ): this({ textRef.get(obj) }, { textRef.set(obj, it) }, bounds, configure)
 
     var maxCharacters = Int.MAX_VALUE
     var allowedCharacters = allCharacters
@@ -712,12 +712,13 @@ class TextInput(
 }
 
 fun textInput(
-    corner: Vector2,
-    width: Double,
     textRef: KMutableProperty0<String>,
+    corner: Vector2? = null,
+    width: Double? = null,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val b = TextInput(Rectangle(corner.x, corner.y, width, 50.0), textRef) {
+    val r = Rectangle(corner ?: Vector2(10.0), width ?: 120.0)
+    val b = TextInput(textRef, r) {
         multiline = false
         configure()
     }
@@ -726,12 +727,13 @@ fun textInput(
 }
 
 fun WidgetBuilder.textInput(
-    corner: Vector2,
-    width: Double,
     textRef: KMutableProperty0<String>,
+    corner: Vector2? = null,
+    width: Double? = null,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val b = TextInput(Rectangle(corner.x, corner.y, width, 50.0), textRef) {
+    val r = Rectangle(corner ?: Vector2(10.0), width ?: 120.0)
+    val b = TextInput(textRef, r) {
         multiline = false
         configure()
     }
@@ -744,13 +746,7 @@ fun WidgetBuilder.textInput(
     textRef: KMutableProperty1<Any, String>,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val r =  Rectangle(
-        currentX,
-        currentY,
-        elementWidth,
-        50.0
-    )
-    val b = TextInput(r, obj, textRef) {
+    val b = TextInput(obj, textRef, currentElementBounds.copy(height = 50.0)) {
         multiline = false
         configure()
     }
@@ -760,11 +756,11 @@ fun WidgetBuilder.textInput(
 
 
 fun textboxInput(
-    bounds: Rectangle,
     textRef: KMutableProperty0<String>,
+    bounds: Rectangle? = null,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val b = TextInput(bounds, textRef) {
+    val b = TextInput(textRef, bounds) {
         multiline = true
         resizable = true
         configure()
@@ -774,11 +770,11 @@ fun textboxInput(
 }
 
 fun WidgetBuilder.textboxInput(
-    bounds: Rectangle,
     textRef: KMutableProperty0<String>,
+    bounds: Rectangle? = null,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val b = TextInput(bounds, textRef) {
+    val b = TextInput(textRef, bounds) {
         multiline = true
         resizable = true
         configure()
@@ -793,7 +789,7 @@ fun WidgetBuilder.textboxInput(
     textRef: KMutableProperty1<Any, String>,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val b = TextInput(currentElementBounds, obj, textRef) {
+    val b = TextInput(obj, textRef, currentElementBounds) {
         multiline = true
         resizable = true
         configure()

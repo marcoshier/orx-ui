@@ -3,7 +3,7 @@ package widgets
 import elements.HandleNode
 import elements.button
 import elements.titleBar
-import mousePosition
+import ui.mousePosition
 import org.openrndr.KeyModifier
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
@@ -11,7 +11,7 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.Segment2D
 import org.openrndr.shape.ShapeContour
-import registerWidget
+import ui.registerWidget
 import ui.UIElement
 import ui.close
 import widget.Widget

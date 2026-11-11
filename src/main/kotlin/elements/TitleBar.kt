@@ -7,21 +7,18 @@ import org.openrndr.draw.isolated
 import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
-import registerElement
-import registerWidget
+import ui.registerElement
 import ui.UIElement
-import widget.Widget
 import widget.WidgetBuilder
-import widget.close
-import window
+import ui.window
 
 class TitleBar(
     override var label: String,
-    bounds: Rectangle,
+    bounds: Rectangle? = null,
     var windowTitlebar: Boolean = false,
     var widgetTitlebar: Boolean = false,
     configure: TitleBar.() -> Unit = {}
-): UIElement(bounds) {
+): UIElement(bounds ?: Rectangle(0.0, 0.0, 1920.0, 30.0)) {
 
     var dragMasks = listOf<Rectangle>()
     val icon: (TitleBar.() -> Unit)? = null
@@ -72,7 +69,7 @@ class TitleBar(
             val w = window()
             w.hitTest = { p ->
                 val scaled = p / w.contentScale
-                if (scaled in bounds && dragMasks.none { mask -> mask.contains(scaled) })
+                if (scaled in this.bounds && dragMasks.none { mask -> mask.contains(scaled) })
                     Hit.DRAG
                 else Hit.NORMAL
             }
@@ -121,7 +118,7 @@ class TitleBar(
 
 fun titleBar(
     label: String,
-    bounds: Rectangle,
+    bounds: Rectangle? = null,
     windowTitlebar: Boolean = false,
     widgetTitlebar: Boolean = false,
     configure: TitleBar.() -> Unit = {},
@@ -133,7 +130,7 @@ fun titleBar(
 
 fun WidgetBuilder.titleBar(
     label: String,
-    bounds: Rectangle,
+    bounds: Rectangle? = null,
     windowTitlebar: Boolean = false,
     widgetTitlebar: Boolean = false,
     configure: TitleBar.() -> Unit = {},

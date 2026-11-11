@@ -8,7 +8,7 @@ import org.openrndr.math.Vector2
 import org.openrndr.math.Vector3
 import org.openrndr.math.Vector4
 import org.openrndr.shape.Rectangle
-import registerWidget
+import ui.registerWidget
 import ui.UIElement
 import widget.Widget
 import widget.WidgetBuilder
@@ -70,7 +70,7 @@ class VectorWidget<V : Any, C : Comparable<C>>(
             val (read, write) = functions[i]
             val axes = "xyzw"
 
-            Slider(r, range, { read(getter()) }, { setter(write(getter(), it)) }) {
+            Slider(range, { read(getter()) }, { setter(write(getter(), it)) }, r) {
                 label = "${axes[i]}-${this@VectorWidget.label}"
             }
         }

@@ -3,41 +3,40 @@ package elements
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
-import org.openrndr.extra.shapes.primitives.roundedRectangle
-import org.openrndr.extra.shapes.primitives.toRounded
 import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
-import registerElement
+import ui.registerElement
 import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 class Checkbox(
-    fullBounds: Rectangle,
     val getter: () -> Boolean,
     val setter: (Boolean) -> Unit,
+    fullBounds: Rectangle? = null,
     configure: Button.() -> Unit = {}
-): Button(fullBounds.copy(width = fullBounds.height), configure) {
+): Button(fullBounds ?: Rectangle(10.0, 10.0, 30.0), configure) {
 
     constructor(
-        fullBounds: Rectangle,
         state: KMutableProperty0<Boolean>,
-        configure: Button.() -> Unit = {}
-    ) : this(fullBounds, { state.get() }, { state.set(it) }, configure)
+        fullBounds: Rectangle? = null,
+        configure: Button.() -> Unit = {},
+    ) : this({ state.get() }, { state.set(it) }, fullBounds, configure)
 
     constructor(
-        fullBounds: Rectangle,
         obj: Any,
         valueRef: KMutableProperty1<Any, Boolean>,
+        fullBounds: Rectangle? = null,
         configure: Button.() -> Unit = {}
-    ) : this(fullBounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, configure)
+    ) : this({ valueRef.get(obj) }, { valueRef.set(obj, it) }, fullBounds, configure)
 
     init {
         label = ""
         beforeDraw = { isSelected = getter() }
         action = { setter(!getter()) }
+
         configure()
     }
 
@@ -118,21 +117,21 @@ class Checkbox(
 }
 
 fun checkbox(
-    bounds: Rectangle,
     state: KMutableProperty0<Boolean>,
+    bounds: Rectangle? = null,
     configure: Button.() -> Unit = {},
 ): Checkbox {
-    val c = Checkbox(bounds, state, configure)
+    val c = Checkbox(state, bounds, configure)
     registerElement(c)
     return c
 }
 
 fun WidgetBuilder.checkbox(
-    bounds: Rectangle,
     state: KMutableProperty0<Boolean>,
+    bounds: Rectangle? = null,
     configure: Button.() -> Unit = {},
 ): Checkbox {
-    val c = Checkbox(bounds, state, configure)
+    val c = Checkbox(state, bounds, configure)
     add(c)
     return c
 }
@@ -142,13 +141,7 @@ fun WidgetBuilder.checkbox(
     valueRef: KMutableProperty1<Any, Boolean>,
     configure: Button.() -> Unit = {},
 ): Checkbox {
-    val r = Rectangle(
-        currentX,
-        currentY,
-        elementWidth,
-        elementHeight
-    )
-    val c = Checkbox(r, obj, valueRef, configure)
+    val c = Checkbox(obj, valueRef, currentElementBounds, configure)
     add(c)
     return c
 }

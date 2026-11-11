@@ -12,7 +12,7 @@ import org.openrndr.math.clamp
 import org.openrndr.math.map
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
-import registerElement
+import ui.registerElement
 import style.Colors
 import ui.UIElement
 import widget.WidgetBuilder
@@ -20,29 +20,30 @@ import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 class XYControl(
-    bounds: Rectangle,
     private val getter: () -> Vector2,
     private val setter: (Vector2) -> Unit,
     var range: LinearRange1D<Vector2>,
+    bounds: Rectangle? = null,
     configure: XYControl.() -> Unit = {}
-): UIElement(bounds.offsetEdges(10.0)) {
+): UIElement((bounds ?: Rectangle(10.0, 10.0, 200.0)).offsetEdges(10.0)) {
 
     constructor(
-        bounds: Rectangle,
         valueRef: KMutableProperty0<Vector2>,
         range: LinearRange1D<Vector2>,
+        bounds: Rectangle? = null,
         configure: XYControl.() -> Unit = {}
-    ): this(bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
+    ): this({ valueRef.get() }, { valueRef.set(it) }, range, bounds, configure)
 
     constructor(
-        bounds: Rectangle,
         obj: Any,
         valueRef: KMutableProperty1<Any, Vector2>,
         range: LinearRange1D<Vector2>,
+        bounds: Rectangle? = null,
         configure: XYControl.() -> Unit = {}
-    ) : this(bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
+    ) : this({ valueRef.get(obj) }, { valueRef.set(obj, it) }, range, bounds, configure)
 
-    private val ibounds = bounds.copy()
+    private val ibounds
+        get() = bounds.copy()
 
     var uv: Vector2
         get() {
@@ -112,7 +113,7 @@ class XYControl(
         fun drawValueText(visible: Boolean): Rectangle {
             return drawer.writer {
                 val fh = drawer.fontMap!!.height
-                box = Rectangle.fromCenter(ibounds.position(uv) + Vector2(0.0, fh * 2.5), 300.0, fh * 1.5) // TODO
+                box = Rectangle.fromCenter(ibounds.position(uv) + Vector2(0.0, fh * 2.5), 300.0, fh * 1.5)
                 horizontalAlign = 0.5
                 verticalAlign = 0.5
                 val value = getter()
@@ -156,47 +157,35 @@ class XYControl(
     }
 }
 fun xyControl(
-    bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
     range: LinearRange1D<Vector2>,
+    bounds: Rectangle? = null,
     configure: XYControl.() -> Unit = {},
 ): XYControl {
-    val b = XYControl(bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
+    val b = XYControl({ valueRef.get() }, { valueRef.set(it) }, range, bounds, configure)
     registerElement(b)
     return b
 }
 
 fun xyControl(
-    bounds: Rectangle,
     obj: Any,
     valueRef: KMutableProperty1<Any, Vector2>,
     range: LinearRange1D<Vector2>,
+    bounds: Rectangle? = null,
     configure: XYControl.() -> Unit = {},
 ): XYControl {
-    val b = XYControl(bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
+    val b = XYControl({ valueRef.get(obj) }, { valueRef.set(obj, it) }, range, bounds, configure)
     registerElement(b)
     return b
 }
 
 fun WidgetBuilder.xyControl(
-    bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
     range: LinearRange1D<Vector2>,
+    bounds: Rectangle? = null,
     configure: XYControl.() -> Unit = {},
 ): XYControl {
-    val b = XYControl(bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
-    add(b)
-    return b
-}
-
-fun WidgetBuilder.xyControl(
-    bounds: Rectangle,
-    obj: Any,
-    valueRef: KMutableProperty1<Any, Vector2>,
-    range: LinearRange1D<Vector2>,
-    configure: XYControl.() -> Unit = {},
-): XYControl {
-    val b = XYControl(bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
+    val b = XYControl({ valueRef.get() }, { valueRef.set(it) }, range, bounds, configure)
     add(b)
     return b
 }
@@ -205,15 +194,21 @@ fun WidgetBuilder.xyControl(
     obj: Any,
     valueRef: KMutableProperty1<Any, Vector2>,
     range: LinearRange1D<Vector2>,
+    bounds: Rectangle? = null,
     configure: XYControl.() -> Unit = {},
 ): XYControl {
-    val r = Rectangle( // TODO replace with currentBounds
-        currentX,
-        currentY,
-        elementWidth,
-        elementHeight
-    )
-    val b = XYControl(r, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
+    val b = XYControl({ valueRef.get(obj) }, { valueRef.set(obj, it) }, range, bounds, configure)
+    add(b)
+    return b
+}
+
+fun WidgetBuilder.xyControl(
+    obj: Any,
+    valueRef: KMutableProperty1<Any, Vector2>,
+    range: LinearRange1D<Vector2>,
+    configure: XYControl.() -> Unit = {},
+): XYControl {
+    val b = XYControl({ valueRef.get(obj) }, { valueRef.set(obj, it) }, range, currentElementBounds, configure)
     add(b)
     return b
 }

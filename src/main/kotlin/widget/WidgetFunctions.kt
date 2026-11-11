@@ -1,12 +1,12 @@
 package widget
 
-import ancestors
-import deregisterWidget
+import ui.deregisterWidget
 import org.openrndr.extra.shapes.primitives.intersection
 import org.openrndr.math.Vector2
-import org.openrndr.math.sum
 import org.openrndr.shape.Rectangle
 import ui.UIElement
+import ui.UIHost
+import ui.ancestors
 import ui.close
 
 fun Widget.addElement(element: UIElement) {

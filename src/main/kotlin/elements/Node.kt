@@ -7,7 +7,7 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import style.Colors
 import ui.UIElement
-import ui.setupDraggable
+import ui.makeDraggable
 
 open class Node(
     bounds: Rectangle,
@@ -20,7 +20,7 @@ open class Node(
     var onButtonUp: (MouseEvent) -> Unit = {}
 
     init {
-        setupDraggable(
+        makeDraggable(
             onButtonDown = { onButtonDown(it) },
             onDragged = { onDrag(it) },
             onButtonUp = { onButtonUp(it) }

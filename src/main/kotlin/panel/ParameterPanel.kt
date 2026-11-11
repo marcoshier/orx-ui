@@ -2,20 +2,22 @@ package panel
 
 import UI
 import elements.titleBar
+import lib.ParameterDescription
 import lib.ParameterStore
 import lib.XParameter
-import lib.XParameterType
 import lib.listXParameters
 import org.openrndr.extra.parameters.title
 import org.openrndr.shape.Rectangle
 import style.Colors
 import style.Style
 import ui.UIElement
+import ui.UIHost
 import widget.Direction
 import widget.Widget
 import widget.WidgetBuilder
 import widget.widget
 import java.io.File
+import kotlin.reflect.full.findAnnotation
 
 class ParameterPanel(private val ui: UI, val style: Style? = null) {
 
@@ -74,6 +76,7 @@ class ParameterPanel(private val ui: UI, val style: Style? = null) {
                     val e = controlFor(p, obj)
                     val entry = p.property?.name ?: p.function?.name ?: p.label
                     (e as? UIElement)?.label = "$sectionKey.$entry"
+                    (e as? UIElement)?.description = p.property?.findAnnotation<ParameterDescription>()?.text
                 }
             }
         }

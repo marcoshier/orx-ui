@@ -69,10 +69,6 @@ class XParameter(
     val order: Int,
 )
 
-inline fun <reified T : Annotation> KAnnotatedElement.findAnnotation(): T? =
-    @Suppress("UNCHECKED_CAST")
-    annotations.firstOrNull { it is T } as T?
-
 
 fun XParameterType.Companion.forParameterAnnotationClass(annotation: Annotation): XParameterType =
     XParameterType.entries.find { it.annotationClass == annotation.annotationClass } ?: error("no type for $annotation")
@@ -367,7 +363,7 @@ class ParameterStore(private val file: File) {
             val entry = mutableMapOf<String, Any>()
             if (p.label.isNotBlank()) entry["label"] = p.label
             entry["value"] = encoded
-            
+
             name to entry
         }.toMap()
         config = config.withValue(ConfigUtil.quoteString(key), ConfigValueFactory.fromMap(values))

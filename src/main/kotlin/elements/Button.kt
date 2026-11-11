@@ -9,15 +9,16 @@ import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
-import registerElement
+import ui.registerElement
 import ui.UIElement
+import ui.applyBoundsFromText
 import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 
 open class Button(
-    bounds: Rectangle,
+    bounds: Rectangle? = null,
     configure: Button.() -> Unit = {},
-) : UIElement(bounds) {
+) : UIElement(bounds ?: Rectangle(10.0, 10.0, 30.0)) {
 
     var action: (MouseEvent) -> Unit = {}
     var dragAction: (MouseEvent) -> Unit = {}
@@ -45,6 +46,10 @@ open class Button(
         dragged.listen {
             isSelected = true
             dragAction(it)
+        }
+
+        if (bounds == null) {
+            applyBoundsFromText()
         }
 
         configure()
@@ -125,7 +130,7 @@ open class Button(
 
 
 fun button(
-    bounds: Rectangle,
+    bounds: Rectangle? = null,
     configure: Button.() -> Unit = {},
 ): Button {
     val b = Button(bounds, configure)
@@ -134,8 +139,8 @@ fun button(
 }
 
 fun button(
-    bounds: Rectangle,
     state: KMutableProperty0<Boolean>,
+    bounds: Rectangle? = null,
     configure: Button.() -> Unit = {},
 ): Button {
     val b = Button(bounds) {
@@ -148,7 +153,7 @@ fun button(
 }
 
 fun WidgetBuilder.button(
-    bounds: Rectangle,
+    bounds: Rectangle? = null,
     configure: Button.() -> Unit = {},
 ): Button {
     val b = Button(bounds, configure)
@@ -157,8 +162,8 @@ fun WidgetBuilder.button(
 }
 
 fun WidgetBuilder.button(
-    bounds: Rectangle,
     state: KMutableProperty0<Boolean>,
+    bounds: Rectangle? = null,
     configure: Button.() -> Unit = {},
 ): Button {
     val b = Button(bounds) {
@@ -173,13 +178,7 @@ fun WidgetBuilder.button(
 fun WidgetBuilder.button(
     configure: Button.() -> Unit = {},
 ): Button {
-    val r = Rectangle(
-        currentX,
-        currentY,
-        elementWidth,
-        elementHeight
-    )
-    val b = Button(r, configure)
+    val b = Button(currentElementBounds, configure)
     add(b)
     return b
 }

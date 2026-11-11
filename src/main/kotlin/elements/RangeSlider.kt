@@ -5,46 +5,51 @@ import org.openrndr.color.mix
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.LineCap
 import org.openrndr.extra.textwriter.writer
+import org.openrndr.math.Vector2
 import org.openrndr.math.map
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.Segment2D
 import org.openrndr.shape.bounds
-import registerElement
+import ui.registerElement
 import style.Colors
 import ui.UIElement
+import ui.applyBoundsFromText
 import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 @Suppress("UNCHECKED_CAST")
 open class RangeSlider<T : Comparable<T>>(
-    bounds: Rectangle,
     val range: ClosedRange<T>,
     private val getter: () -> ClosedRange<T>,
     private val setter: (ClosedRange<T>) -> Unit,
+    bounds: Rectangle? = null,
     configure: RangeSlider<T>.() -> Unit = {}
-) : UIElement(bounds) {
+) : UIElement(bounds ?: Rectangle(10.0, 10.0, 60.0, 30.0)) {
 
     constructor(
-        bounds: Rectangle,
         range: ClosedRange<T>,
         valueRef: KMutableProperty0<ClosedRange<T>>,
+        bounds: Rectangle? = null,
         configure: RangeSlider<T>.() -> Unit = {}
-    ) : this(bounds, range, { valueRef.get() }, { valueRef.set(it) }, configure)
+    ) : this(range, { valueRef.get() }, { valueRef.set(it) }, bounds, configure)
 
     constructor(
-        bounds: Rectangle,
         range: ClosedRange<T>,
         obj: Any,
         valueRef: KMutableProperty1<Any, ClosedRange<T>>,
+        bounds: Rectangle? = null,
         configure: RangeSlider<T>.() -> Unit = {}
-    ) : this(bounds, range, { valueRef.get(obj) }, { valueRef.set(obj, it) }, configure)
+    ) : this(range, { valueRef.get(obj) }, { valueRef.set(obj, it) }, bounds, configure)
 
-    var railStart = bounds.position(0.05, 0.5)
-    var railEnd = bounds.position(0.95, 0.5)
+    val railStart: Vector2
+        get() = this.bounds.position(0.05, 0.5)
+
+    val railEnd: Vector2
+        get() = this.bounds.position(0.95, 0.5)
+
 
     private var activeHandle = -1
-
 
     private fun toT(v: T): Double = when (v) {
         is Int -> {
@@ -228,29 +233,30 @@ open class RangeSlider<T : Comparable<T>>(
 }
 
 fun <T : Comparable<T>> rangeSlider(
-    bounds: Rectangle,
     range: ClosedRange<T>,
     valueRef: KMutableProperty0<ClosedRange<T>>,
+    bounds: Rectangle? = null,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
-    val s = RangeSlider(bounds, range, valueRef, configure)
+    val s = RangeSlider(range, valueRef, bounds, configure)
     registerElement(s)
     return s
 }
 
 fun <T : Comparable<T>> rangeSlider(
-    bounds: Rectangle,
     range: ClosedRange<T>,
     valueLeftRef: KMutableProperty0<T>,
     valueRightRef: KMutableProperty0<T>,
+    bounds: Rectangle? = null,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
-    val s = RangeSlider(bounds, range,
+    val s = RangeSlider(range,
         getter = { valueLeftRef.get()..valueRightRef.get() },
         setter = {
             valueLeftRef.set(it.start)
             valueRightRef.set(it.endInclusive)
         },
+        bounds,
         configure
     )
     registerElement(s)
@@ -258,29 +264,30 @@ fun <T : Comparable<T>> rangeSlider(
 }
 
 fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
-    bounds: Rectangle,
     range: ClosedRange<T>,
     valueRef: KMutableProperty0<ClosedRange<T>>,
+    bounds: Rectangle? = null,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
-    val s = RangeSlider(bounds, range, valueRef, configure)
+    val s = RangeSlider(range, valueRef, bounds, configure)
     add(s)
     return s
 }
 
 fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
-    bounds: Rectangle,
     range: ClosedRange<T>,
     valueLeftRef: KMutableProperty0<T>,
     valueRightRef: KMutableProperty0<T>,
+    bounds: Rectangle? = null,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
-    val s = RangeSlider(bounds, range,
+    val s = RangeSlider(range,
         getter = { valueLeftRef.get()..valueRightRef.get() },
         setter = {
             valueLeftRef.set(it.start)
             valueRightRef.set(it.endInclusive)
         },
+        bounds,
         configure
     )
     add(s)
@@ -292,7 +299,7 @@ fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
     valueRef: KMutableProperty0<ClosedRange<T>>,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
-    val s = RangeSlider(currentElementBounds, range, valueRef, configure)
+    val s = RangeSlider(range, valueRef, currentElementBounds, configure)
     add(s)
     return s
 }
@@ -303,12 +310,13 @@ fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
     valueRightRef: KMutableProperty0<T>,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
-    val s = RangeSlider(currentElementBounds, range,
+    val s = RangeSlider(range,
         getter = { valueLeftRef.get()..valueRightRef.get() },
         setter = {
             valueLeftRef.set(it.start)
             valueRightRef.set(it.endInclusive)
         },
+        currentElementBounds,
         configure
     )
     add(s)
@@ -321,7 +329,7 @@ fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
     valueRef: KMutableProperty1<Any, ClosedRange<T>>,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
-    val s = RangeSlider(currentElementBounds, range, obj, valueRef, configure)
+    val s = RangeSlider(range, obj, valueRef, currentElementBounds, configure)
     add(s)
     return s
 }
@@ -333,12 +341,13 @@ fun <T : Comparable<T>> WidgetBuilder.rangeSlider(
     valueRightRef: KMutableProperty1<Any, T>,
     configure: RangeSlider<T>.() -> Unit = {}
 ): RangeSlider<T> {
-    val s = RangeSlider(currentElementBounds, range,
+    val s = RangeSlider(range,
         getter = { valueLeftRef.get(obj)..valueRightRef.get(obj) },
         setter = {
             valueLeftRef.set(obj, it.start)
             valueRightRef.set(obj, it.endInclusive)
         },
+        currentElementBounds,
         configure
     )
     add(s)

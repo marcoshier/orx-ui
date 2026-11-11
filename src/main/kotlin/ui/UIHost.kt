@@ -1,11 +1,10 @@
-import lib.ParameterStore
+package ui
+
 import org.openrndr.Program
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.FontImageMap
 import style.StyleStack
-import ui.UIElement
 import widget.Widget
-import java.io.File
 
 class UIHost(val program: Program) {
     val tree = UITree()

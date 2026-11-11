@@ -32,15 +32,10 @@ fun main() {
                     action = { println("clicked button") }
                 }
 
-                dropdown<Test>(grid[1], state::current0)
-                dropdown(
-                    grid[2],
-                    entries = { Test.entries.toList() },
-                    entryName = { it.name },
-                    current = state::current1,
-                )
+                dropdown<Test>(state::current0, grid[1])
+                dropdown<Test>(state::current1, grid[2])
 
-                slider(grid[3], 0.0..10.0, state::value)
+                slider(0.0..10.0, state::value, grid[3])
             }
         }
     }

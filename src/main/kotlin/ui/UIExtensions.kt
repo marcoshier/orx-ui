@@ -56,7 +56,7 @@ private val logger = KotlinLogging.logger {  }
 //    val obj = objectWithParameters
 //    val parameters = objectWithParameters.listXParameters()
 //
-//    val saveFile = file ?: File("ui-parameters/${UIHost.context.program.name}.conf")
+//    val saveFile = file ?: File("ui-parameters/${ui.UIHost.context.program.name}.conf")
 //    val store = ParameterStore(saveFile)
 //
 //    val usedParameterKeys = mutableSetOf<String>()

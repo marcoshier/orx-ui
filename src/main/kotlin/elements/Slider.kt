@@ -1,7 +1,5 @@
 package elements
 
-import UI
-import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.color.mix
 import org.openrndr.draw.Drawer
@@ -11,42 +9,42 @@ import org.openrndr.math.map
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.Segment2D
 import org.openrndr.shape.bounds
-import registerElement
+import ui.registerElement
 import style.Colors
 import ui.UIElement
 import widget.WidgetBuilder
-import widget.grid
-import widget.gridIndexed
-import widget.widget
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 @Suppress("UNCHECKED_CAST")
 open class Slider<T: Comparable<T>>(
-    bounds: Rectangle,
     var range: ClosedRange<T>,
     private val getter: () -> T,
     private val setter: (T) -> Unit,
+    bounds: Rectangle? = null,
     configure: Slider<T>.() -> Unit = {}
-): UIElement( bounds) {
+): UIElement(bounds ?: Rectangle(10.0, 10.0, 60.0, 30.0)) {
 
     constructor(
-        bounds: Rectangle,
         range: ClosedRange<T>,
         valueRef: KMutableProperty0<T>,
+        bounds: Rectangle? = null,
         configure: Slider<T>.() -> Unit = {}
-    ): this(bounds, range, { valueRef.get() }, { valueRef.set(it) }, configure)
+    ): this(range, { valueRef.get() }, { valueRef.set(it) }, bounds, configure)
 
     constructor(
-        bounds: Rectangle,
         range: ClosedRange<T>,
         obj: Any,
         valueRef: KMutableProperty1<Any, T>,
+        bounds: Rectangle? = null,
         configure: Slider<T>.() -> Unit = {}
-    ) : this(bounds, range, { valueRef.get(obj) }, { valueRef.set(obj, it) }, configure)
+    ) : this(range, { valueRef.get(obj) }, { valueRef.set(obj, it) }, bounds, configure)
 
-    var railStart = bounds.position(0.05, 0.5)
-    var railEnd = bounds.position(0.95, 0.5)
+    val railStart
+        get() = bounds.position(0.05, 0.5)
+
+    val railEnd
+        get() = bounds.position(0.95, 0.5)
 
     var t: Double
         get() {
@@ -203,35 +201,35 @@ open class Slider<T: Comparable<T>>(
 
 
 fun <T : Comparable<T>> slider(
-    bounds: Rectangle,
     range: ClosedFloatingPointRange<T>,
     valueRef: KMutableProperty0<T>,
+    bounds: Rectangle? = null,
     configure: Slider<T>.() -> Unit = {}
 ): Slider<T> {
-    val s = Slider(bounds, range, valueRef, configure)
+    val s = Slider(range, valueRef, bounds, configure)
     registerElement(s)
     return s
 }
 
 
 fun <T : Comparable<T>> slider(
-    bounds: Rectangle,
     range: ClosedRange<T>,
     valueRef: KMutableProperty0<T>,
+    bounds: Rectangle? = null,
     configure: Slider<T>.() -> Unit = {}
 ): Slider<T> {
-    val s = Slider(bounds, range, valueRef, configure)
+    val s = Slider(range, valueRef, bounds, configure)
     registerElement(s)
     return s
 }
 
 fun <T : Comparable<T>> WidgetBuilder.slider(
-    bounds: Rectangle,
     range: ClosedRange<T>,
     valueRef: KMutableProperty0<T>,
+    bounds: Rectangle? = null,
     configure: Slider<T>.() -> Unit = {}
 ): Slider<T> {
-    val s = Slider(bounds, range, valueRef, configure)
+    val s = Slider(range, valueRef, bounds, configure)
     add(s)
     return s
 }
@@ -241,13 +239,7 @@ fun <T : Comparable<T>> WidgetBuilder.slider(
     valueRef: KMutableProperty0<T>,
     configure: Slider<T>.() -> Unit = {},
 ): Slider<T> {
-    val r = Rectangle(
-        currentX,
-        currentY,
-        elementWidth,
-        elementHeight
-    )
-    val b = Slider(r, range, valueRef, configure)
+    val b = Slider(range, valueRef, currentElementBounds, configure)
     add(b)
     return b
 }
@@ -258,13 +250,7 @@ fun <T : Comparable<T>> WidgetBuilder.slider(
     valueRef: KMutableProperty1<Any, T>,
     configure: Slider<T>.() -> Unit = {},
 ): Slider<T> {
-    val r = Rectangle(
-        currentX,
-        currentY,
-        elementWidth,
-        elementHeight
-    )
-    val b = Slider(r, range, obj, valueRef, configure)
+    val b = Slider(range, obj, valueRef, currentElementBounds, configure)
     add(b)
     return b
 }

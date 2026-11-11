@@ -25,10 +25,10 @@ fun main() {
 
             widget(drawer.bounds.offsetEdges(-5.0)) {
                 grid(2, 2, gutterX = 10.0, gutterY = 10.0) { rects ->
-                    rangeSlider(rects[0], 0.0..12.0, state::left, state::right)
-                    rangeSlider(rects[1], 0.0..12.0, state::range)
-                    rangeSlider(rects[2], 2..15, state::ileft, state::iright)
-                    rangeSlider(rects[3], 0..12, state::irange)
+                    rangeSlider(0.0..12.0, state::left, state::right, rects[0])
+                    rangeSlider(0.0..12.0, state::range, rects[1])
+                    rangeSlider(2..15, state::ileft, state::iright, rects[2])
+                    rangeSlider(0..12, state::irange, rects[3])
                 }
             }
 

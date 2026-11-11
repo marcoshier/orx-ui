@@ -1,6 +1,7 @@
+package ui
+
 import org.openrndr.events.Event
 import org.openrndr.math.Vector2
-import ui.UIElement
 import widget.Widget
 import widget.screenBounds
 

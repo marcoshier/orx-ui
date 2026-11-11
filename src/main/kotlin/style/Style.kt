@@ -5,7 +5,7 @@ import kotlinx.serialization.Transient
 import org.openrndr.animatable.easing.Easing
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.loadFont
-import ui.UIElement
+import ui.UIHost
 import java.io.File
 import kotlin.math.roundToInt
 import kotlin.reflect.KMutableProperty1
@@ -28,10 +28,15 @@ data class Style(val name: String = "") {
     var fontSize: Double = 16.0
     var textColor: ColorRGBa? = Colors.BLACK
 
+    // todo
+    // i don't like this division. there should be only
+    // backgroundColor, that can be changed interactively
+    // via style modifiers
     var backgroundColor: ColorRGBa? = Colors.CLICKABLE
     var hoverColor: ColorRGBa? = Colors.HOVERED
     var focusColor: ColorRGBa? = Colors.FOCUSED
     var selectColor: ColorRGBa? = Colors.SELECTED
+
     var strokeColor: ColorRGBa? = Colors.BLACK
 
     var strokeWeight: Double = 0.0

@@ -23,12 +23,12 @@ fun main() {
             widget(drawer.bounds.offsetEdges(-5.0)) {
                 grid(1, 2) { rects ->
                     scaleControl(
-                        rects[0].offsetEdges(-5.0),
                         state::scale1, 0.0..5.0,
+                        rects[0].offsetEdges(-5.0)
                     )
                     scaleControl(
-                        rects[1].offsetEdges(-5.0),
-                        state::scale2, Vector2.ZERO..Vector2(3.0, 8.0)
+                        state::scale2, Vector2.ZERO..Vector2(3.0, 8.0),
+                        rects[1].offsetEdges(-5.0)
                     )
                 }
             }

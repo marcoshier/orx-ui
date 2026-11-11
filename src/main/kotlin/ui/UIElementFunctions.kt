@@ -1,7 +1,5 @@
 package ui
 
-import UIHost
-import deregisterElement
 import org.openrndr.MouseEvent
 import org.openrndr.math.Vector2
 
@@ -17,7 +15,7 @@ fun UIElement.draw() {
     elRef.draw(host.drawer)
 }
 
-fun UIElement.setupDraggable(
+fun UIElement.makeDraggable(
     onButtonDown: (MouseEvent) -> Unit = {},
     onDragged: (MouseEvent) -> Unit = {},
     onButtonUp: (MouseEvent) -> Unit = {}

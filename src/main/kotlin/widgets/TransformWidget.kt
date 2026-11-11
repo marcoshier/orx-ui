@@ -15,8 +15,7 @@ import org.openrndr.math.Matrix44
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
-import registerWidget
-import style.Colors
+import ui.registerWidget
 import ui.UIElement
 import widget.Widget
 import widget.WidgetBuilder
@@ -154,9 +153,9 @@ class TransformWidget(
 
     init {
         val controls = listOf(
-            XYControl(controlBounds, tb::translation, translateRange) { visible = { currentTransformType == "translate" } },
-            ScaleControl(controlBounds, tb::scale, scaleRange) { visible = { currentTransformType == "scale" } },
-            RotateControl(controlBounds, tb::rotation) { visible = { currentTransformType == "rotate" } }
+            XYControl(tb::translation, translateRange, controlBounds) { visible = { currentTransformType == "translate" }},
+            ScaleControl(tb::scale, scaleRange, controlBounds) { visible = { currentTransformType == "scale" } },
+            RotateControl(tb::rotation, controlBounds) { visible = { currentTransformType == "rotate" } }
         )
 
         addElements(controls)

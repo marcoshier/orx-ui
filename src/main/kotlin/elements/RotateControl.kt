@@ -8,41 +8,40 @@ import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Circle
 import org.openrndr.shape.Rectangle
-import registerElement
+import ui.registerElement
 import style.Colors
 import ui.UIElement
 import widget.WidgetBuilder
 import kotlin.math.atan2
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 class RotateControl(
-    bounds: Rectangle,
     private val getter: () -> Double,
     private val setter: (Double) -> Unit,
+    bounds: Rectangle? = null,
     configure: RotateControl.() -> Unit = {}
-): UIElement(bounds) {
+): UIElement(bounds ?: Rectangle(10.0, 10.0, 200.0)) {
 
     constructor(
-        bounds: Rectangle,
         valueRef: KMutableProperty0<Double>,
+        bounds: Rectangle? = null,
         configure: RotateControl.() -> Unit = {}
-    ): this(bounds, { valueRef.get() }, { valueRef.set(it) }, configure)
+    ): this({ valueRef.get() }, { valueRef.set(it) }, bounds, configure)
 
     @Suppress("UNCHECKED_CAST")
     constructor(
-        bounds: Rectangle,
         obj: Any,
         valueRef: KMutableProperty1<Any, Double>,
+        bounds: Rectangle? = null,
         configure: RotateControl.() -> Unit = {}
-    ): this(bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, configure)
+    ): this({ valueRef.get(obj) }, { valueRef.set(obj, it) }, bounds, configure)
 
-    val track = Circle(
-        bounds.center,
-        bounds.width * 0.4
-    )
+    val track
+        get() = Circle(
+            bounds.center,
+            bounds.width * 0.4
+        )
 
     var t: Double
         get() = getter()
@@ -136,21 +135,21 @@ class RotateControl(
 
 
 fun rotateControl(
-    bounds: Rectangle,
     valueRef: KMutableProperty0<Double>,
+    bounds: Rectangle? = null,
     configure: RotateControl.() -> Unit = {},
 ): RotateControl {
-    val b = RotateControl(bounds, valueRef, configure)
+    val b = RotateControl(valueRef, bounds, configure)
     registerElement(b)
     return b
 }
 
 fun WidgetBuilder.rotateControl(
-    bounds: Rectangle,
     valueRef: KMutableProperty0<Double>,
+    bounds: Rectangle? = null,
     configure: RotateControl.() -> Unit = {},
 ): RotateControl {
-    val b = RotateControl(bounds, valueRef, configure)
+    val b = RotateControl(valueRef, bounds, configure)
     add(b)
     return b
 }
@@ -160,7 +159,7 @@ fun WidgetBuilder.rotateControl(
     valueRef: KMutableProperty1<Any, Double>,
     configure: RotateControl.() -> Unit = {},
 ): RotateControl {
-    val b = RotateControl(currentElementBounds, obj, valueRef, configure)
+    val b = RotateControl(obj, valueRef, currentElementBounds, configure)
     add(b)
     return b
 }

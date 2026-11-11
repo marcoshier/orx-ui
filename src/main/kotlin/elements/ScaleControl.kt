@@ -14,64 +14,66 @@ import org.openrndr.math.Vector2
 import org.openrndr.math.map
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
-import registerElement
+import ui.registerElement
 import ui.UIElement
 import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 class ScaleControl (
-    bounds: Rectangle,
     private val getter: () -> Vector2,
     private val setter: (Vector2) -> Unit,
     val range: LinearRange1D<Vector2>,
+    bounds: Rectangle? = null,
     configure: ScaleControl.() -> Unit
-): UIElement(bounds) {
+): UIElement(bounds ?: Rectangle(10.0, 10.0, 200.0)) {
 
-    private val ibounds = bounds.offsetEdges(-15.0)
+    private val ibounds
+        get() = bounds.offsetEdges(-15.0)
+
     var invert = false
     var uniform = false
 
     constructor(
-        bounds: Rectangle,
         valueRef: KMutableProperty0<Vector2>,
         range: LinearRange1D<Vector2>,
+        bounds: Rectangle? = null,
         configure: ScaleControl.() -> Unit = {}
-    ): this(bounds, { valueRef.get() }, { valueRef.set(it) }, range, configure)
+    ): this({ valueRef.get() }, { valueRef.set(it) }, range, bounds, configure)
 
     constructor(
-        bounds: Rectangle,
         valueRef: KMutableProperty0<Double>,
         range: ClosedRange<Double>,
+        bounds: Rectangle? = null,
         configure: ScaleControl.() -> Unit = {}
     ): this(
-        bounds, { Vector2(valueRef.get()) }, { valueRef.set(it.x) },
-        Vector2(range.start)..Vector2(range.endInclusive), configure
+       { Vector2(valueRef.get()) }, { valueRef.set(it.x) },
+        Vector2(range.start)..Vector2(range.endInclusive),  bounds, configure
     ) {
         uniform = true
     }
 
     @Suppress("UNCHECKED_CAST")
     constructor(
-        bounds: Rectangle,
         obj: Any,
         valueRef: KMutableProperty1<Any, Vector2>,
         range: LinearRange1D<Vector2>,
+        bounds: Rectangle? = null,
         configure: ScaleControl.() -> Unit = {}
-    ) : this(bounds, { valueRef.get(obj) }, { valueRef.set(obj, it) }, range, configure)
+    ) : this({ valueRef.get(obj) }, { valueRef.set(obj, it) }, range, bounds, configure)
 
     @Suppress("UNCHECKED_CAST")
     constructor(
-        bounds: Rectangle,
         obj: Any,
         valueRef: KMutableProperty1<Any, Double>,
         range: ClosedRange<Double>,
+        bounds: Rectangle? = null,
         configure: ScaleControl.() -> Unit = {}
     ) : this(
-        bounds,
         { Vector2(valueRef.get(obj)) },
         { valueRef.set(obj, it.x) },
         Vector2(range.start)..Vector2(range.endInclusive),
+        bounds,
         configure
     ) {
         uniform = true
@@ -226,45 +228,45 @@ class ScaleControl (
 
 
 fun scaleControl(
-    bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
     range: LinearRange1D<Vector2>,
+    bounds: Rectangle? = null,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl( bounds, valueRef, range, configure)
+    val b = ScaleControl(valueRef, range, bounds, configure)
     registerElement(b)
     return b
 }
 
 fun scaleControl(
-    bounds: Rectangle,
     valueRef: KMutableProperty0<Double>,
     range: ClosedFloatingPointRange<Double>,
+    bounds: Rectangle? = null,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl(bounds, valueRef, range, configure)
+    val b = ScaleControl(valueRef, range, bounds, configure)
     registerElement(b)
     return b
 }
 
 fun WidgetBuilder.scaleControl(
-    bounds: Rectangle,
     valueRef: KMutableProperty0<Vector2>,
     range: LinearRange1D<Vector2>,
+    bounds: Rectangle? = null,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl(bounds, valueRef, range, configure)
+    val b = ScaleControl(valueRef, range, bounds, configure)
     add(b)
     return b
 }
 
 fun WidgetBuilder.scaleControl(
-    bounds: Rectangle,
     valueRef: KMutableProperty0<Double>,
     range: ClosedFloatingPointRange<Double>,
+    bounds: Rectangle? = null,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl(bounds, valueRef, range, configure)
+    val b = ScaleControl(valueRef, range, bounds, configure)
     add(b)
     return b
 }
@@ -275,7 +277,7 @@ fun WidgetBuilder.scaleControl(
     valueRef: KMutableProperty1<Any, Vector2>,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl(currentElementBounds, obj, valueRef, range, configure)
+    val b = ScaleControl(obj, valueRef, range, currentElementBounds, configure)
     add(b)
     return b
 }
@@ -286,7 +288,7 @@ fun WidgetBuilder.scaleControl(
     valueRef: KMutableProperty1<Any, Double>,
     configure: ScaleControl.() -> Unit = {},
 ): ScaleControl {
-    val b = ScaleControl(currentElementBounds, obj, valueRef, range, configure)
+    val b = ScaleControl(obj, valueRef, range, currentElementBounds, configure)
     add(b)
     return b
 }

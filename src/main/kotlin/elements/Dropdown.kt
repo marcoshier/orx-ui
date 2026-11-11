@@ -1,6 +1,6 @@
 package elements
 
-import mousePosition
+import ui.mousePosition
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.extra.shapes.primitives.regularPolygon
@@ -11,33 +11,34 @@ import org.openrndr.math.Vector2
 import org.openrndr.panel.collections.SelectableList
 import org.openrndr.panel.collections.SelectableMutableList
 import org.openrndr.shape.Rectangle
-import registerElement
+import ui.registerElement
 import style.Colors
 import transformPos
 import ui.UIElement
+import ui.applyBoundsFromText
 import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
 open class Dropdown<T> (
-    bounds: Rectangle,
     var getter: () -> T,
     val setter: (T) -> Unit,
+    bounds: Rectangle? = null,
     configure: Dropdown<T>.() -> Unit = {},
-): UIElement(bounds) {
+): UIElement(bounds ?: Rectangle(10.0, 10.0, 60.0, 30.0)) {
 
     constructor(
-        bounds: Rectangle,
         current: KMutableProperty0<T>,
+        bounds: Rectangle? = null,
         configure: Dropdown<T>.() -> Unit = {}
-    ): this(bounds, { current.get() }, { current.set(it) }, configure)
+    ): this({ current.get() }, { current.set(it) }, bounds, configure)
 
     constructor(
-        bounds: Rectangle,
         obj: Any,
         propertyRef: KMutableProperty1<Any, T>,
+        bounds: Rectangle? = null,
         configure: Dropdown<T>.() -> Unit = {}
-    ): this(bounds, { propertyRef.get(obj) }, { propertyRef.set(obj, it) }, configure)
+    ): this({ propertyRef.get(obj) }, { propertyRef.set(obj, it) }, bounds, configure)
 
     var entries: () -> List<T> = { listOf() }
     var entryName: (T) -> String = { "" }
@@ -46,7 +47,7 @@ open class Dropdown<T> (
 
     var textAlign = Vector2(0.0, 0.5)
 
-    val collapsedBounds = bounds.copy()
+    var collapsedBounds = this.bounds.copy()
 
     var open = false
         set(value) {
@@ -82,6 +83,12 @@ open class Dropdown<T> (
                 onSelection()
             }
             open = false
+        }
+
+        if (bounds == null) {
+            val text = entries().firstOrNull()?.let { entryName(it) } ?: "XXX"
+            applyBoundsFromText(text)
+            collapsedBounds = this.bounds.copy()
         }
 
         configure()
@@ -169,28 +176,13 @@ open class Dropdown<T> (
     }
 }
 
-fun <T> dropdown(
-    bounds: Rectangle,
-    entries: () -> List<T>,
-    entryName: (T) -> String,
-    current: KMutableProperty0<T>,
-    configure: Dropdown<T>.() -> Unit = {},
-): Dropdown<T> {
-    val b = Dropdown(bounds, current) {
-        this.entries = entries
-        this.entryName = entryName
-        configure()
-    }
-    registerElement(b)
-    return b
-}
 
 inline fun <reified T: Enum<T>> dropdown(
-    bounds: Rectangle,
     current: KMutableProperty0<T>,
+    bounds: Rectangle? = null,
     crossinline configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
-    val b = Dropdown(bounds, current) {
+    val b = Dropdown(current, bounds) {
         entries = { enumValues<T>().toList() }
         entryName = { it.name }
         configure()
@@ -199,29 +191,57 @@ inline fun <reified T: Enum<T>> dropdown(
     return b
 }
 
-
-fun <T> WidgetBuilder.dropdown(
-    bounds: Rectangle,
-    entries: () -> List<T>,
-    entryName: (T) -> String,
-    current: KMutableProperty0<T>,
+@JvmName("dropdownSelectableList0")
+fun <T : Any> dropdown(
+    listRef: KMutableProperty0<SelectableList<T>>,
+    bounds: Rectangle? = null,
+    entryName: (T) -> String = { it.toString() },
     configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
-    val b = Dropdown(bounds, current) {
-        this.entries = entries
+    val b = Dropdown(
+        getter = { listRef.get().let { (it.selected ?: it.firstOrNull()) as T } },
+        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } },
+        bounds
+    ) {
+        entries = { listRef.get().toList() }
         this.entryName = entryName
         configure()
     }
-    add(b)
+    registerElement(b)
     return b
 }
 
+@JvmName("dropdownSelectableMutableList0")
+fun <T : Any> dropdown(
+    listRef: KMutableProperty0<SelectableMutableList<T>>,
+    bounds: Rectangle? = null,
+    entryName: (T) -> String = { it.toString() },
+    configure: Dropdown<T>.() -> Unit = {},
+): Dropdown<T> {
+    val b = Dropdown(
+        getter = { listRef.get().let { (it.selected ?: it.firstOrNull()) as T } },
+        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } },
+        bounds
+    ) {
+        entries = { listRef.get().toList() }
+        this.entryName = entryName
+        configure()
+    }
+    listRef.get().changed.listen {
+        if (it.isNotEmpty() && it.selectedIndex == -1) it.selectedIndex = 0
+    }
+    registerElement(b)
+    return b
+}
+
+// TODO why do we need these two?
+
 inline fun <reified T: Enum<T>> WidgetBuilder.dropdown(
-    bounds: Rectangle,
     current: KMutableProperty0<T>,
+    bounds: Rectangle? = null,
     crossinline configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
-    val b = Dropdown(bounds, current) {
+    val b = Dropdown(current, bounds) {
         entries = { enumValues<T>().toList() }
         entryName = { it.name }
         configure()
@@ -236,31 +256,12 @@ fun WidgetBuilder.dropdown(
     current: KMutableProperty1<Any, Enum<*>>,
     configure: Dropdown<Enum<*>>.() -> Unit = {},
 ): Dropdown<Enum<*>> {
-    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
-
-    val b = Dropdown(r, obj, current) {
+    val b = Dropdown( obj, current, currentElementBounds) {
         val kClass = current.returnType.classifier as kotlin.reflect.KClass<*>
         val constants = kClass.java.enumConstants as Array<Enum<*>>
 
         entries = { constants.toList() }
         entryName = { it.name }
-        configure()
-    }
-    add(b)
-    return b
-}
-
-fun <T> WidgetBuilder.dropdown(
-    getter: () -> T,
-    setter: (T) -> Unit,
-    entries: () -> List<T>,
-    entryName: (T) -> String,
-    configure: Dropdown<T>.() -> Unit = {},
-): Dropdown<T> {
-    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
-    val b = Dropdown(r, getter, setter) {
-        this.entries = entries
-        this.entryName = entryName
         configure()
     }
     add(b)
@@ -273,11 +274,10 @@ fun <T : Any> WidgetBuilder.dropdown(
     entryName: (T) -> String = { it.toString() },
     configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
-    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
-    val b = Dropdown<T>(
-        r,
+    val b = Dropdown(
         getter = { listRef.get().let { (it.selected ?: it.firstOrNull()) as T } },
-        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
+        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } },
+        currentElementBounds
     ) {
         entries = { listRef.get().toList() }
         this.entryName = entryName
@@ -294,11 +294,10 @@ fun <T : Any> WidgetBuilder.dropdown(
     entryName: (T) -> String = { it.toString() },
     configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
-    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
-    val b = Dropdown<T>(
-        r,
+    val b = Dropdown(
         getter = { listRef.get(obj).let { (it.selected ?: it.firstOrNull()) as T } },
-        setter = { s -> listRef.get(obj).let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
+        setter = { s -> listRef.get(obj).let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } },
+        currentElementBounds
     ) {
         entries = { listRef.get(obj).toList() }
         this.entryName = entryName
@@ -315,11 +314,10 @@ fun <T : Any> WidgetBuilder.dropdown(
     entryName: (T) -> String = { it.toString() },
     configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
-    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
-    val b = Dropdown<T>(
-        r,
+    val b = Dropdown(
         getter = { listRef.get().let { (it.selected ?: it.firstOrNull()) as T } },
-        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
+        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } },
+        currentElementBounds
     ) {
         entries = { listRef.get().toList() }
         this.entryName = entryName
@@ -339,11 +337,10 @@ fun <T : Any> WidgetBuilder.dropdown(
     entryName: (T) -> String = { it.toString() },
     configure: Dropdown<T>.() -> Unit = {},
 ): Dropdown<T> {
-    val r = Rectangle(currentX, currentY, elementWidth, elementHeight)
-    val b = Dropdown<T>(
-        r,
+    val b = Dropdown(
         getter = { listRef.get(obj).let { (it.selected ?: it.firstOrNull()) as T } },
-        setter = { s -> listRef.get(obj).let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
+        setter = { s -> listRef.get(obj).let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } },
+        currentElementBounds
     ) {
         entries = { listRef.get(obj).toList() }
         this.entryName = entryName
@@ -353,48 +350,5 @@ fun <T : Any> WidgetBuilder.dropdown(
         if (it.isNotEmpty() && it.selectedIndex == -1) it.selectedIndex = 0
     }
     add(b)
-    return b
-}
-
-@JvmName("dropdownSelectableList0")
-fun <T : Any> dropdown(
-    bounds: Rectangle,
-    listRef: KMutableProperty0<SelectableList<T>>,
-    entryName: (T) -> String = { it.toString() },
-    configure: Dropdown<T>.() -> Unit = {},
-): Dropdown<T> {
-    val b = Dropdown<T>(
-        bounds,
-        getter = { listRef.get().let { (it.selected ?: it.firstOrNull()) as T } },
-        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
-    ) {
-        entries = { listRef.get().toList() }
-        this.entryName = entryName
-        configure()
-    }
-    registerElement(b)
-    return b
-}
-
-@JvmName("dropdownSelectableMutableList0")
-fun <T : Any> dropdown(
-    bounds: Rectangle,
-    listRef: KMutableProperty0<SelectableMutableList<T>>,
-    entryName: (T) -> String = { it.toString() },
-    configure: Dropdown<T>.() -> Unit = {},
-): Dropdown<T> {
-    val b = Dropdown<T>(
-        bounds,
-        getter = { listRef.get().let { (it.selected ?: it.firstOrNull()) as T } },
-        setter = { s -> listRef.get().let { it.selectedIndex = it.indexOf(s).coerceAtLeast(0) } }
-    ) {
-        entries = { listRef.get().toList() }
-        this.entryName = entryName
-        configure()
-    }
-    listRef.get().changed.listen {
-        if (it.isNotEmpty() && it.selectedIndex == -1) it.selectedIndex = 0
-    }
-    registerElement(b)
     return b
 }
