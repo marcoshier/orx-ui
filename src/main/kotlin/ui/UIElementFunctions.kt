@@ -14,7 +14,7 @@ fun UIElement.close() {
 context(host: UIHost)
 fun UIElement.draw() {
     val elRef = this@draw
-    elRef.draw(host.context.drawer)
+    elRef.draw(host.drawer)
 }
 
 fun UIElement.setupDraggable(

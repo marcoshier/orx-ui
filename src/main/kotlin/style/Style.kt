@@ -40,7 +40,7 @@ data class Style(val name: String = "") {
     var transitions: MutableMap<String, TransitionDescriptor> = mutableMapOf()
 
     val font by lazy {
-        val context = UIHost.current.context
+        val context = UIHost.current
         val fonts = context.fonts
         val program = context.program
 

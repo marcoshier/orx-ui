@@ -19,7 +19,7 @@ import java.io.File
 
 class ParameterPanel(private val ui: UI, val style: Style? = null) {
 
-    var file = File("ui-parameters/${UIHost.context.program.name}.conf")
+    var file = File("ui-parameters/${UIHost.current.program.name}.conf")
     var bounds = Rectangle(10.0, 10.0, 260.0, 440.0)
     var autosave = true
 

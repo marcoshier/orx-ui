@@ -54,7 +54,7 @@ class UI: Extension {
     val parameters by lazy { ParameterPanel(this) }
 
     fun setupAutoSave(save: () -> File) {
-        host.context.program.ended.listen {
+        host.program.ended.listen {
             val file = save()
             logger.info { "UI Auto-saved ${file.path}" }
         }
@@ -79,7 +79,7 @@ class UI: Extension {
     fun <T : Any> addParameters(obj: T, key: String? = null): T = parameters.add(obj, key)
 
     private fun requestDraw() {
-        host.context.window.requestDraw()
+        host.window.requestDraw()
     }
 
     private fun handleButtonDown(event: MouseEvent) {
@@ -105,7 +105,7 @@ class UI: Extension {
                     focusElement = activeElement
                     dragElement = null
                     pressPosition = event.position
-                    pressTime = host.context.program.seconds
+                    pressTime = host.program.seconds
 
                     if (activeElement?.acceptsText == true) {
                         textElement = activeElement
@@ -213,9 +213,9 @@ class UI: Extension {
                 activeElement?.buttonUp?.trigger(transformedEvent)
                 requestDraw()
 
-                val elapsed = host.context.program.seconds - pressTime
+                val elapsed = host.program.seconds - pressTime
                 if (elapsed < 0.25) {
-                    val now = host.context.program.seconds
+                    val now = host.program.seconds
                     val sinceLast = now - lastClicked
                     val inRange = event.position.distanceTo(lastClickPosition) < 8.0
 
@@ -253,7 +253,6 @@ class UI: Extension {
         host = UIHost(program)
         UIHost.current = host
         loadStyle(StyleLibrary.DEFAULT)
-        UIRegistry.tree = host.tree
 
         program.mouse.apply {
             buttonDown.listen(::handleButtonDown)

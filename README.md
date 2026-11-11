@@ -10,13 +10,13 @@ Roadmap (highest priority first):
 - [x] Text support
 - [x] Stylesheets
 - [x] orx-parameters binding
-- [x] Other controls (Nodes/contour control, Color Widget, Spring control, etc...)
+- [x] Other controls (Nodes/contour control, Color Widget, etc...)
 - [x] friction-based precision
-- [ ] Collapsible Widgets // only widgets are collapsible. when collapsed, they should look at their sibling widgets, elements and rearrange
-- [ ] Documentation
-- [ ] tests
+- [ ] Collapsible Widgets
 - [ ] Windowed UI
 - [ ] GUI interoperability
+- [ ] Documentation
+- [ ] tests
 
 ----
 ## Usage
@@ -40,14 +40,6 @@ Basic widgets and helper functions are provided (`ContourWidget`, `TitleBarWidge
 
 ## Elements
 
-<table>
-<tr>
-<th > Code </th>
-<th> Result </th>
-</tr>
-<tr>
-<td>
-
 #### Button
 
 ```kotlin
@@ -55,15 +47,8 @@ button(drawer.bounds.offsetEdges(-10.0)) {
     action = { println("clicked") }
 }
 ```
-</td>
-<td>
 
-
-
-</td>
-</tr>
-<tr>
-<td>
+<br/>
 
 #### Checkbox
 
@@ -100,16 +85,7 @@ asCheckbox {
 }
 ```
 
-tuutyfuyguy
-</td>
-<td>
-
-
-</td>
-</tr>
-
-<tr>
-<td>
+<br/>
 
 #### Slider
 
@@ -135,15 +111,9 @@ rangeSlider(rect, state::left, state::right, 0.0..12.0)
 rangeSlider(rect, state::range, 0.0..12.0)
 rangeSlider(rect, state::irange, 0..12)
 ```
-</td>
-<td>
 
 
-</td>
-</tr>
-
-<tr>
-<td>
+<br/>
 
 #### Dropdown
 
@@ -169,15 +139,8 @@ dropdown(drawer.bounds.offsetEdges(-10.0).copy(height = 40.0), state::list)
 dropdown(drawer.bounds.offsetEdges(-10.0).copy(height = 40.0), state::mlist)
 ```
 
-</td>
-<td>
 
-
-</td>
-</tr>
-
-<tr>
-<td>
+<br/>
 
 #### Text
 
@@ -195,22 +158,9 @@ textInput(Vector2(10.0), width - 20.0, state::text)
 textboxInput(Rectangle(10.0, 70.0, width - 20.0, 150.0), state::text2)
 ```
 
-</td>
-<td>
-</td>
-</tr>
-</table>
-
 ----
 
 ## Widgets
-
-<table>
-<th>Code</th>
-<th>Demo</th>
-
-<tr>
-<td>
 
 #### TransformWidget
 
@@ -224,13 +174,6 @@ transformWidget(r[0], state::m,
     Vector2.ONE..Vector2(5.0)
 )
 ```
-</td>
-<td>
-</td>
-</tr>
-
-<tr>
-<td>
 
 #### VectorWidget
 
@@ -245,27 +188,12 @@ vectorWidget(drawer.bounds.offsetEdges(-10.0), 0.0..10.0, state::v2)
 vectorWidget(drawer.bounds.offsetEdges(-10.0), 0.0..10.0, state::v3)
 vectorWidget(drawer.bounds.offsetEdges(-10.0), 0.0..10.0, state::v4)
 ```
-</td>
-<td>
-</td>
-</tr>
-
-
-<tr>
-<td>
 
 #### ContourWidget
 
 ```kotlin
 contourWidget(state::contour)
 ```
-</td>
-<td>
-</td>
-</tr>
-
-
-</table>
 
 ----
 
