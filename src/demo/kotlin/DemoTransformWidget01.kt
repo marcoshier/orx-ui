@@ -1,14 +1,13 @@
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import org.openrndr.extra.imageFit.FitMethod
-import org.openrndr.extra.imageFit.fitRectangle
 import org.openrndr.extra.math.linearrange.rangeTo
 import org.openrndr.math.Matrix44
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import widget.grid
-import widgets.transformWidget
 import widget.widget
+import widgets.transformWidget
 
 
 fun main() {

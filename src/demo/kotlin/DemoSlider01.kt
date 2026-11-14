@@ -1,8 +1,6 @@
 import elements.slider
 import org.openrndr.application
-import org.openrndr.color.ColorRGBa
 import org.openrndr.extra.shapes.primitives.grid
-import org.openrndr.shape.Rectangle
 
 fun main() {
     application {

@@ -1,6 +1,5 @@
 import elements.button
 import org.openrndr.application
-import widget.grid
 import widget.gridIndexed
 import widget.widget
 import java.io.File

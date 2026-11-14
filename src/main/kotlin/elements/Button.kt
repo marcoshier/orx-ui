@@ -9,9 +9,9 @@ import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
-import ui.registerElement
 import ui.UIElement
 import ui.applyBoundsFromText
+import ui.registerElement
 import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 

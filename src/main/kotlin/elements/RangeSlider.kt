@@ -11,8 +11,8 @@ import org.openrndr.math.map
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.Segment2D
 import org.openrndr.shape.bounds
-import ui.registerElement
 import ui.UIElement
+import ui.registerElement
 import widget.WidgetBuilder
 import kotlin.math.roundToInt
 import kotlin.reflect.KMutableProperty0

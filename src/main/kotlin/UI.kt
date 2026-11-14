@@ -1,12 +1,6 @@
 import elements.TextInput
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.openrndr.CharacterEvent
-import org.openrndr.CursorType
-import org.openrndr.Extension
-import org.openrndr.ExtensionStage
-import org.openrndr.KeyEvent
-import org.openrndr.MouseEvent
-import org.openrndr.Program
+import org.openrndr.*
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
@@ -14,19 +8,8 @@ import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import panel.ParameterPanel
-import style.Style
-import style.StyleLayer
-import style.StyleLibrary
-import style.Stylesheet
-import style.defaultStylesheet
-import style.emptyStylesheet
-import ui.UIElement
-import ui.UIHost
-import ui.ancestors
-import ui.leafWidget
-import ui.mousePosition
-import ui.seconds
-import ui.updateAnimations
+import style.*
+import ui.*
 import widget.clipBounds
 import java.io.File
 

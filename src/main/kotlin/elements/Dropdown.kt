@@ -1,6 +1,5 @@
 package elements
 
-import ui.mousePosition
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.extra.shapes.primitives.regularPolygon
@@ -11,13 +10,14 @@ import org.openrndr.math.Vector2
 import org.openrndr.panel.collections.SelectableList
 import org.openrndr.panel.collections.SelectableMutableList
 import org.openrndr.shape.Rectangle
-import ui.registerElement
 import style.Colors
 import style.Style
 import style.styleProperty
 import transformPos
 import ui.UIElement
 import ui.applyBoundsFromText
+import ui.mousePosition
+import ui.registerElement
 import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1

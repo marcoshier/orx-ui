@@ -1,13 +1,5 @@
 import elements.button
 import org.openrndr.application
-import org.openrndr.shape.Rectangle
-import widget.asRadio
-import widget.grid
-import widget.widget
-
-import elements.button
-import org.openrndr.application
-import ui.UIElement
 import widget.asRadio
 import widget.gridIndexed
 import widget.widget

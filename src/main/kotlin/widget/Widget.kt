@@ -1,16 +1,14 @@
 package widget
 
 import lib.smoothing
-import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.events.Event
 import org.openrndr.math.Vector2
-import ui.UIElement
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import style.Style
-import ui.UIHost
+import ui.UIElement
 import ui.getUniqueId
 import ui.updateAnimations
 

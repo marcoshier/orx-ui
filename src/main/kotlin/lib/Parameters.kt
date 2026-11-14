@@ -1,29 +1,10 @@
 package lib
 
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigRenderOptions
-import com.typesafe.config.ConfigUtil
-import com.typesafe.config.ConfigValueFactory
-import com.typesafe.config.ConfigValueType
+import com.typesafe.config.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.serialization.json.Json
 import org.openrndr.color.ColorRGBa
-import org.openrndr.extra.parameters.ActionParameter
-import org.openrndr.extra.parameters.BooleanParameter
-import org.openrndr.extra.parameters.ColorParameter
-import org.openrndr.extra.parameters.DoubleListParameter
-import org.openrndr.extra.parameters.DoubleParameter
-import org.openrndr.extra.parameters.IntParameter
-import org.openrndr.extra.parameters.ListParameter
-import org.openrndr.extra.parameters.MutableListParameter
-import org.openrndr.extra.parameters.OptionParameter
-import org.openrndr.extra.parameters.PathParameter
-import org.openrndr.extra.parameters.TextParameter
-import org.openrndr.extra.parameters.Vector2Parameter
-import org.openrndr.extra.parameters.Vector3Parameter
-import org.openrndr.extra.parameters.Vector4Parameter
-import org.openrndr.extra.parameters.XYParameter
+import org.openrndr.extra.parameters.*
 import org.openrndr.math.Matrix44
 import org.openrndr.math.Vector2
 import org.openrndr.math.Vector3
@@ -32,8 +13,6 @@ import org.openrndr.panel.collections.SelectableList
 import org.openrndr.panel.collections.SelectableMutableList
 import org.openrndr.shape.ShapeContour
 import java.io.File
-import kotlin.collections.buildMap
-import kotlin.reflect.KAnnotatedElement
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -42,7 +21,6 @@ import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.javaField
-import kotlin.to
 
 /** Lifted from GUI, integrated with new annotations/types */
 

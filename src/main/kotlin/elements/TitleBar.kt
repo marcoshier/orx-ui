@@ -7,10 +7,10 @@ import org.openrndr.draw.isolated
 import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
-import ui.registerElement
 import ui.UIElement
-import widget.WidgetBuilder
+import ui.registerElement
 import ui.window
+import widget.WidgetBuilder
 
 class TitleBar(
     override var label: String,
@@ -81,7 +81,7 @@ class TitleBar(
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
         if (!visible()) return
-        
+
         drawer.isolated {
             val bb = this@TitleBar.bounds
 

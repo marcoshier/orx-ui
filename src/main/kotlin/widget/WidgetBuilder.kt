@@ -2,8 +2,8 @@ package widget
 
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
-import ui.registerWidget
 import ui.UIElement
+import ui.registerWidget
 import ui.walk
 
 enum class Direction {

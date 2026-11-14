@@ -1,21 +1,11 @@
 package elements
 
-import ui.clipboard
-import ui.deregisterElement
 import io.github.oshai.kotlinlogging.KotlinLogging
 import lib.TextInputToken
 import lib.allCharacters
 import lib.join
 import lib.toTextInputTokens
-import org.openrndr.KEY_ARROW_DOWN
-import org.openrndr.KEY_ARROW_LEFT
-import org.openrndr.KEY_ARROW_RIGHT
-import org.openrndr.KEY_ARROW_UP
-import org.openrndr.KEY_BACKSPACE
-import org.openrndr.KEY_END
-import org.openrndr.KEY_ENTER
-import org.openrndr.KEY_HOME
-import org.openrndr.KeyModifier
+import org.openrndr.*
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
@@ -30,16 +20,10 @@ import org.openrndr.shape.bounds
 import style.Colors
 import style.Style
 import style.styleProperty
-import ui.registerElement
-import ui.seconds
-import ui.UIElement
+import ui.*
 import widget.WidgetBuilder
 import widget.clipBounds
-import kotlin.math.absoluteValue
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.roundToInt
-import kotlin.math.sin
+import kotlin.math.*
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 

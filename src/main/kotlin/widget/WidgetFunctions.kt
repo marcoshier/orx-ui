@@ -1,13 +1,9 @@
 package widget
 
-import ui.deregisterWidget
 import org.openrndr.extra.shapes.primitives.intersection
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
-import ui.UIElement
-import ui.UIHost
-import ui.ancestors
-import ui.close
+import ui.*
 
 fun Widget.addElement(element: UIElement) {
     element.parent = this

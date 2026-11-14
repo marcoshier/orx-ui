@@ -3,7 +3,6 @@ import org.openrndr.animatable.easing.Easing
 import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import style.stylesheet
-import widget.grid
 import widget.gridIndexed
 import widget.widget
 import java.io.File

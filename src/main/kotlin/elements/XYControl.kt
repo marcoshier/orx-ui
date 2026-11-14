@@ -1,6 +1,5 @@
 package elements
 
-import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.events.listen
@@ -13,11 +12,11 @@ import org.openrndr.math.clamp
 import org.openrndr.math.map
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
-import ui.registerElement
 import style.Colors
 import style.Style
 import style.styleProperty
 import ui.UIElement
+import ui.registerElement
 import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1

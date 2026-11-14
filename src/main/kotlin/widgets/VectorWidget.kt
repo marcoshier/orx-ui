@@ -1,15 +1,10 @@
 package widgets
 
 import elements.Slider
-import org.openrndr.math.IntVector2
-import org.openrndr.math.IntVector3
-import org.openrndr.math.IntVector4
-import org.openrndr.math.Vector2
-import org.openrndr.math.Vector3
-import org.openrndr.math.Vector4
+import org.openrndr.math.*
 import org.openrndr.shape.Rectangle
-import ui.registerWidget
 import ui.UIElement
+import ui.registerWidget
 import widget.Widget
 import widget.WidgetBuilder
 import widget.addElements

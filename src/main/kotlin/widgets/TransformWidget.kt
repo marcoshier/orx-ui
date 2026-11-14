@@ -14,13 +14,9 @@ import org.openrndr.math.Matrix44
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
-import ui.registerWidget
 import ui.UIElement
-import widget.Widget
-import widget.WidgetBuilder
-import widget.addElements
-import widget.asRadio
-import widget.close
+import ui.registerWidget
+import widget.*
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
@@ -85,10 +81,6 @@ class TransformWidget(
 
     val ibounds = bounds.copy()
     var fitMethod = FitMethod.Cover
-        set(value) {
-            field = value
-
-        }
 
     private var offset = 10.0
     private var maxButtonsHeight = 50.0

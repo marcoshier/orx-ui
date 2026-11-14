@@ -12,12 +12,7 @@ import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
-import style.ColorRGBaTransition
-import style.DoubleTransition
-import style.Style
-import style.StyleModifier
-import style.styleColorProperties
-import style.styleDoubleProperties
+import style.*
 import widget.Widget
 
 open class UIElement(

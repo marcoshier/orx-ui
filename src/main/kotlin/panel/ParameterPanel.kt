@@ -2,11 +2,7 @@ package panel
 
 import UI
 import elements.titleBar
-import lib.ParameterDescription
-import lib.ParameterStore
-import lib.XParameter
-import lib.XParameterType
-import lib.listXParameters
+import lib.*
 import org.openrndr.draw.Drawer
 import org.openrndr.extra.parameters.title
 import org.openrndr.extra.textwriter.writer
@@ -94,8 +90,7 @@ class ParameterPanel(private val ui: UI, val style: Style? = null) {
 
                 elementHeight = heightFor(p, elementWidth)
                 append(Direction.DOWN, spacing = 5.0) {
-                    val e = controlFor(p, obj)
-                    when (e) {
+                    when (val e = controlFor(p, obj)) {
                         is UIElement -> {
                             e.label = ""
                             e.description = p.property?.findAnnotation<ParameterDescription>()?.text

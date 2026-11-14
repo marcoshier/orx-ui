@@ -3,7 +3,6 @@ package widgets
 import elements.HandleNode
 import elements.button
 import elements.titleBar
-import ui.mousePosition
 import org.openrndr.KeyModifier
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
@@ -11,15 +10,11 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.Segment2D
 import org.openrndr.shape.ShapeContour
-import ui.registerWidget
 import ui.UIElement
 import ui.close
-import widget.Widget
-import widget.WidgetBuilder
-import widget.addElement
-import widget.addElements
-import widget.close
-import widget.grid
+import ui.mousePosition
+import ui.registerWidget
+import widget.*
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 

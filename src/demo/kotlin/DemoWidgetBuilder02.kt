@@ -2,9 +2,9 @@ import elements.Button
 import elements.button
 import org.openrndr.application
 import org.openrndr.extra.shapes.primitives.grid
-import widget.widget
-import widget.gridIndexed
 import widget.grid
+import widget.gridIndexed
+import widget.widget
 
 fun main() {
     application {

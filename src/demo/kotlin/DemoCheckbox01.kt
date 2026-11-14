@@ -1,7 +1,6 @@
 import elements.checkbox
 import org.openrndr.application
 import org.openrndr.shape.Rectangle
-import ui.UIHost
 import widget.widget
 
 fun main() {

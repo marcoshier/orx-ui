@@ -15,7 +15,7 @@ fun main() {
                 var angle = 0.0
             }
 
-            rotateControl(state::angle, drawer.bounds.offsetEdges(-70.0)).also { println(it.label) }
+            rotateControl(state::angle, drawer.bounds.offsetEdges(-70.0))
         }
     }
 }
