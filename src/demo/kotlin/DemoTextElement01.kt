@@ -22,7 +22,7 @@ fun main() {
             }
 
             textInput(state::text, Vector2(10.0), width - 20.0)
-            textboxInput(state::text2, Rectangle(10.0, 70.0, width - 20.0, 150.0), )
+            textboxInput(state::text2, Rectangle(10.0, 50.0, width - 20.0, 150.0))
         }
     }
 }

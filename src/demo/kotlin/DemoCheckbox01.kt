@@ -1,6 +1,7 @@
 import elements.checkbox
 import org.openrndr.application
 import org.openrndr.shape.Rectangle
+import ui.UIHost
 import widget.widget
 
 fun main() {
@@ -10,7 +11,7 @@ fun main() {
             height = 120
         }
         program {
-            extend(UI())
+           extend(UI())
 
             val states = (0..3).map {
                 object { var on = false }
@@ -22,6 +23,7 @@ fun main() {
                     checkbox(state::on, r)
                 }
             }
+
         }
     }
 }

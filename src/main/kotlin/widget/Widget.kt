@@ -28,8 +28,8 @@ open class Widget(
     open val elements = mutableListOf<UIElement>()
     open val widgets = mutableListOf<Widget>()
 
-    var style: Style = parent?.style?.copy() ?: UIHost.current.style.default.copy().apply {
-        backgroundColor = ColorRGBa.TRANSPARENT
+    var style: Style = parent?.style?.copy() ?: Style().apply {
+        backgroundColor = null
     }
 
     val contentBounds: Rectangle
@@ -40,33 +40,36 @@ open class Widget(
     var scrollSmoothing = 0.75
 
     val effectiveYOffset: Double
-        get() = (parent?.effectiveYOffset ?: 0.0) + smoothYoffset
+        get() = (parent?.effectiveYOffset ?: minYOffset) + smoothYoffset
     val effectiveXOffset: Double
-        get() = (parent?.effectiveXOffset ?: 0.0) + smoothXoffset
-
-    var xOffset = 0.0
-        set(value) { field = value.coerceIn(maxXOffset, 0.0) }
-    var yOffset = 0.0
-        set(value) { field = value.coerceIn(maxYOffset, 0.0) }
-
-    val smoothXoffset by smoothing(::xOffset, scrollSmoothing)
-    val smoothYoffset by smoothing(::yOffset, scrollSmoothing)
+        get() = (parent?.effectiveXOffset ?: minXOffset) + smoothXoffset
 
     open val xScrollable: Boolean
         get() = contentBounds.width > bounds.width
     open val yScrollable: Boolean
         get() = contentBounds.height > bounds.height
 
+    var minXOffset: Double = 0.0
+    var minYOffset: Double = 0.0
     val maxXOffset: Double
         get() {
             val overflow = (contentBounds.width + style.paddingX) - bounds.width
-            return if (overflow > 0) -overflow else 0.0
+            return if (overflow > 0) -overflow else minXOffset
         }
     val maxYOffset: Double
         get() {
             val overflow = contentBounds.height + style.paddingY * 2 - bounds.height
-            return if (overflow > 0) -overflow else 0.0
+            return if (overflow > 0) -overflow else minYOffset
         }
+
+    var xOffset = minXOffset
+        set(value) { field = value.coerceIn(maxXOffset, minXOffset) }
+    var yOffset = minYOffset
+        set(value) { field = value.coerceIn(maxYOffset, minYOffset) }
+
+    val smoothXoffset by smoothing(::xOffset, scrollSmoothing)
+    val smoothYoffset by smoothing(::yOffset, scrollSmoothing)
+
 
     var dragOffset = Vector2.ZERO
 
@@ -84,15 +87,12 @@ open class Widget(
             drawer.fill = style.backgroundColor
             drawer.rectangle(this@Widget.bounds)
 
-            val sorted = elements.sortedBy { it.zIndex }
+            val (fixed, scrolling) = elements.sortedBy { it.zIndex }.partition { it.fixed }
 
-            for (el in sorted) {
-                if (el === focusElement) continue
-
+            fun drawElement(el: UIElement) {
+                if (el === focusElement) return
                 drawer.isolated {
-                    if (!el.fixed) {
-                        drawer.translate(smoothXoffset, smoothYoffset)
-                    }
+                    if (!el.fixed) drawer.translate(smoothXoffset, smoothYoffset)
                     el.beforeDraw(el)
                     el.updateAnimations()
                     el.draw(drawer)
@@ -100,12 +100,16 @@ open class Widget(
                 }
             }
 
+            scrolling.forEach(::drawElement)
+
             for (child in widgets.sortedBy { it.zIndex }) {
                 drawer.isolated {
                     drawer.translate(smoothXoffset, smoothYoffset)
                     child.draw(drawer, focusElement)
                 }
             }
+
+            fixed.forEach(::drawElement)
 
             drawer.drawStyle.clip = null
         }

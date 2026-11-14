@@ -4,8 +4,11 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.openrndr.animatable.easing.Easing
 import org.openrndr.color.ColorRGBa
+import org.openrndr.draw.MagnifyingFilter
+import org.openrndr.draw.MinifyingFilter
 import org.openrndr.draw.loadFont
 import ui.UIHost
+import ui.window
 import java.io.File
 import kotlin.math.roundToInt
 import kotlin.reflect.KMutableProperty1
@@ -24,37 +27,57 @@ data class Style(val name: String = "") {
     var minHeight: Double = 0.0
     var maxHeight: Double = Double.MAX_VALUE
 
-    var fontFamily: Font = Font()
+    var font: Font = Font()
     var fontSize: Double = 16.0
+
     var textColor: ColorRGBa? = Colors.BLACK
-
-    // todo
-    // i don't like this division. there should be only
-    // backgroundColor, that can be changed interactively
-    // via style modifiers
     var backgroundColor: ColorRGBa? = Colors.CLICKABLE
-    var hoverColor: ColorRGBa? = Colors.HOVERED
-    var focusColor: ColorRGBa? = Colors.FOCUSED
-    var selectColor: ColorRGBa? = Colors.SELECTED
+    var strokeColor: ColorRGBa? = null
 
-    var strokeColor: ColorRGBa? = Colors.BLACK
+    var checkboxBackgroundFill: ColorRGBa? = Colors.CLICKABLE.shade(0.8)
+    var checkboxStroke: ColorRGBa? = null
+
+    var dropdownEntryFill: ColorRGBa? = Colors.CLICKABLE
+
+    var sliderInactiveRailFill: ColorRGBa? = Colors.CLICKABLE.shade(0.875)
+    var sliderActiveRailFill: ColorRGBa? = Colors.CLICKABLE.shade(0.575)
+    var sliderRailStroke: ColorRGBa? = null
+    var sliderHandleFill: ColorRGBa? = null
+    var sliderHandleStroke: ColorRGBa? = Colors.SELECTED.shade(0.5)
+    var sliderActiveTextColor: ColorRGBa? = textColor
+
+    var rotateSliderStroke: ColorRGBa? = Colors.CLICKABLE.shade(0.5)
+    var rotateSliderFill: ColorRGBa? = null
+
+    var scaleControlLinesStroke: ColorRGBa? = Colors.CLICKABLE.shade(0.65)
+    var scaleControlActiveBoxFill: ColorRGBa? = Colors.CLICKABLE.shade(0.65)
+
+    var textBaselineColor: ColorRGBa? = Colors.CLICKABLE.shade(0.65)
+    var textboxHandleColor: ColorRGBa? = Colors.CLICKABLE.shade(0.65)
+    var textSelectionColor: ColorRGBa? = Colors.CLICKABLE.shade(0.85)
+
+    var xyControlLineStroke: ColorRGBa? = Colors.CLICKABLE.shade(0.65)
+    var xyControlHandleFill: ColorRGBa? = Colors.HOVERED.shade(0.65)
 
     var strokeWeight: Double = 0.0
     var borderRadius: Double = 0.0
 
     var transitions: MutableMap<String, TransitionDescriptor> = mutableMapOf()
 
-    val font by lazy {
+    val fontMap by lazy {
         val context = UIHost.current
         val fonts = context.fonts
         val program = context.program
 
-        val size = (fontSize * 2).roundToInt() / 2.0 // this could be a user-settable thing
-        val key = "$fontFamily-$size"
-        val file = File(fontFamily.path, "${fontFamily.name}.${fontFamily.format}")
+        val size = (fontSize * context.fontSizeStep).roundToInt() / context.fontSizeStep
+        val key = "$font-$size"
+        val file = File(font.path, "${font.name}.${font.format}")
 
         fonts.getOrPut(key) {
-            program.loadFont(file.invariantSeparatorsPath, size)
+            program.loadFont(file.invariantSeparatorsPath, size, contentScale = window().contentScale).also {
+                it.texture.filter(MinifyingFilter.NEAREST, MagnifyingFilter.NEAREST)
+                it.texture.generateMipmaps()
+            }
         }
     }
 
@@ -81,6 +104,8 @@ data class Style(val name: String = "") {
             transitions[prop.name] = TransitionDescriptor(duration, ease, delay)
         }
     }
+
+    operator fun invoke(block: Style.() -> Unit) = apply(block)
 
     fun apply(style: Style) {
         val defined = style.setProperties
@@ -116,14 +141,11 @@ data class Style(val name: String = "") {
         s.minHeight = minHeight
         s.maxHeight = maxHeight
 
-        s.fontFamily = fontFamily
+        s.font = font
         s.fontSize = fontSize
         s.textColor = textColor
 
         s.backgroundColor = backgroundColor
-        s.hoverColor = hoverColor
-        s.focusColor = focusColor
-        s.selectColor = selectColor
         s.strokeColor = strokeColor
 
         s.strokeWeight = strokeWeight
@@ -146,13 +168,10 @@ data class Style(val name: String = "") {
                 "maxWidth=$maxWidth, " +
                 "minHeight=$minHeight, " +
                 "maxHeight=$maxHeight, " +
-                "fontFamily=$fontFamily, " +
+                "fontFamily=$font, " +
                 "fontSize=$fontSize, " +
                 "textColor=$textColor, " +
                 "backgroundColor=$backgroundColor, " +
-                "hoverColor=$hoverColor, " +
-                "focusColor=$focusColor, " +
-                "selectColor=$selectColor, " +
                 "strokeColor=$strokeColor, " +
                 "strokeWeight=$strokeWeight, " +
                 "borderRadius=$borderRadius, " +

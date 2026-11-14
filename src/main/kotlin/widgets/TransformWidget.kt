@@ -7,7 +7,6 @@ import elements.XYControl
 import lib.TransformBinding
 import org.openrndr.draw.Drawer
 import org.openrndr.extra.imageFit.FitMethod
-import org.openrndr.extra.imageFit.fitRectangle
 import org.openrndr.extra.math.linearrange.LinearRange1D
 import org.openrndr.extra.math.linearrange.rangeTo
 import org.openrndr.extra.shapes.primitives.grid
@@ -25,17 +24,12 @@ import widget.close
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
-enum class BoxSizing {
-    CONTENT_BOX,
-    BORDER_BOX,
-}
-
 class TransformWidget(
     bounds: Rectangle,
     val getter: () -> Matrix44,
     val setter: (Matrix44) -> Unit,
-    val translateRange: LinearRange1D<Vector2>,
-    val scaleRange: LinearRange1D<Vector2>,
+    var translateRange: LinearRange1D<Vector2>,
+    var scaleRange: LinearRange1D<Vector2>,
     configure: TransformWidget.() -> Unit = { }
 ): Widget(bounds) {
 
@@ -90,9 +84,13 @@ class TransformWidget(
         }
 
     val ibounds = bounds.copy()
-    var boxSizing = BoxSizing.CONTENT_BOX
+    var fitMethod = FitMethod.Cover
+        set(value) {
+            field = value
 
-    private var offset = 5.0
+        }
+
+    private var offset = 10.0
     private var maxButtonsHeight = 50.0
 
     private val buttonGrid: List<Rectangle>
@@ -110,7 +108,7 @@ class TransformWidget(
     private val tb = TransformBinding(getter, setter)
 
     private fun getCurrentButtonGrid(): List<Rectangle> {
-        val r = if (boxSizing == BoxSizing.CONTENT_BOX) {
+        val r = if (fitMethod == FitMethod.Cover || fitMethod == FitMethod.Fill) {
             Rectangle(
                 ibounds.x,
                 ibounds.y + ibounds.width,
@@ -120,7 +118,7 @@ class TransformWidget(
         } else {
             Rectangle(
                 controlBounds.x,
-                bounds.y + bounds.height - maxButtonsHeight,
+                controlBounds.y + controlBounds.height + offset,
                 controlBounds.width,
                 maxButtonsHeight
             )
@@ -130,17 +128,18 @@ class TransformWidget(
     }
 
     private fun getCurrentControlBounds(): Rectangle {
-        return if (boxSizing == BoxSizing.CONTENT_BOX) {
+        return if (fitMethod == FitMethod.Cover || fitMethod == FitMethod.Fill) {
             val bi = ibounds.offsetEdges(-offset)
             bi.copy(height = bi.width)
         } else {
-            val bi = bounds.offsetEdges(-offset)
-            val bo = Rectangle.fromCenter(
-                bounds.copy(height = bounds.height - maxButtonsHeight).center,
-                bounds.width, bounds.height - maxButtonsHeight
+            val free = Rectangle(
+                ibounds.x + offset,
+                ibounds.y + offset,
+                ibounds.width - offset * 2,
+                ibounds.height - maxButtonsHeight - offset * 2
             )
-            val (_,target) = fitRectangle(bi, bo, fitMethod = FitMethod.Contain)
-            target.copy(height = target.width).offsetEdges(-offset)
+            val side = minOf(free.width, free.height)
+            Rectangle.fromCenter(free.center, side, side)
         }
     }
 
@@ -151,29 +150,35 @@ class TransformWidget(
     private val currentTransformType: String
         get() = findCurrentTransformType()
 
+    private val xy = XYControl(tb::translation, translateRange, controlBounds) {
+        visible = { currentTransformType == "translate" }
+    }
+    private val scaleControl = ScaleControl(tb::scale, scaleRange, controlBounds) {
+        visible = { currentTransformType == "scale" }
+    }
+    private val rotateControl = RotateControl(tb::rotation, controlBounds) {
+        visible = { currentTransformType == "rotate" }
+    }
+
     init {
-        val controls = listOf(
-            XYControl(tb::translation, translateRange, controlBounds) { visible = { currentTransformType == "translate" }},
-            ScaleControl(tb::scale, scaleRange, controlBounds) { visible = { currentTransformType == "scale" } },
-            RotateControl(tb::rotation, controlBounds) { visible = { currentTransformType == "rotate" } }
-        )
-
-        addElements(controls)
+        addElements(listOf(xy, scaleControl, rotateControl))
         addElements(buttons)
-
         configure()
     }
 
     override fun draw(drawer: Drawer, focusElement: UIElement?) {
-        bounds = if (boxSizing == BoxSizing.CONTENT_BOX) {
-           listOf(ibounds, buttonGrid.bounds.offsetEdges(0.0, offset * 2)).bounds
-        } else ibounds
+        bounds = if (fitMethod == FitMethod.Cover)
+            listOf(ibounds, buttonGrid.bounds.offsetEdges(0.0, offset * 2)).bounds
+        else ibounds
+
+        val cb = controlBounds
+        xy.bounds = cb
+        scaleControl.bounds = cb
+        rotateControl.bounds = cb
 
         super.draw(drawer, focusElement)
 
-        for ((i, button) in buttons.withIndex()) {
-            button.bounds = buttonGrid[i]
-        }
+        for ((i, button) in buttons.withIndex()) button.bounds = buttonGrid[i]
     }
 }
 
@@ -224,13 +229,7 @@ fun WidgetBuilder.transformWidget(
     scaleRange: LinearRange1D<Vector2>,
     configure: TransformWidget.() -> Unit = {}
 ): TransformWidget {
-    val r = Rectangle(
-        currentX,
-        currentY,
-        elementWidth,
-        elementHeight
-    )
-    val b = TransformWidget(r,
+    val b = TransformWidget(currentElementBounds,
         { transform.get() },
         { transform.set(it) },
         translateRange, scaleRange,
@@ -246,13 +245,7 @@ fun WidgetBuilder.transformWidget(
    scaleRange: ClosedRange<Double>,
    configure: TransformWidget.() -> Unit = {}
 ): TransformWidget {
-    val r = Rectangle(
-        currentX,
-        currentY,
-        elementWidth,
-        elementHeight
-    )
-    val b = TransformWidget(r,
+    val b = TransformWidget(currentElementBounds,
         transform, translateRange, scaleRange, configure
     )
     registerWidget(b)

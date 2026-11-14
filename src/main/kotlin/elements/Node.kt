@@ -51,11 +51,7 @@ class HandleNode(
             ColorRGBa.WHITE.opacify(0.85)
         } else null
 
-        drawer.stroke = when {
-            isHovered -> style.hoverColor
-            isDragged -> style.selectColor
-            else -> Colors.CLICKABLE
-        }
+        drawer.stroke = effectiveStyle.backgroundColor
         drawer.circle(position, radius)
 
         drawer.stroke = ColorRGBa.WHITE

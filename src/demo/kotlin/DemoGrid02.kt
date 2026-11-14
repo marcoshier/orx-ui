@@ -6,16 +6,20 @@ import widget.widget
 
 fun main(){
     application {
+        configure {
+            width = 700
+            height = 700
+        }
         program {
             extend(UI())
 
-            val states = (0..3).map {
+            val states = (0..100).map {
                 object { var x = false }
             }
 
-            widget(drawer.bounds.offsetEdges(-10.0)) {
-                gridIndexed(30.0, 30.0, 0.0, 0.0, 5.0, 5.0) { i, r ->
-                    button(states[i]::x, r)
+            widget(drawer.bounds) {
+                gridIndexed(70.0, 70.0) { i, r ->
+                    button(states[i]::x, r.offsetEdges(-2.0))
                 }
             }
 

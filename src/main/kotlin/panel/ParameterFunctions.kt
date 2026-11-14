@@ -13,6 +13,7 @@ import elements.xyControl
 import lib.XParameter
 import lib.XParameterType
 import lib.range
+import org.openrndr.extra.imageFit.FitMethod
 import org.openrndr.math.IntVector2
 import org.openrndr.math.IntVector3
 import org.openrndr.math.IntVector4
@@ -24,7 +25,6 @@ import org.openrndr.panel.collections.SelectableList
 import org.openrndr.panel.collections.SelectableMutableList
 import org.openrndr.shape.ShapeContour
 import widget.WidgetBuilder
-import widgets.BoxSizing
 import widgets.contourWidget
 import widgets.transformWidget
 import widgets.vectorWidget
@@ -37,13 +37,11 @@ fun WidgetBuilder.controlFor(p: XParameter, obj: Any): Any {
     return when (p.parameterType) {
         XParameterType.Double ->
             slider(p.doubleRange!!, obj, p.property as KMutableProperty1<Any, Double>) {
-                label = p.label
                 precision = prec
             }
 
         XParameterType.Int ->
             slider(p.intRange!!, obj, p.property as KMutableProperty1<Any, Int>) {
-                label = p.label
                 precision = prec
             }
 
@@ -54,28 +52,25 @@ fun WidgetBuilder.controlFor(p: XParameter, obj: Any): Any {
 
         XParameterType.Action ->
             button {
-                label = p.label
                 action = { p.function!!.call(obj) }
             }
 
         XParameterType.Text ->
-            textInput(obj, p.property as KMutableProperty1<Any, String>) {
-                label = p.label
-            }
+            textInput(obj, p.property as KMutableProperty1<Any, String>)
 
         XParameterType.Option ->
             dropdown(obj, p.property as KMutableProperty1<Any, Enum<*>>)
 
         XParameterType.List, XParameterType.DoubleList -> {
             val prop = p.property!! as KMutableProperty1<Any, SelectableList<Any>>
-            dropdown(obj, prop) { label = p.label }
+            dropdown(obj, prop)
         }
 
         XParameterType.MutableList -> {
             val prop = p.property!! as KMutableProperty1<Any, SelectableMutableList<Any>>
             dropdown(obj, prop, entryName = { e ->
                 if (e is List<*>) "${p.label}-${prop.get(obj).indexOf(e)}" else e.toString()
-            }) { label = p.label }
+            })
         }
 
         XParameterType.XY -> {
@@ -155,7 +150,7 @@ fun WidgetBuilder.controlFor(p: XParameter, obj: Any): Any {
                 p.doubleRange ?: -100.0..100.0,
                 0.01..10.0 // TODO rotation
             ) {
-                boxSizing = BoxSizing.CONTENT_BOX
+                fitMethod = FitMethod.Cover
                 elements.forEach { it.precision = prec }
             }
         }
@@ -171,14 +166,10 @@ fun WidgetBuilder.controlFor(p: XParameter, obj: Any): Any {
             }
 
         XParameterType.Textbox ->
-            textboxInput(obj, p.property as KMutableProperty1<Any, String>) {
-                label = p.label
-            }
+            textboxInput(obj, p.property as KMutableProperty1<Any, String>)
 
         XParameterType.Contour ->
-            contourWidget(obj, p.property as KMutableProperty1<Any, ShapeContour>) {
-                label = p.label
-            }
+            contourWidget(obj, p.property as KMutableProperty1<Any, ShapeContour>)
 
         XParameterType.Color -> TODO()
         XParameterType.Path -> TODO()

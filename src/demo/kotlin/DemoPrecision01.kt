@@ -16,10 +16,17 @@ fun main() {
             }
 
             widget(drawer.bounds) {
-                grid(1, 3) {
-                    slider(0.0..5.0, state::x0, it[0]) { precision = 1 }
-                    slider(0.0..5.0, state::x1, it[1]) { precision = 2 }
-                    rangeSlider(0.0..5.0, state::x2, it[2]) { precision = 3 }
+                grid(1, 3, 10.0, 10.0, 10.0, 10.0) {
+                    slider(0.0..5.0, state::x0, it[0]) {
+                        label = "slider - precision 1"
+                        precision = 1 }
+                    slider(0.0..5.0, state::x1, it[1]) {
+                        label = "slider - precision 2"
+                        precision = 2 }
+                    rangeSlider(0.0..5.0, state::x2, it[2]) {
+                        label = "slider - precision 3"
+                        precision = 3
+                    }
                 }
             }
 

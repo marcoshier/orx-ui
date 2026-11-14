@@ -14,6 +14,7 @@ import org.openrndr.shape.bounds
 import style.ColorRGBaTransition
 import style.DoubleTransition
 import style.Style
+import style.StyleModifier
 import style.styleColorProperties
 import style.styleDoubleProperties
 import widget.Widget
@@ -25,10 +26,7 @@ open class UIElement(
 ) {
 
     val id = "#${getId()}-${getUniqueId()}"
-    var selectors = setOf(id)
-
-    private val activeSelectors: Set<String>
-        get() = getCurrentSelectors()
+    var selectors = setOf("${getId()}")
 
     open var label = id.drop(1)
     var description: String? = null
@@ -69,6 +67,7 @@ open class UIElement(
             if (!old && value) focused.trigger(true)
             else if (old && !value) focused.trigger(false)
         }
+    var isActive = false
     var isSelected = false
     var isDragged = false
     var dragPosition: Vector2 = Vector2.ZERO
@@ -100,10 +99,32 @@ open class UIElement(
     val colorsTransitions = mutableMapOf<String, ColorRGBaTransition>()
 
     val style = Style()
+
+    private var cachedStyle: Style? = null
+    private var cachedFrame = -1
+    private var cachedStates: Set<StyleModifier> = emptySet()
+    private var cachedSelectors: Set<String> = emptySet()
+
     val effectiveStyle: Style
         get() {
-            val target = UIHost.current.style.resolve(activeSelectors, style)
-            return updateTransitions(target)
+            val frame = UIHost.current.program.frameCount
+            val states = activeStates()
+
+            cachedStyle?.let {
+                if (frame == cachedFrame && states == cachedStates && selectors === cachedSelectors) {
+                    return it
+                }
+            }
+
+            val resolvedStyle = UIHost.current.styleStack.resolve(styleBases(), states, style)
+            val s = updateTransitions(resolvedStyle)
+
+            cachedStyle = s
+            cachedFrame = frame
+            cachedStates = states
+            cachedSelectors = selectors
+
+            return s
         }
 
     private fun updateTransitions(style: Style): Style {
@@ -164,12 +185,21 @@ open class UIElement(
         return c
     }
 
-    private fun getCurrentSelectors(): Set<String> {
-        val base = selectors + id
-        val out = base.toMutableSet()
-        if (isHovered) base.forEach { out.add("$it:hover") }
-        if (isFocused) base.forEach { out.add("$it:focus") }
-        return out
+    private val typeSelectors: List<String> by lazy {
+        generateSequence<Class<*>>(this::class.java) { it.superclass }
+            .takeWhile { it != UIElement::class.java }
+            .map { it.simpleName.lowercase() }
+            .filter { it.isNotEmpty() }
+            .toList()
+    }
+
+    private fun styleBases(): Set<String> = selectors + id + typeSelectors + "*"
+
+    private fun activeStates(): Set<StyleModifier> = buildSet {
+        if (isHovered) add(StyleModifier.HOVER)
+        if (isActive) add(StyleModifier.ACTIVE)
+        if (isFocused) add(StyleModifier.FOCUS)
+        if (isSelected) add(StyleModifier.SELECTED)
     }
 
     open fun draw(drawer: Drawer) {
@@ -191,13 +221,13 @@ fun UIElement.applyBoundsFromText(
     val drawer = UIHost.current.drawer
 
     drawer.isolated {
-        drawer.fontMap = style.font
+        drawer.fontMap = effectiveStyle.fontMap
         this@applyBoundsFromText.bounds = writer {
-            val h = fontMap!!.ascenderLength * 3.0
+            val h = fontMap!!.ascenderLength * 1.25
             box = Rectangle(position, 9999.0, h)
             text(label, false)
             glyphOutput.rectangles.map { it.second }.bounds.offsetEdges(
-                textWidth(text) * 3.0,
+                textWidth(text) * 0.5,
                 h
             ).movedTo(position)
         }

@@ -10,23 +10,42 @@ import widget.widget
 fun main() {
     application {
         program {
-            extend(UI())
+            val ui = extend(UI())
 
-//            widget(drawer.bounds.offsetEdges(-10.0)) {
-//                grid(2, 2, gutterX = 10.0, gutterY = 10.0) {
-//                    button(it) { selectors = setOf("round") }
-//                }
-//            }
+            ui.host.fontSizeStep = 1.0
+
+            widget(drawer.bounds.offsetEdges(-10.0)) {
+                grid(2, 2, gutterX = 10.0, gutterY = 10.0) {
+                    button(it[0]) {
+                        selectors = setOf("orange", "nf")
+                    }
+                    button(it[1]) {
+                        selectors = setOf("orange", "round", "nf")
+                    }
+                    button(it[2]) {
+                        selectors = setOf("big-label", "nf")
+                    }
+                    button(it[3]) {
+                        selectors = setOf("big-label", "round", "nf")
+                    }
+                }
+            }
 
             stylesheet {
-                "round" {
-                    hoverColor = null
-                    transition(0.5, Easing.SineInOut)
+                "orange" {
+                    backgroundColor = ColorRGBa.ORANGE_RED
                 }
 
-                "round:hover" {
-                    backgroundColor = ColorRGBa.ORANGE_RED
-                    borderRadius = 200.0
+                "round" {
+                    borderRadius = 300.0
+                }
+
+                "big-label" {
+                    transition(::fontSize, 0.5, Easing.SineInOut)
+                }
+
+                "big-label"(hover) {
+                    fontSize = 30.0
                 }
             }
         }

@@ -12,14 +12,14 @@ private enum class Test {
 fun main() {
     application {
         configure {
-            width = 1280
-            height = 720
+            width = 720
+            height = 480
         }
 
         program {
             extend(UI())
 
-            val grid = drawer.bounds.offsetEdges(-100.0).grid(1, 4, gutterY = 10.0).flatten()
+            val grid = drawer.bounds.offsetEdges(-60.0).grid(1, 4, gutterY = 10.0).flatten()
 
             val state = object {
                 var current0 = Test.OPTION_0
@@ -28,12 +28,12 @@ fun main() {
             }
 
             widget(drawer.bounds) {
-                button(grid[0]) {
+                dropdown<Test>(state::current0, grid[0])
+                dropdown<Test>(state::current1, grid[1])
+
+                button(grid[2]) {
                     action = { println("clicked button") }
                 }
-
-                dropdown<Test>(state::current0, grid[1])
-                dropdown<Test>(state::current1, grid[2])
 
                 slider(0.0..10.0, state::value, grid[3])
             }

@@ -6,7 +6,7 @@ import widget.widget
 fun main() {
     application {
         configure {
-            width = 480
+            width = 640
             height = 320
         }
 
@@ -23,8 +23,8 @@ fun main() {
                 var irange: ClosedRange<Int> = 0..5
             }
 
-            widget(drawer.bounds.offsetEdges(-5.0)) {
-                grid(2, 2, gutterX = 10.0, gutterY = 10.0) { rects ->
+            widget(drawer.bounds.offsetEdges(-10.0)) {
+                grid(2, 2, gutterX = 20.0, gutterY = 40.0) { rects ->
                     rangeSlider(0.0..12.0, state::left, state::right, rects[0])
                     rangeSlider(0.0..12.0, state::range, rects[1])
                     rangeSlider(2..15, state::ileft, state::iright, rects[2])

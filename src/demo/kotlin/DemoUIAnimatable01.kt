@@ -1,10 +1,6 @@
 import elements.button
-import lib.sdf3
 import org.openrndr.animatable.easing.Easing
 import org.openrndr.application
-import org.openrndr.extra.noise.uniform
-import org.openrndr.math.Polar
-import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import ui.UIAnimatable
 import ui.UIElement

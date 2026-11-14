@@ -1,8 +1,9 @@
 package elements
 
-import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
+import org.openrndr.extra.shapes.primitives.roundedRectangle
+import org.openrndr.extra.shapes.primitives.toRounded
 import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
@@ -42,31 +43,26 @@ class Checkbox(
 
     override fun draw(drawer: Drawer) {
         if (!visible()) return
-        val bgFill = when {
-            isHovered -> effectiveStyle.hoverColor
-            else -> effectiveStyle.backgroundColor
-        }
 
         drawer.strokeWeight = 0.01
         drawer.stroke = effectiveStyle.strokeColor
-        drawer.fill = bgFill
+        drawer.fill = effectiveStyle.backgroundColor
 
         if (effectiveStyle.borderRadius > 0.0) {
-            drawer.rectangle(bounds)
+            drawer.roundedRectangle(bounds.toRounded(effectiveStyle.borderRadius))
         } else {
             drawer.rectangle(bounds)
         }
 
-        val mainFill = if (isSelected) effectiveStyle.selectColor else ColorRGBa.TRANSPARENT
+        drawer.fill = effectiveStyle.checkboxBackgroundFill
+        drawer.stroke = effectiveStyle.checkboxStroke
+        val b = bounds.offsetEdges(-bounds.width * 0.1)
 
-        drawer.fill = mainFill
-        drawer.stroke = null
         if (effectiveStyle.borderRadius > 0.0) {
-            drawer.rectangle(bounds.offsetEdges(-10.0))
+            drawer.roundedRectangle(b.toRounded(effectiveStyle.borderRadius))
         } else {
-            drawer.rectangle(bounds.offsetEdges(-10.0))
+            drawer.rectangle(b)
         }
-
 
         if (iconOn != null || iconOff != null) {
             drawer.isolated {
@@ -78,7 +74,7 @@ class Checkbox(
             }
         } else {
             drawer.fill = effectiveStyle.textColor
-            drawer.fontMap = effectiveStyle.font
+            drawer.fontMap = effectiveStyle.fontMap
 
             val textBounds = drawer.writer {
                 box = bounds.copy(width = 9999.0)

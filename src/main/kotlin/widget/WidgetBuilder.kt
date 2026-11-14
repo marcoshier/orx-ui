@@ -108,9 +108,6 @@ class WidgetBuilder(
     }
 
     fun <T> append(direction: Direction, spacing: Double = 0.0, block: WidgetBuilder.() -> T): T {
-//        widget.elements.added.listen {
-//            //step()
-//        }
         step(direction, spacing)
         return block()
     }
@@ -153,14 +150,11 @@ class WidgetBuilder(
     var minHeight by widget.style::minHeight
     var maxHeight by widget.style::maxHeight
 
-    var fontFamily by widget.style::fontFamily
+    var fontFamily by widget.style::font
     var fontSize by widget.style::fontSize
     var textColor by widget.style::textColor
 
     var backgroundColor by widget.style::backgroundColor
-    var hoverColor by widget.style::hoverColor
-    var focusColor by widget.style::focusColor
-    var selectColor by widget.style::selectColor
     var strokeColor by widget.style::strokeColor
 
     var strokeWeight by widget.style::strokeWeight

@@ -1,6 +1,5 @@
 package elements
 
-import lib.mixOrNull
 import org.openrndr.draw.Drawer
 import org.openrndr.extra.shapes.primitives.roundedRectangle
 import org.openrndr.extra.shapes.primitives.toRounded
@@ -99,24 +98,18 @@ class RotateControl(
         super.draw(drawer)
         if (!visible()) return
 
-        drawer.fontMap = effectiveStyle.font
+        drawer.fontMap = effectiveStyle.fontMap
 
         drawer.stroke = null
         drawer.fill = effectiveStyle.backgroundColor
         drawer.roundedRectangle(bounds.toRounded(2.0))
 
-        val mainColor = when {
-            isHovered && !isDragged -> effectiveStyle.hoverColor
-            isDragged -> effectiveStyle.selectColor?.shade(0.75)
-            else -> effectiveStyle.hoverColor.mixOrNull(effectiveStyle.backgroundColor, 0.25)
-        }
-
-        drawer.stroke = mainColor
-        drawer.fill = null
+        drawer.stroke = effectiveStyle.rotateSliderStroke
+        drawer.fill = effectiveStyle.rotateSliderFill
         drawer.circle(track)
 
         drawer.stroke = null
-        drawer.fill = mainColor
+        drawer.fill = effectiveStyle.rotateSliderStroke
         drawer.circle(
             track.contour.position(((t + 90.0) / 360.0).mod(1.0)), 5.0
         )

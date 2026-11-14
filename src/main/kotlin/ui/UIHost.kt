@@ -8,12 +8,17 @@ import widget.Widget
 
 class UIHost(val program: Program) {
     val tree = UITree()
-    val style = StyleStack()
+    val styleStack = StyleStack()
     val fonts: MutableMap<String, FontImageMap> = mutableMapOf()
 
     val drawer: Drawer get() = program.drawer
     val mouse get() = program.mouse
     val window get() = program.window
+
+    var fontSizeStep = 2.0
+        set(value) {
+            field = value.coerceAtLeast(0.0)
+        }
 
     private var uniqueId = 0
     fun nextUniqueId() = uniqueId++

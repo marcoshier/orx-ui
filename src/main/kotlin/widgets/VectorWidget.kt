@@ -65,13 +65,23 @@ class VectorWidget<V : Any, C : Comparable<C>>(
 
     override val elements: MutableList<UIElement> = mutableListOf()
 
+    private val axisNames = "XYZW"
+
+    override var label: String = ""
+        set(value) {
+            field = value
+            elements.filterIsInstance<Slider<*>>().forEachIndexed { i, s ->
+                s.label = axisNames.getOrNull(i)?.toString() ?: ""
+            }
+        }
+
     init {
         val sliderFunc: (Int, Rectangle) -> UIElement = { i, r ->
             val (read, write) = functions[i]
             val axes = "xyzw"
 
             Slider(range, { read(getter()) }, { setter(write(getter(), it)) }, r) {
-                label = "${axes[i]}-${this@VectorWidget.label}"
+                label = "${axes[i]}"
             }
         }
 

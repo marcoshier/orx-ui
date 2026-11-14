@@ -17,10 +17,6 @@ fun main() {
                     action = { println("clicked 2") }
                 }
             }
-
-            extend {
-
-            }
         }
     }
 }

@@ -14,7 +14,9 @@ fun main() = application {
     program {
         extend(UI())
 
-        val t = titleBar("WINDOW TITLE BAR", drawer.bounds.copy(height = 30.0), windowTitlebar = true)
+        val t = titleBar("WINDOW TITLE BAR", drawer.bounds.copy(height = 30.0), windowTitlebar = true) {
+            style.backgroundColor = ColorRGBa.WHITE
+        }
         val b = button(Rectangle(t.bounds.width - 25.0, 5.0, 20.0)) {
             label = ""
             action = { window.close() }

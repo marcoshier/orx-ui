@@ -1,9 +1,10 @@
 package elements
 
-import org.openrndr.color.ColorRGBa
-import org.openrndr.color.mix
+import lib.coerceIn
 import org.openrndr.draw.Drawer
-import org.openrndr.draw.LineCap
+import org.openrndr.draw.isolated
+import org.openrndr.extra.shapes.primitives.roundedRectangle
+import org.openrndr.extra.shapes.primitives.toRounded
 import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.math.map
@@ -11,10 +12,9 @@ import org.openrndr.shape.Rectangle
 import org.openrndr.shape.Segment2D
 import org.openrndr.shape.bounds
 import ui.registerElement
-import style.Colors
 import ui.UIElement
-import ui.applyBoundsFromText
 import widget.WidgetBuilder
+import kotlin.math.roundToInt
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
@@ -43,10 +43,10 @@ open class RangeSlider<T : Comparable<T>>(
     ) : this(range, { valueRef.get(obj) }, { valueRef.set(obj, it) }, bounds, configure)
 
     val railStart: Vector2
-        get() = this.bounds.position(0.05, 0.5)
+        get() = Vector2(bounds.x + 4.0, bounds.y + bounds.height / 2.0)
 
     val railEnd: Vector2
-        get() = this.bounds.position(0.95, 0.5)
+        get() = Vector2(bounds.x + bounds.width - 4.0, bounds.y + bounds.height / 2.0)
 
 
     private var activeHandle = -1
@@ -66,7 +66,7 @@ open class RangeSlider<T : Comparable<T>>(
     private fun fromT(t: Double): T = when (range.start) {
         is Int -> {
             val r = range as IntRange
-            t.map(0.0, 1.0, r.first.toDouble(), r.last.toDouble(), true).toInt() as T
+            t.map(0.0, 1.0, r.first.toDouble(), r.last.toDouble(), true).roundToInt() as T
         }
         is Double -> {
             val r = range as ClosedFloatingPointRange<Double>
@@ -157,77 +157,107 @@ open class RangeSlider<T : Comparable<T>>(
         super.draw(drawer)
         if (!visible()) return
 
-        val ls = Segment2D(railStart, railEnd)
+        val s = effectiveStyle
 
-        if (label.isNotEmpty()) {
-            drawer.fill = ColorRGBa.BLACK
-            drawer.stroke = null
-            drawer.text(label.uppercase(), railStart.x, ls.start.y - 16.0)
+        fun box(r: Rectangle) {
+            if (s.borderRadius > 0.0) drawer.roundedRectangle(r.toRounded(s.borderRadius))
+            else drawer.rectangle(r)
         }
 
-        fun drawValue(visible: Boolean): Rectangle {
+        drawer.stroke = s.strokeColor
+        drawer.fill = s.backgroundColor
+        box(bounds)
+
+        drawer.fontMap = s.fontMap
+        if (label.isNotEmpty()) {
+            drawer.fill = s.textColor
+            drawer.stroke = null
+            drawer.writer {
+                box = bounds.offsetEdges(-4.0)
+                horizontalAlign = 0.5
+                verticalAlign = 1.0
+                text(label.uppercase())
+            }
+        }
+
+        val b = bounds.offsetEdges(-4.0)
+            .copy(height = (bounds.height - s.fontMap.ascenderLength).coerceAtLeast(2.0) - 8.0)
+        drawer.fill = s.sliderInactiveRailFill
+        drawer.stroke = s.sliderRailStroke
+        box(b)
+
+        val rail = Segment2D(railStart, railEnd)
+        val pLow = rail.position(tLow)
+        val pHigh = rail.position(tHigh)
+
+        drawer.isolated {
+            drawer.drawStyle.smooth = false
+
+            drawer.stroke = null
+            drawer.fill = s.sliderActiveRailFill
+            box(Rectangle(pLow.x, b.y - 1.0, pHigh.x - pLow.x, b.height + 1.5))
+
+            drawer.strokeWeight = 2.0
+            drawer.stroke = s.sliderHandleStroke
+            for (p in listOf(pLow, pHigh)) {
+                drawer.lineSegment(p.x, b.y - 1.0, p.x, b.y + b.height + 0.5)
+            }
+        }
+
+        fun displayValue(v: T) = when (v) {
+            is Double -> "%.${precision}f".format(v)
+            else -> "$v"
+        }
+
+        fun drawValue(str: String, visible: Boolean, rect: Rectangle? = null): Rectangle {
+            drawer.fontMap = s.fontMap
             return drawer.writer {
-                box = Rectangle(railStart.x, ls.start.y - 16.0 - drawer.fontMap!!.height, ls.length, 15.0)
-                horizontalAlign = 1.0
+                box = rect ?: Rectangle(0.0, 0.0, 9999.0, s.fontMap.ascenderLength)
+                horizontalAlign = 0.0
                 verticalAlign = 0.0
-                val v = getter()
-                val s = if (v.start is Double) "%.${precision}f".format(v.start) else "${v.start}"
-                val e = if (v.endInclusive is Double) "%.${precision}f".format(v.endInclusive) else "${v.endInclusive}"
-                text("$s..$e", visible)
+                text(str, visible)
                 glyphOutput.rectangles.map { it.second }.bounds
             }
         }
 
-        val g = drawValue(false)
+        val v = getter()
+        val area = b.offsetEdges(-1.0)
+
         drawer.stroke = null
-        drawer.fill = Colors.CLICKABLE.mix(ColorRGBa.WHITE, 0.4)
-        drawer.rectangle(g.offsetEdges(1.0))
-        drawer.fill = Colors.BLACK
-        drawValue(true)
+        drawer.fill = s.sliderActiveTextColor
 
-        var color = ColorRGBa.GRAY.shade(0.25)
-        if (isHovered) color = mix(color, Colors.SELECTED, 0.7)
+        val lowStr = displayValue(v.start)
+        val lr = drawValue(lowStr, false)
+        val lowTarget = Rectangle(
+            pLow.x - 2.0 - lr.width,
+            b.y + (b.height - lr.height) / 2.0 + 1.5,
+            lr.width,
+            lr.height
+        ).coerceIn(area)
+        drawValue(lowStr, true, lowTarget)
 
-        drawer.stroke = color
-        drawer.strokeWeight = 1.0
-        drawer.lineCap = LineCap.ROUND
-        drawer.segment(ls)
+        val highStr = displayValue(v.endInclusive)
+        val hr = drawValue(highStr, false)
+        val highTarget = Rectangle(
+            pHigh.x + 2.0,
+            b.y + (b.height - hr.height) / 2.0 + 1.5,
+            hr.width,
+            hr.height
+        ).coerceIn(area)
+        drawValue(highStr, true, highTarget)
 
-        val pLow = ls.position(tLow)
-        val pHigh = ls.position(tHigh)
-        drawer.stroke = Colors.SELECTED
-        drawer.strokeWeight = 2.0
-        drawer.lineSegment(pLow, pHigh)
-
-        drawer.strokeWeight = 1.0
-        for ((i, p) in listOf(pLow, pHigh).withIndex()) {
-            drawer.stroke = null
-            drawer.fill = color
-            drawer.circle(p, 6.0)
-            if (isDragged && activeHandle == i) {
-                drawer.fill = Colors.BACKGROUND
-                drawer.stroke = color
-                drawer.circle(p, 10.0)
-                drawer.fill = color
-                drawer.stroke = null
-                drawer.circle(p, 6.0)
-            }
-        }
-
-        drawer.fill = ColorRGBa.BLACK
-        drawer.stroke = null
-        drawer.fontMap = effectiveStyle.font
+        drawer.fill = s.textColor
         drawer.writer {
-            box = Rectangle(railStart.x, railStart.y + 5.0, ls.length, 15.0)
+            box = bounds.offsetEdges(-4.0)
             horizontalAlign = 0.0
             verticalAlign = 1.0
-            text("${range.start}")
+            text(displayValue(range.start))
         }
         drawer.writer {
-            box = Rectangle(railStart.x, railStart.y + 5.0, ls.length, 15.0)
+            box = bounds.offsetEdges(-4.0)
             horizontalAlign = 1.0
             verticalAlign = 1.0
-            text("${range.endInclusive}")
+            text(displayValue(range.endInclusive))
         }
     }
 }

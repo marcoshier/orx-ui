@@ -2,5 +2,10 @@ package style
 
 enum class StyleModifier(val suffix: String) {
     HOVER(":hover"),
-    FOCUS(":focus")
+    ACTIVE(":active"),
+    FOCUS(":focus"),
+    SELECTED(":selected")
 }
+
+fun selectorOf(base: String, modifiers: Collection<StyleModifier>) =
+    base + modifiers.distinct().sortedBy { it.ordinal }.joinToString("") { it.suffix }

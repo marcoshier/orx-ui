@@ -12,7 +12,8 @@ Roadmap (highest priority first):
 - [x] orx-parameters binding
 - [x] Other controls (Nodes/contour control, Color Widget, etc...)
 - [x] friction-based precision
-- [ ] Collapsible Widgets
+- [ ] relative placement/sizing
+- [ ] collapsible Widgets
 - [ ] Windowed UI
 - [ ] GUI interoperability
 - [ ] Documentation

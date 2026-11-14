@@ -6,7 +6,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import lib.TextInputToken
 import lib.allCharacters
 import lib.join
-import lib.mixOrNull
 import lib.toTextInputTokens
 import org.openrndr.KEY_ARROW_DOWN
 import org.openrndr.KEY_ARROW_LEFT
@@ -21,6 +20,7 @@ import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.extra.shadestyles.fills.gradients.gradient
+import org.openrndr.extra.shapes.primitives.intersection
 import org.openrndr.extra.shapes.primitives.roundedRectangle
 import org.openrndr.extra.shapes.primitives.toRounded
 import org.openrndr.extra.textwriter.writer
@@ -31,6 +31,7 @@ import ui.registerElement
 import ui.seconds
 import ui.UIElement
 import widget.WidgetBuilder
+import widget.clipBounds
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
@@ -122,7 +123,7 @@ class TextInput(
         }
 
     private fun transformedPosition(pos: Vector2): Vector2 {
-        return pos - (offsetAxis * offset)// - (parent?.dragOffset ?: Vector2.ZERO)
+        return pos - (offsetAxis * offset)
     }
 
     private fun insertAtCaretPosition(s: String) {
@@ -140,7 +141,7 @@ class TextInput(
             val after = cgr.after
             val uv = if (after) Vector2.ONE else Vector2(0.0, 1.0)
             cgr.glyphRectangle.position(uv)
-        } else Vector2(bounds.x + 7.0, bounds.y + 7.0 + effectiveStyle.font.height)
+        } else Vector2(bounds.x + 7.0, bounds.y + 7.0 + effectiveStyle.fontMap.height)
     }
 
     private fun backspace() {
@@ -363,10 +364,8 @@ class TextInput(
     private fun resizeButton(): Button {
         return Button(resizeControlBounds) {
             effectiveStyle.backgroundColor = this@TextInput.effectiveStyle.backgroundColor?.shade(0.95)
-            effectiveStyle.selectColor = effectiveStyle.backgroundColor?.shade(0.95)
-            effectiveStyle.focusColor = effectiveStyle.backgroundColor
             iconOff = { drawer ->
-                drawer.stroke = effectiveStyle.hoverColor?.shade(0.75)
+                drawer.stroke = effectiveStyle.textboxHandleColor
                 for (i in 0 until 3) {
                     val b = bounds.offsetEdges(-1.0)
                     val t = (i / 3.0)
@@ -545,18 +544,26 @@ class TextInput(
         configure()
     }
 
+    private fun clipRect(): Rectangle {
+        val own = bounds
+        val widget = parent ?: return own
+        if (!widget.clip) return own
+        return own.intersection(widget.clipBounds())
+    }
+
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
         if (!visible()) return
 
         drawer.pushStyle()
+        drawer.drawStyle.clip = clipRect()
         drawer.stroke = null
         drawer.fill = effectiveStyle.backgroundColor
         drawer.roundedRectangle(bounds.toRounded(effectiveStyle.borderRadius))
 
         tokens = getter().toTextInputTokens()
 
-        drawer.fontMap = effectiveStyle.font
+        drawer.fontMap = effectiveStyle.fontMap
 
         fun drawText(visible: Boolean) {
             drawer.isolated {
@@ -594,12 +601,7 @@ class TextInput(
             }
         }
 
-        drawer.stroke = when {
-            isFocused -> effectiveStyle.selectColor
-            !isFocused && isHovered -> effectiveStyle.hoverColor
-            else -> effectiveStyle.backgroundColor.mixOrNull(effectiveStyle.hoverColor, 0.5)
-        }
-
+        drawer.stroke = effectiveStyle.textBaselineColor
         val baselineY = if (multiline) {
             bounds.y + bounds.height - 7.0
         } else {
@@ -614,12 +616,12 @@ class TextInput(
             translate(offsetAxis * offset)
             selectionRectangles().forEach {
                 drawer.stroke = null
-                drawer.fill = effectiveStyle.hoverColor?.opacify(0.5)
+                drawer.fill = effectiveStyle.textSelectionColor
                 drawer.rectangle(it)
             }
         }
 
-        drawer.fill = if (tokens.isEmpty()) effectiveStyle.hoverColor else effectiveStyle.textColor
+        drawer.fill = effectiveStyle.textColor
         drawText(visible = true)
 
         if (isFocused) {
@@ -717,7 +719,7 @@ fun textInput(
     width: Double? = null,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val r = Rectangle(corner ?: Vector2(10.0), width ?: 120.0)
+    val r = Rectangle(corner ?: Vector2(10.0), width ?: 120.0, 30.0)
     val b = TextInput(textRef, r) {
         multiline = false
         configure()
@@ -732,7 +734,7 @@ fun WidgetBuilder.textInput(
     width: Double? = null,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val r = Rectangle(corner ?: Vector2(10.0), width ?: 120.0)
+    val r = Rectangle(corner ?: Vector2(10.0), width ?: 120.0, 30.0)
     val b = TextInput(textRef, r) {
         multiline = false
         configure()
@@ -746,7 +748,7 @@ fun WidgetBuilder.textInput(
     textRef: KMutableProperty1<Any, String>,
     configure: TextInput.() -> Unit = {},
 ): TextInput {
-    val b = TextInput(obj, textRef, currentElementBounds.copy(height = 50.0)) {
+    val b = TextInput(obj, textRef, currentElementBounds.copy(height = 30.0)) {
         multiline = false
         configure()
     }

@@ -41,6 +41,7 @@ import kotlin.reflect.KVisibility
 import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.javaField
 import kotlin.to
 
 /** Lifted from GUI, integrated with new annotations/types */
@@ -107,9 +108,15 @@ enum class XParameterType(val annotationClass: KClass<out Annotation>) {
 
 }
 
-
-
 fun Any.listXParameters(): List<XParameter> {
+    val fieldIndex = this::class.java.declaredFields
+        .withIndex()
+        .associate { (i, f) -> f.name to i }
+
+    fun sourceIndex(p: XParameter): Int =
+        p.property?.javaField?.name?.let { fieldIndex[it] } ?: Int.MAX_VALUE
+
+
     return (this::class.memberProperties.filter { property ->
         !property.isConst &&
                 property is KMutableProperty1<*, *> &&
@@ -324,8 +331,7 @@ fun Any.listXParameters(): List<XParameter> {
             pathIsDirectory = null,
             order = order
         )
-    }
-            ).sortedBy { it.order }
+    }).sortedWith(compareBy({ it.order }, { sourceIndex(it) }))
 }
 
 private val logger = KotlinLogging.logger {  }
@@ -340,15 +346,21 @@ class ParameterStore(private val file: File) {
     }
 
     fun load(key: String, obj: Any, params: List<XParameter>) {
-        if (!config.hasPath(key)) return
+        val path = ConfigUtil.quoteString(key)
+        if (!config.hasPath(path)) return
 
-        val section = config.getConfig(key)
+        val section = config.getConfig(path)
         for (p in params) {
             val name = p.property?.name ?: continue
-            if (!section.hasPath(name)) continue
+            val valuePath = ConfigUtil.joinPath(name, "value")
+            val k = when {
+                section.hasPath(valuePath) -> valuePath
+                section.hasPath(name) -> name
+                else -> continue
+            }
 
             try {
-                decode(p, obj, section, name)
+                decode(p, obj, section, k)
             } catch (e: Throwable) {
                 logger.warn { "skipping ${p.label}: ${e.message}" }
             }

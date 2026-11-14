@@ -25,7 +25,7 @@ class XYControl(
     var range: LinearRange1D<Vector2>,
     bounds: Rectangle? = null,
     configure: XYControl.() -> Unit = {}
-): UIElement((bounds ?: Rectangle(10.0, 10.0, 200.0)).offsetEdges(10.0)) {
+): UIElement(bounds ?: Rectangle(10.0, 10.0, 200.0)) {
 
     constructor(
         valueRef: KMutableProperty0<Vector2>,
@@ -84,8 +84,7 @@ class XYControl(
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
 
-        drawer.fontMap = effectiveStyle.font
-
+        drawer.fontMap = effectiveStyle.fontMap
         drawer.stroke = effectiveStyle.strokeColor
         drawer.fill = effectiveStyle.backgroundColor
         drawer.roundedRectangle(ibounds.toRounded(2.0))
@@ -129,15 +128,11 @@ class XYControl(
         drawRangeText(range.start.y, 0.03, 0.0, true)
         drawRangeText(range.end.y, 1.0, 0.0, true)
 
-        drawer.stroke = null
-        drawer.fill = effectiveStyle.hoverColor
-        val textBounds = drawValueText(false).offsetEdges(2.0)
-        drawer.rectangle(textBounds)
         drawer.fill = effectiveStyle.textColor
         drawValueText(true)
 
         val bpos = ibounds.position(uv)
-        drawer.stroke = effectiveStyle.hoverColor
+        drawer.stroke = effectiveStyle.xyControlLineStroke
         drawer.lineSegment(
             Vector2(bpos.x, ibounds.y),
             Vector2(bpos.x, ibounds.y + ibounds.height)
@@ -152,7 +147,7 @@ class XYControl(
         drawer.circle(ibounds.position(uv), 10.0)
 
         drawer.stroke = null
-        drawer.fill = effectiveStyle.selectColor
+        drawer.fill = effectiveStyle.xyControlHandleFill
         drawer.circle(ibounds.position(uv), 5.0)
     }
 }

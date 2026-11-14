@@ -30,17 +30,17 @@ fun main() {
 
             val settings = object {
 
-                @MutableListParameter("sets")
+                @MutableListParameter("sets", order = 0)
                 var sets = selectableMutableListOf(generate())
 
-                @DoubleRangeParameter("radius range", 5.0, 35.0)
-                var radiusRange = 15.0..25.0
-
-                @ActionParameter("generate set")
+                @ActionParameter("generate set", order = 1)
                 fun addSet() {
                     sets.add(generate())
                     sets.selectedIndex = sets.lastIndex
                 }
+
+                @DoubleRangeParameter("radius range", 5.0, 35.0)
+                var radiusRange = 15.0..25.0
 
                 @Matrix44Parameter("camera view",
                     -100.0, 100.0, -100.0, 100.0,
@@ -51,7 +51,9 @@ fun main() {
             }
 
             extend(UI()).addParameters(settings)
-            val c = extend(Camera2D())
+            val c = extend(Camera2D()) {
+                this.userInteraction = false
+            }
             extend {
 
                 c.view = settings.view

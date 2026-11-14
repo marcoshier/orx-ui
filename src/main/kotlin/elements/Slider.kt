@@ -1,18 +1,21 @@
 package elements
 
-import org.openrndr.color.ColorRGBa
-import org.openrndr.color.mix
+import lib.coerceIn
 import org.openrndr.draw.Drawer
-import org.openrndr.draw.LineCap
+import org.openrndr.draw.isolated
+import org.openrndr.extra.shapes.primitives.roundedRectangle
+import org.openrndr.extra.shapes.primitives.toRounded
 import org.openrndr.extra.textwriter.writer
+import org.openrndr.math.Vector2
 import org.openrndr.math.map
+import org.openrndr.shape.LineSegment
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.Segment2D
 import org.openrndr.shape.bounds
 import ui.registerElement
-import style.Colors
 import ui.UIElement
 import widget.WidgetBuilder
+import kotlin.math.roundToInt
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KMutableProperty1
 
@@ -41,10 +44,10 @@ open class Slider<T: Comparable<T>>(
     ) : this(range, { valueRef.get(obj) }, { valueRef.set(obj, it) }, bounds, configure)
 
     val railStart
-        get() = bounds.position(0.05, 0.5)
+        get() = Vector2(bounds.x + 4.0, bounds.y + bounds.height / 2.0)
 
     val railEnd
-        get() = bounds.position(0.95, 0.5)
+        get() = Vector2(bounds.x + bounds.width - 4.0, bounds.y + bounds.height / 2.0)
 
     var t: Double
         get() {
@@ -64,7 +67,7 @@ open class Slider<T: Comparable<T>>(
             val ranged: T = when(val current = getter()) {
                 is Int -> {
                     val r = range as IntRange
-                    (value.map(0.0, 1.0, r.first.toDouble(), r.last.toDouble(), true)).toInt() as T
+                    value.map(0.0, 1.0, r.first.toDouble(), r.last.toDouble(), true).roundToInt() as T
                 }
                 is Double -> {
                     val r = range as ClosedFloatingPointRange<Double>
@@ -89,30 +92,24 @@ open class Slider<T: Comparable<T>>(
     init {
         var lastX = 0.0
         var dragging = false
+        var dragT = 0.0
 
         buttonDown.listen {
             it.cancelPropagation()
             dragStartValue = getter()
             lastX = it.position.x
+            dragT = t
         }
 
         dragged.listen {
             dragging = true
-            var length = railEnd.x - railStart.x
+            val length = railEnd.x - railStart.x
             val dx = it.position.x - lastX
             lastX = it.position.x
 
-            val friction = (precision.coerceAtLeast(1) * 1.0)
-            updateT(dx / length, friction)
-        }
-
-        buttonUp.listen {
-            if (!dragging) {
-                updateT(it.position.x)
-            }
-
-            dragStartValue = null
-            dragging = false
+            val friction = precision.coerceAtLeast(1) * 1.0
+            dragT = (dragT + dx / length / friction).coerceIn(0.0, 1.0)
+            t = dragT
         }
 
         configure()
@@ -122,77 +119,97 @@ open class Slider<T: Comparable<T>>(
         super.draw(drawer)
         if (!visible()) return
 
-        val ls = Segment2D(railStart, railEnd)
+        drawer.stroke = effectiveStyle.strokeColor
+        drawer.fill = effectiveStyle.backgroundColor
 
-        if (label.isNotEmpty()) {
-            drawer.fill = ColorRGBa.BLACK
-            drawer.stroke = null
-            drawer.text(label.uppercase(), railStart.x, ls.start.y - 16.0)
+        if (effectiveStyle.borderRadius > 0.0) {
+            drawer.roundedRectangle(bounds.toRounded(effectiveStyle.borderRadius))
+        } else {
+            drawer.rectangle(bounds)
         }
 
-        fun drawValue(visible: Boolean): Rectangle {
+        if (label.isNotEmpty()) {
+            drawer.fontMap = effectiveStyle.fontMap
+            drawer.fill = effectiveStyle.textColor
+            drawer.stroke = null
+            drawer.writer {
+                box = bounds.offsetEdges(-4.0)
+                horizontalAlign = 0.5
+                verticalAlign = 1.0
+                text(label.uppercase())
+            }
+        }
+
+        drawer.fill = effectiveStyle.sliderInactiveRailFill
+        drawer.stroke = effectiveStyle.sliderRailStroke
+        val b = bounds.offsetEdges(-4.0).copy(height = (bounds.height - effectiveStyle.fontMap.ascenderLength).coerceAtLeast(2.0) - 8.0)
+        if (effectiveStyle.borderRadius > 0.0) {
+            drawer.roundedRectangle(b.toRounded(effectiveStyle.borderRadius))
+        } else {
+            drawer.rectangle(b)
+        }
+
+        val rail = Segment2D(railStart, railEnd)
+        val p = rail.position(t)
+        drawer.isolated {
+            drawer.drawStyle.smooth = false
+
+            val ls = LineSegment(p.x, b.y - 1.0, p.x, b.y + b.height + 0.5)
+            val rr = Rectangle(b.corner, p.x - b.x, b.height)
+
+            drawer.stroke = null
+            drawer.fill = effectiveStyle.sliderActiveRailFill
+            if (effectiveStyle.borderRadius > 0.0) {
+                drawer.roundedRectangle(rr.toRounded(effectiveStyle.borderRadius))
+            } else {
+                drawer.rectangle(rr)
+            }
+
+            drawer.strokeWeight = 2.0
+            drawer.stroke = effectiveStyle.sliderHandleStroke
+            drawer.lineSegment(ls)
+        }
+
+        fun displayValue(v: T) = when(v) {
+            is Double -> "%.${precision}f".format(v)
+            else -> "$v"
+        }
+
+        fun drawValue(visible: Boolean, rect: Rectangle? = null): Rectangle {
+            drawer.fontMap = effectiveStyle.fontMap
             return drawer.writer {
-                box = Rectangle(railStart.x, ls.start.y - 16.0 - drawer.fontMap!!.height, ls.length, 15.0)
-                horizontalAlign = 1.0
+                box = rect ?: Rectangle(0.0, 0.0, 9999.0, effectiveStyle.fontMap.ascenderLength)
+                horizontalAlign = 0.0
                 verticalAlign = 0.0
-                val displayValue = when (val v = getter()) {
-                    is Double -> "%.${precision}f".format(v)
-                    else -> "$v"
-                }
-                text(displayValue, visible)
+                text(displayValue(getter()), visible)
                 glyphOutput.rectangles.map { it.second }.bounds
             }
         }
 
-        val g = drawValue(false)
+        val r = drawValue(false)
         drawer.stroke = null
-        drawer.fill = Colors.CLICKABLE.mix(ColorRGBa.WHITE, 0.4)
-        drawer.rectangle(g.offsetEdges(1.0))
-        drawer.fill = Colors.BLACK
-        drawValue(true)
+        drawer.fill = effectiveStyle.sliderActiveTextColor
+        val target = Rectangle(
+            p.x + 2.0,
+            b.y + (b.height - r.height) / 2.0 + 1.5,
+            r.width,
+            r.height
+        ).coerceIn(b.offsetEdges(-1.0))
 
+        drawValue(true, target)
 
-        var color = ColorRGBa.GRAY.shade(0.25)
-        if (isHovered) {
-            color = mix(color, Colors.SELECTED, 0.7)
-        }
-
-        drawer.stroke = color
-        drawer.strokeWeight = 1.0
-        drawer.lineCap = LineCap.ROUND
-        drawer.segment(ls)
-
-        drawer.stroke = null
-        drawer.fill = color
-        drawer.circle(ls.position(t), 6.0)
-
-        if (isDragged) {
-            drawer.fill = Colors.BACKGROUND
-            drawer.stroke = color
-            drawer.circle(ls.position(t), 10.0)
-            drawer.fill = color
-            drawer.stroke = null
-            drawer.circle(ls.position(t), 6.0)
-        }
-
-        drawer.fill = ColorRGBa.BLACK
-        drawer.stroke = null
-        drawer.fontMap = effectiveStyle.font
         drawer.writer {
-            box = Rectangle(railStart.x, railStart.y + 5.0, ls.length, 15.0)
+            box = bounds.offsetEdges(-4.0)
             horizontalAlign = 0.0
             verticalAlign = 1.0
-            text("${range.start}")
+            text(displayValue(range.start))
         }
 
-        drawer.fill = ColorRGBa.BLACK
-        drawer.stroke = null
-        drawer.fontMap = effectiveStyle.font
         drawer.writer {
-            box = Rectangle(railStart.x, railStart.y + 5.0, ls.length, 15.0)
+            box = bounds.offsetEdges(-4.0)
             horizontalAlign = 1.0
             verticalAlign = 1.0
-            text("${range.endInclusive}")
+            text(displayValue(range.endInclusive))
         }
 
     }

@@ -81,11 +81,7 @@ class TitleBar(
     override fun draw(drawer: Drawer) {
         super.draw(drawer)
         if (!visible()) return
-
-        parent?.elements?.maxOfOrNull { it.zIndex }?.let {
-            zIndex = it + 1
-        }
-
+        
         drawer.isolated {
             val bb = this@TitleBar.bounds
 
@@ -94,7 +90,7 @@ class TitleBar(
             drawer.rectangle(bb.x, bb.y, bb.width, bb.height)
 
             drawer.fill = ColorRGBa.BLACK
-            drawer.fontMap = effectiveStyle.font
+            drawer.fontMap = effectiveStyle.fontMap
 
             if (icon != null) {
                 icon()

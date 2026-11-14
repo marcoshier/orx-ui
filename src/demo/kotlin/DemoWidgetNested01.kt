@@ -16,11 +16,12 @@ fun main() {
             extend(UI())
 
             widget(drawer.bounds.offsetEdges(-10.0)) {
-                minHeight = 80.0
                 padding = Vector2(20.0, 10.0)
 
                 widget(bounds.scaledBy(1.0, 0.5, 0.5, 0.0).offsetEdges(-5.0)) {
                     this.backgroundColor = ColorRGBa.WHITE.shade(0.9)
+                    elementHeight = 80.0
+                    padding = Vector2(20.0, 10.0)
 
                     repeat(10) { i ->
                         append(Direction.DOWN, 10.0) { button { label = "A$i" } }
@@ -30,23 +31,25 @@ fun main() {
 
                 widget(bounds.scaledBy(1.0, 0.5, 0.5, 1.0).offsetEdges(-5.0)) {
                     this.backgroundColor = ColorRGBa.WHITE.shade(0.9)
-
+                    elementHeight = 80.0
                     repeat(2) { i ->
-                        append(Direction.DOWN) { button { label = "B$i" } }
+                        append(Direction.DOWN, 10.0) { button { label = "B$i" } }
                     }
 
                     append(Direction.DOWN, 10.0) {
                         widget(bounds.copy(y = currentY, height = 200.0)) {
                             this.backgroundColor = parent?.style?.backgroundColor?.shade(0.8)
                             minWidth = bounds.width - paddingX * 2
+
                             repeat(10) { j ->
-                                append(Direction.RIGHT) { button { label = "BB$j" } }
+                                append(Direction.RIGHT, 10.0) { button { label = "BB$j" } }
                             }
                         }
                     }
 
+                    paddingY = 10.0
                     repeat(8) { i ->
-                        append(Direction.DOWN) { button { label = "B${i + 2}" } }
+                        append(Direction.DOWN, 10.0) { button { label = "B${i + 2}" } }
                     }
 
                 }

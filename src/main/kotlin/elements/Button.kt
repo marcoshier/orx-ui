@@ -36,15 +36,15 @@ open class Button(
         buttonDown.listen {
             it.cancelPropagation()
             action(it)
-            isSelected = true
+            isActive = true
         }
 
         buttonUp.listen {
-            isSelected = false
+            isActive = false
         }
 
         dragged.listen {
-            isSelected = true
+            isActive = true
             dragAction(it)
         }
 
@@ -59,17 +59,9 @@ open class Button(
         super.draw(drawer)
         if (!visible()) return
 
-        val mainFill = when {
-            isHovered && !isSelected -> effectiveStyle.hoverColor
-            isFocused && !isSelected -> effectiveStyle.focusColor
-            isHovered && isSelected -> effectiveStyle.selectColor
-            isSelected -> effectiveStyle.selectColor
-            else -> effectiveStyle.backgroundColor
-        } ?: effectiveStyle.backgroundColor
-
         drawer.strokeWeight = effectiveStyle.strokeWeight
         drawer.stroke = effectiveStyle.strokeColor
-        drawer.fill  = mainFill
+        drawer.fill = effectiveStyle.backgroundColor
 
         if (effectiveStyle.borderRadius > 0.0) {
             drawer.roundedRectangle(bounds.toRounded(effectiveStyle.borderRadius))
@@ -90,7 +82,7 @@ open class Button(
             }
         } else {
             drawer.fill = effectiveStyle.textColor
-            drawer.fontMap = effectiveStyle.font
+            drawer.fontMap = effectiveStyle.fontMap
 
             val textBounds = drawer.writer {
                 box = bounds.copy(width = 9999.0)

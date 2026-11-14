@@ -15,8 +15,11 @@ import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import panel.ParameterPanel
 import style.Style
+import style.StyleLayer
 import style.StyleLibrary
 import style.Stylesheet
+import style.defaultStylesheet
+import style.emptyStylesheet
 import ui.UIElement
 import ui.UIHost
 import ui.ancestors
@@ -55,6 +58,8 @@ class UI: Extension {
 
     val parameters by lazy { ParameterPanel(this) }
 
+    var dragCursorHide = true
+
     fun setupAutoSave(save: () -> File) {
         host.program.ended.listen {
             val file = save()
@@ -63,19 +68,22 @@ class UI: Extension {
     }
 
     fun setCursor(type: CursorType) {
-        Program.active!!.application.cursorType = type
+        UIHost.current.program.application.cursorType = type
     }
 
-    fun loadStyle(style: Style) {
-        host.style.default.apply(style)
+    fun setCursorVisibility(boolean: Boolean) {
+        if (!dragCursorHide) return
+        UIHost.current.program.application.cursorVisible = boolean
     }
 
     fun loadStylesheet(file: File): Stylesheet {
         if (!file.exists()) {
-            logger.warn { "File $file not found. Loading default style" }
+            logger.warn { "File $file not found" }
+            return emptyStylesheet()
         }
-        host.style.fromStylesheet(Stylesheet.fromFile(file))
-        return host.style.toStylesheet()
+        val sheet = Stylesheet.fromFile(file)
+        applyStylesheet(sheet)
+        return sheet
     }
 
     fun <T : Any> addParameters(obj: T, key: String? = null): T = parameters.add(obj, key)
@@ -114,6 +122,7 @@ class UI: Extension {
                     }
 
                     el.isFocused = true
+                    el.isActive = true
                     for (other in host.tree.flattened) {
                         if (other !== el) other.isFocused = false
                     }
@@ -202,6 +211,7 @@ class UI: Extension {
 
             if (dragElement != null) {
                 val transformedEvent = transformMouseEvent(event, dragElement!!)
+                setCursorVisibility(false)
                 dragElement?.dragged?.trigger(transformedEvent)
                 requestDraw()
             }
@@ -212,6 +222,7 @@ class UI: Extension {
         if (!event.propagationCancelled) {
             if (activeElement != null) {
                 val transformedEvent = transformMouseEvent(event, activeElement!!)
+                setCursorVisibility(true)
                 activeElement?.buttonUp?.trigger(transformedEvent)
                 requestDraw()
 
@@ -234,6 +245,7 @@ class UI: Extension {
                 }
 
                 dragElement?.isDragged = false
+                activeElement?.isActive = false
                 activeElement?.isDragged = false
                 dragElement = null
                 activeElement = null
@@ -254,7 +266,9 @@ class UI: Extension {
     override fun setup(program: Program) {
         host = UIHost(program)
         UIHost.current = host
-        loadStyle(StyleLibrary.DEFAULT)
+        host = UIHost(program)
+        UIHost.current = host
+        host.styleStack.add(StyleLibrary.DEFAULT, StyleLayer.DEFAULTS)
 
         program.mouse.apply {
             buttonDown.listen(::handleButtonDown)
@@ -277,6 +291,9 @@ class UI: Extension {
             if (lastClickElement === it) lastClickElement = null
         }
     }
+
+
+    fun applyStylesheet(sheet: Stylesheet) = host.styleStack.add(sheet, StyleLayer.USER)
 
     private fun draw(drawer: Drawer) {
         drawer.isolated {
@@ -317,7 +334,7 @@ class UI: Extension {
                 var bb = hoverElement!!.bounds
 
                 fun drawText(visible: Boolean): Rectangle {
-                    drawer.fontMap = descriptionElementStyle.font
+                    drawer.fontMap = descriptionElementStyle.fontMap
                     drawer.fill = ColorRGBa.BLACK
                     return drawer.writer {
                         val start = bb.corner.y

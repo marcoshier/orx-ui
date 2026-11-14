@@ -2,36 +2,30 @@ package widget
 
 import ui.UIElement
 
+/**
+ * Radio: exactly one element of the group is selected at a time.
+ *
+ * Usage inside a widget:
+ *   asRadio {
+ *       button(r0) { label = "A" }
+ *       button(r1) { label = "B" }
+ *   }
+ *
+ * Use plain elements; state-bound ones (e.g. button(state::on, …)) set
+ * isSelected themselves every frame and would override the group.
+ */
+fun WidgetBuilder.asRadio(build: WidgetBuilder.() -> Unit): List<UIElement> =
+    toRadio(collectAdded(build))
 
-/** Radio */
+fun asRadio(vararg elements: UIElement): List<UIElement> =
+    toRadio(elements.toList())
 
-class RadioBuilder(val wbuilder: WidgetBuilder) {
-    val elements = mutableListOf<UIElement>()
-
-    fun add(el: UIElement) {
-        elements.add(el)
-        wbuilder.add(el)
-    }
-
-    fun emit() = toRadio(elements)
-}
-
-fun WidgetBuilder.asRadio(build: RadioBuilder.() -> Unit = {}): List<UIElement> {
-    val builder = RadioBuilder(this)
-    builder.build()
-    return builder.emit()
-}
-
-fun asRadio(vararg elements: UIElement): List<UIElement> {
-    val els = elements.toList()
-    return toRadio(els)
-}
-
-fun List<UIElement>.asRadio(): List<UIElement> = toRadio(this)
+fun List<UIElement>.asRadio(): List<UIElement> =
+    toRadio(this)
 
 private fun toRadio(elements: List<UIElement>): List<UIElement> {
     elements.forEach { element ->
-        element.clicked.listen {
+        element.buttonDown.listen {
             elements.forEach { it.isSelected = (it === element) }
         }
     }
@@ -42,35 +36,34 @@ private fun toRadio(elements: List<UIElement>): List<UIElement> {
     return elements
 }
 
+/**
+ * Checkbox: every element of the group toggles independently.
+ *
+ * Usage inside a widget:
+ *   asCheckbox {
+ *       button(r0) { label = "A" }
+ *       button(r1) { label = "B" }
+ *   }
+ */
+fun WidgetBuilder.asCheckbox(build: WidgetBuilder.() -> Unit): List<UIElement> =
+    toCheckbox(collectAdded(build))
 
-/** Checkbox */
+fun asCheckbox(vararg elements: UIElement): List<UIElement> =
+    toCheckbox(elements.toList())
 
-class CheckboxBuilder(val wbuilder: WidgetBuilder) {
-    val elements = mutableListOf<UIElement>()
-
-    fun add(el: UIElement) {
-        el.clicked.listen { el.isSelected = !el.isSelected }
-        elements.add(el)
-        wbuilder.add(el)
-    }
-}
-
-fun WidgetBuilder.asCheckbox(build: CheckboxBuilder.() -> Unit = {}): List<UIElement> {
-    val builder = CheckboxBuilder(this)
-    builder.build()
-    return builder.elements
-}
-
-fun asCheckbox(vararg elements: UIElement): List<UIElement> {
-    val els = elements.toList()
-    return toCheckbox(els)
-}
-
-fun List<UIElement>.asCheckbox() = toCheckbox(this)
+fun List<UIElement>.asCheckbox(): List<UIElement> =
+    toCheckbox(this)
 
 private fun toCheckbox(elements: List<UIElement>): List<UIElement> {
     elements.forEach { element ->
-        element.clicked.listen { element.isSelected = !element.isSelected }
+        element.buttonDown.listen { element.isSelected = !element.isSelected }
     }
     return elements
+}
+
+/** Runs [build] as a normal widget builder and returns the elements it added. */
+private fun WidgetBuilder.collectAdded(build: WidgetBuilder.() -> Unit): List<UIElement> {
+    val before = widget.elements.size
+    build()
+    return widget.elements.drop(before)
 }

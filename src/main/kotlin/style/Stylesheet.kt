@@ -7,50 +7,35 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.hocon.Hocon
 import lib.hoconConfigOptions
+import ui.UIHost
 import java.io.File
 
 private val logger = KotlinLogging.logger {  }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class Stylesheet(
-    val rules: LinkedHashMap<String, Style> = LinkedHashMap()
-) : Map<String, Style> by rules {
+    internal val rules: List<Pair<String, Style.() -> Unit>>
+) {
 
     // fromCss, toCss
 
-    @OptIn(ExperimentalSerializationApi::class)
+    operator fun plus(other: Stylesheet) = Stylesheet(rules + other.rules)
+
     fun toFile(file: File) {
-        val config = Hocon.encodeToConfig(serializer(), this)
-        val hocon = config.root().render(hoconConfigOptions)
-        file.writeText(hocon)
-        logger.info { "Stylesheet saved in $file" }
+        val map = LinkedHashMap<String, Style>()
+        for ((sel, block) in rules) map.getOrPut(sel) { Style() }.apply(block)
+        val config = Hocon.encodeToConfig(StylesheetFile.serializer(), StylesheetFile(map))
+        file.writeText(config.root().render(hoconConfigOptions))
     }
 
     companion object {
-        @OptIn(ExperimentalSerializationApi::class)
         fun fromFile(file: File): Stylesheet {
-            val config = ConfigFactory.parseFile(file)
-            val stylesheet = Hocon.decodeFromConfig(serializer(), config)
-
-            if (config.hasPathOrNull("rules")) {
-                val rulesConfig = config.getConfig("rules")
-                for (name in rulesConfig.root().keys) {
-                    val ruleVal = rulesConfig.root()[name]
-                    if (ruleVal is ConfigObject) {
-                        val ruleConfig = ruleVal.toConfig()
-                        val style = stylesheet.rules[name] ?: continue
-                        style.setProperties = ruleConfig.root().keys
-
-                        for (prop in styleColorProperties) {
-                            if (ruleConfig.hasPathOrNull(prop.name) && ruleConfig.getIsNull(prop.name)) {
-                                prop.set(style, null)
-                            }
-                        }
-                    }
-                }
-            }
-
-            return stylesheet
+            val data = Hocon.decodeFromConfig(StylesheetFile.serializer(), ConfigFactory.parseFile(file))
+            return Stylesheet(data.rules.map { (sel, style) -> sel to { apply(style) } })
         }
     }
 }
+
+@Serializable
+internal class StylesheetFile(val rules: LinkedHashMap<String, Style>)

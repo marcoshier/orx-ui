@@ -4,6 +4,7 @@ import org.openrndr.application
 import org.openrndr.color.ColorRGBa
 import style.stylesheet
 import widget.grid
+import widget.gridIndexed
 import widget.widget
 import java.io.File
 
@@ -14,7 +15,6 @@ fun main() {
 
             val style = stylesheet {
                 "high-contrast" {
-                    hoverColor = null
                     borderRadius = 0.0
                     backgroundColor = ColorRGBa.BLACK
                     textColor = ColorRGBa.WHITE
@@ -31,10 +31,10 @@ fun main() {
             }
 
             widget(drawer.bounds.offsetEdges(-10.0)) {
-                grid(2, 2, gutterX = 10.0, gutterY = 10.0) {
-//                    button(it) {
-//                        selectors = setOf("high-contrast")
-//                    }
+                gridIndexed(2, 2, gutterX = 10.0, gutterY = 10.0) { _, it ->
+                    button(it) {
+                        selectors = setOf("high-contrast")
+                    }
                 }
             }
 

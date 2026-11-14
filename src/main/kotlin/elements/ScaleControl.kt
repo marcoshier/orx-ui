@@ -1,7 +1,6 @@
 package elements
 
 import lib.coerceIn
-import lib.mixOrNull
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.events.listen
@@ -120,22 +119,24 @@ class ScaleControl (
             val delta = it.position - lastPos
             lastPos = it.position
 
-            val half = Vector2(ibounds.width / 2.0, ibounds.height / 2.0)
             val friction = precision.coerceAtLeast(1).toDouble()
-            val dn = Vector2(
-                delta.x * dragSign.x / half.x,
-                delta.y * dragSign.y / half.y
-            ) / friction
 
-            var n = Vector2(
-                (mappedScale.x + dn.x).coerceIn(0.0, 1.0),
-                (mappedScale.y + dn.y).coerceIn(0.0, 1.0)
-            )
-
-            if (uniform) {
-                val u = maxOf(n.x, n.y)
-                n = Vector2(u, u)
+            val n: Vector2 = if (uniform) {
+                val radial = (it.position - ibounds.center)
+                val dir = if (radial.length > 1e-6) radial.normalized else Vector2.UNIT_X
+                val half = minOf(ibounds.width, ibounds.height) / 2.0
+                val ds = (delta.dot(dir) / half) / friction
+                val u = (mappedScale.x + ds).coerceIn(0.0, 1.0)
+                Vector2(u, u)
+            } else {
+                val half = Vector2(ibounds.width / 2.0, ibounds.height / 2.0)
+                val dn = Vector2(delta.x * dragSign.x / half.x, delta.y * dragSign.y / half.y) / friction
+                Vector2(
+                    (mappedScale.x + dn.x).coerceIn(0.0, 1.0),
+                    (mappedScale.y + dn.y).coerceIn(0.0, 1.0),
+                )
             }
+
             mappedScale = n
         }
 
@@ -146,23 +147,22 @@ class ScaleControl (
         super.draw(drawer)
         if (!visible()) return
 
-        drawer.fontMap = effectiveStyle.font
+        drawer.fontMap = effectiveStyle.fontMap
 
         drawer.stroke = effectiveStyle.strokeColor
         drawer.fill = effectiveStyle.backgroundColor
-        drawer.roundedRectangle(bounds.toRounded(2.0))
+        drawer.roundedRectangle(bounds.toRounded(effectiveStyle.borderRadius))
 
         drawer.strokeWeight = 15.0
-        drawer.stroke = effectiveStyle.hoverColor.mixOrNull(effectiveStyle.backgroundColor, 0.55)?.opacify(0.5)
+        drawer.stroke = effectiveStyle.backgroundColor?.shade(0.75)?.opacify(0.5)
         drawer.fill = null
-        drawer.roundedRectangle(bounds.offsetEdges(-7.5).toRounded(2.0))
+        drawer.roundedRectangle(bounds.offsetEdges(-7.5).toRounded(effectiveStyle.borderRadius / 2.0))
         drawer.strokeWeight = 1.0
 
-
-        val offsetBounds = bounds.offsetEdges(-15.0)
+        val offsetBounds = bounds.offsetEdges(-bounds.width * 0.05)
         val scaleRect = ibounds.scaledBy(mappedScale.x, mappedScale.y, 0.5, 0.5)
 
-        drawer.stroke = effectiveStyle.hoverColor.mixOrNull(effectiveStyle.backgroundColor, 0.4)
+        drawer.stroke = effectiveStyle.scaleControlLinesStroke
         drawer.strokeWeight = 0.1
         drawer.lineSegment(scaleRect.x, offsetBounds.y, scaleRect.x, offsetBounds.y + offsetBounds.height)
         drawer.lineSegment(scaleRect.x + scaleRect.width, offsetBounds.y, scaleRect.x + scaleRect.width, offsetBounds.y + offsetBounds.height)
@@ -171,7 +171,7 @@ class ScaleControl (
 
         if (scaleRect.area > 0.0) {
             drawer.stroke = null
-            drawer.fill = if (isDragged) effectiveStyle.selectColor else effectiveStyle.hoverColor
+            drawer.fill = effectiveStyle.scaleControlActiveBoxFill
             drawer.roundedRectangle(scaleRect.toRounded(2.0))
         }
 
@@ -198,7 +198,7 @@ class ScaleControl (
         fun drawValueText(visible: Boolean): Rectangle {
             return drawer.writer {
                 box = if (scaleRect.area > 1.0) {
-                    Rectangle.fromCenter(scaleRect.position(0.5, 1.05), 200.0, 15.5).coerceIn(bounds)
+                    Rectangle.fromCenter(scaleRect.position(0.5, 1.0) + Vector2(0.0, 10.0), 200.0, 15.5).coerceIn(bounds)
                 } else bounds
                 horizontalAlign = 0.5
                 verticalAlign = 0.5
@@ -216,11 +216,6 @@ class ScaleControl (
         drawRangeText(range.start.y, 0.03, 0.0, true)
         drawRangeText(range.end.y, 0.97, 0.0, true)
 
-
-        val textRect = drawValueText(false)
-        drawer.stroke = null
-        drawer.fill = effectiveStyle.hoverColor
-        drawer.rectangle(textRect)
         drawer.fill = effectiveStyle.textColor
         drawValueText(true)
     }

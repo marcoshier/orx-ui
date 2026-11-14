@@ -106,7 +106,7 @@ open class Dropdown<T> (
         val box = Rectangle(collapsedBounds.x, collapsedBounds.y, collapsedBounds.width, boxHeight)
         val target = findTarget(transformPos(mousePosition(), this))
 
-        drawer.fontMap = effectiveStyle.font
+        drawer.fontMap = effectiveStyle.fontMap
 
         if (label.isNotEmpty()) {
             drawer.fill = effectiveStyle.textColor
@@ -119,14 +119,8 @@ open class Dropdown<T> (
             }
         }
 
-        val mainFill = when {
-            open -> if (target == 0) effectiveStyle.hoverColor else effectiveStyle.focusColor
-            isHovered -> effectiveStyle.hoverColor
-            else -> effectiveStyle.backgroundColor
-        }
-
         drawer.stroke = null
-        drawer.fill  = mainFill
+        drawer.fill = effectiveStyle.backgroundColor
         drawer.roundedRectangle(box.toRounded(2.0))
 
         drawer.fill = ColorRGBa.BLACK
@@ -149,7 +143,7 @@ open class Dropdown<T> (
                 )
 
                 drawer.stroke = null
-                drawer.fill = if (target == (j + 1)) effectiveStyle.hoverColor else effectiveStyle.backgroundColor
+                drawer.fill = if (target == (j + 1)) effectiveStyle.dropdownEntryFill else effectiveStyle.backgroundColor
                 drawer.rectangle(r)
 
                 drawer.fill = ColorRGBa.BLACK
@@ -233,8 +227,6 @@ fun <T : Any> dropdown(
     registerElement(b)
     return b
 }
-
-// TODO why do we need these two?
 
 inline fun <reified T: Enum<T>> WidgetBuilder.dropdown(
     current: KMutableProperty0<T>,
