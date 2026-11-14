@@ -1,5 +1,12 @@
 package style
 
+import elements.checkboxBackgroundFill
+import elements.dropdownEntryFill
+import elements.rotateSliderStroke
+import elements.scaleControlActiveBoxFill
+import elements.sliderInactiveRailFill
+import elements.textBaselineColor
+import elements.xyControlHandleFill
 import org.openrndr.color.ColorRGBa
 
 object StyleLibrary {

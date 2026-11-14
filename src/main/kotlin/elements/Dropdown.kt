@@ -13,6 +13,8 @@ import org.openrndr.panel.collections.SelectableMutableList
 import org.openrndr.shape.Rectangle
 import ui.registerElement
 import style.Colors
+import style.Style
+import style.styleProperty
 import transformPos
 import ui.UIElement
 import ui.applyBoundsFromText
@@ -169,6 +171,9 @@ open class Dropdown<T> (
 
     }
 }
+
+
+var Style.dropdownEntryFill: ColorRGBa? by styleProperty(Colors.CLICKABLE)
 
 
 inline fun <reified T: Enum<T>> dropdown(

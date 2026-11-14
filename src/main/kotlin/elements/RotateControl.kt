@@ -1,5 +1,6 @@
 package elements
 
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.extra.shapes.primitives.roundedRectangle
 import org.openrndr.extra.shapes.primitives.toRounded
@@ -9,6 +10,8 @@ import org.openrndr.shape.Circle
 import org.openrndr.shape.Rectangle
 import ui.registerElement
 import style.Colors
+import style.Style
+import style.styleProperty
 import ui.UIElement
 import widget.WidgetBuilder
 import kotlin.math.atan2
@@ -126,6 +129,9 @@ class RotateControl(
     }
 }
 
+
+var Style.rotateSliderStroke by styleProperty(Colors.CLICKABLE.shade(0.5))
+var Style.rotateSliderFill by styleProperty(null)
 
 fun rotateControl(
     valueRef: KMutableProperty0<Double>,

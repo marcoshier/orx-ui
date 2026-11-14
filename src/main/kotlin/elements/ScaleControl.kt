@@ -1,6 +1,7 @@
 package elements
 
 import lib.coerceIn
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.events.listen
@@ -13,6 +14,9 @@ import org.openrndr.math.Vector2
 import org.openrndr.math.map
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
+import style.Colors
+import style.Style
+import style.styleProperty
 import ui.registerElement
 import ui.UIElement
 import widget.WidgetBuilder
@@ -220,6 +224,9 @@ class ScaleControl (
         drawValueText(true)
     }
 }
+
+var Style.scaleControlLinesStroke by styleProperty(Colors.CLICKABLE.shade(0.65))
+var Style.scaleControlActiveBoxFill by styleProperty(Colors.CLICKABLE.shade(0.65))
 
 
 fun scaleControl(

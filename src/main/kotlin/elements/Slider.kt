@@ -1,6 +1,7 @@
 package elements
 
 import lib.coerceIn
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.extra.shapes.primitives.roundedRectangle
@@ -12,6 +13,9 @@ import org.openrndr.shape.LineSegment
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.Segment2D
 import org.openrndr.shape.bounds
+import style.Colors
+import style.Style
+import style.styleProperty
 import ui.registerElement
 import ui.UIElement
 import widget.WidgetBuilder
@@ -215,6 +219,13 @@ open class Slider<T: Comparable<T>>(
     }
 
 }
+
+var Style.sliderInactiveRailFill by styleProperty(Colors.CLICKABLE.shade(0.875))
+var Style.sliderActiveRailFill by styleProperty(Colors.CLICKABLE.shade(0.575))
+var Style.sliderRailStroke by styleProperty(null)
+var Style.sliderHandleFill by styleProperty(null)
+var Style.sliderHandleStroke by styleProperty(Colors.SELECTED.shade(0.5))
+var Style.sliderActiveTextColor by styleProperty(Colors.BLACK)
 
 
 fun <T : Comparable<T>> slider(

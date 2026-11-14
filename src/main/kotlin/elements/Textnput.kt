@@ -27,6 +27,9 @@ import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
+import style.Colors
+import style.Style
+import style.styleProperty
 import ui.registerElement
 import ui.seconds
 import ui.UIElement
@@ -712,6 +715,11 @@ class TextInput(
         drawer.popStyle()
     }
 }
+
+
+var Style.textBaselineColor by styleProperty(Colors.CLICKABLE.shade(0.65))
+var Style.textboxHandleColor by styleProperty(Colors.CLICKABLE.shade(0.65))
+var Style.textSelectionColor by styleProperty(Colors.CLICKABLE.shade(0.85))
 
 fun textInput(
     textRef: KMutableProperty0<String>,

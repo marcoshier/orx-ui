@@ -4,6 +4,7 @@ import org.openrndr.CharacterEvent
 import org.openrndr.DropEvent
 import org.openrndr.KeyEvent
 import org.openrndr.MouseEvent
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.events.Event
@@ -169,6 +170,33 @@ open class UIElement(
             }
         }
 
+        for ((name, to) in target.extras) {
+            when (to) {
+                is Double -> {
+                    val tw = doubleTransitions.getOrPut(name) { DoubleTransition(to, to, now, null) }
+
+                    if (tw.to != to) {
+                        doubleTransitions[name] = DoubleTransition(tw.valueAt(now), to, now, target.transitions[name])
+                    }
+
+                    if (!doubleTransitions[name]!!.completed(now)) {
+                        animating = true
+                    }
+                }
+                is ColorRGBa -> {
+                    val tw = colorsTransitions.getOrPut(name) { ColorRGBaTransition(to, to, now, null) }
+
+                    if (tw.to != to) {
+                        colorsTransitions[name] = ColorRGBaTransition(tw.valueAt(now), to, now, target.transitions[name])
+                    }
+
+                    if (!colorsTransitions[name]!!.completed(now)) {
+                        animating = true
+                    }
+                }
+            }
+        }
+
         if (!animating) {
             return target
         }
@@ -180,6 +208,12 @@ open class UIElement(
         }
         for (prop in styleColorProperties) {
             prop.set(c, colorsTransitions[prop.name]!!.valueAt(now))
+        }
+        for ((name, v) in target.extras) {
+            when (v) {
+                is Double -> c.extras[name] = doubleTransitions[name]!!.valueAt(now)
+                is ColorRGBa -> c.extras[name] = colorsTransitions[name]!!.valueAt(now)
+            }
         }
 
         return c

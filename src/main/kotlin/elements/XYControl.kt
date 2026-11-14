@@ -1,5 +1,6 @@
 package elements
 
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.events.listen
@@ -14,6 +15,8 @@ import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
 import ui.registerElement
 import style.Colors
+import style.Style
+import style.styleProperty
 import ui.UIElement
 import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
@@ -151,6 +154,12 @@ class XYControl(
         drawer.circle(ibounds.position(uv), 5.0)
     }
 }
+
+
+var Style.xyControlLineStroke by styleProperty(Colors.CLICKABLE.shade(0.65))
+var Style.xyControlHandleFill by styleProperty(Colors.HOVERED.shade(0.65))
+
+
 fun xyControl(
     valueRef: KMutableProperty0<Vector2>,
     range: LinearRange1D<Vector2>,

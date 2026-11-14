@@ -1,5 +1,6 @@
 package elements
 
+import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.extra.shapes.primitives.roundedRectangle
@@ -8,6 +9,9 @@ import org.openrndr.extra.textwriter.writer
 import org.openrndr.math.Vector2
 import org.openrndr.shape.Rectangle
 import org.openrndr.shape.bounds
+import style.Colors
+import style.Style
+import style.styleProperty
 import ui.registerElement
 import widget.WidgetBuilder
 import kotlin.reflect.KMutableProperty0
@@ -111,6 +115,9 @@ class Checkbox(
 
     }
 }
+
+var Style.checkboxBackgroundFill: ColorRGBa? by styleProperty(Colors.CLICKABLE.shade(0.8))
+var Style.checkboxStroke: ColorRGBa? by styleProperty(null)
 
 fun checkbox(
     state: KMutableProperty0<Boolean>,

@@ -11,7 +11,9 @@ import ui.UIHost
 import ui.window
 import java.io.File
 import kotlin.math.roundToInt
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty0
 import kotlin.reflect.full.memberProperties
 
@@ -33,32 +35,6 @@ data class Style(val name: String = "") {
     var textColor: ColorRGBa? = Colors.BLACK
     var backgroundColor: ColorRGBa? = Colors.CLICKABLE
     var strokeColor: ColorRGBa? = null
-
-    var checkboxBackgroundFill: ColorRGBa? = Colors.CLICKABLE.shade(0.8)
-    var checkboxStroke: ColorRGBa? = null
-
-    var dropdownEntryFill: ColorRGBa? = Colors.CLICKABLE
-
-    var sliderInactiveRailFill: ColorRGBa? = Colors.CLICKABLE.shade(0.875)
-    var sliderActiveRailFill: ColorRGBa? = Colors.CLICKABLE.shade(0.575)
-    var sliderRailStroke: ColorRGBa? = null
-    var sliderHandleFill: ColorRGBa? = null
-    var sliderHandleStroke: ColorRGBa? = Colors.SELECTED.shade(0.5)
-    var sliderActiveTextColor: ColorRGBa? = textColor
-
-    var rotateSliderStroke: ColorRGBa? = Colors.CLICKABLE.shade(0.5)
-    var rotateSliderFill: ColorRGBa? = null
-
-    var scaleControlLinesStroke: ColorRGBa? = Colors.CLICKABLE.shade(0.65)
-    var scaleControlActiveBoxFill: ColorRGBa? = Colors.CLICKABLE.shade(0.65)
-
-    var textBaselineColor: ColorRGBa? = Colors.CLICKABLE.shade(0.65)
-    var textboxHandleColor: ColorRGBa? = Colors.CLICKABLE.shade(0.65)
-    var textSelectionColor: ColorRGBa? = Colors.CLICKABLE.shade(0.85)
-
-    var xyControlLineStroke: ColorRGBa? = Colors.CLICKABLE.shade(0.65)
-    var xyControlHandleFill: ColorRGBa? = Colors.HOVERED.shade(0.65)
-
     var strokeWeight: Double = 0.0
     var borderRadius: Double = 0.0
 
@@ -80,6 +56,9 @@ data class Style(val name: String = "") {
             }
         }
     }
+
+    @Transient
+    internal val extras = mutableMapOf<String, Any?>()
 
     @Transient
     var setProperties: Set<String>? = null
@@ -126,57 +105,37 @@ data class Style(val name: String = "") {
             }
         }
 
+        extras.putAll(style.extras)
         transitions.putAll(style.transitions)
     }
 
     fun copy(): Style {
         val s = Style(name)
-
-        s.marginX = marginX
-        s.marginY = marginY
-        s.paddingX = paddingX
-        s.paddingY = paddingY
-        s.minWidth = minWidth
-        s.maxWidth = maxWidth
-        s.minHeight = minHeight
-        s.maxHeight = maxHeight
-
-        s.font = font
-        s.fontSize = fontSize
-        s.textColor = textColor
-
-        s.backgroundColor = backgroundColor
-        s.strokeColor = strokeColor
-
-        s.strokeWeight = strokeWeight
-        s.borderRadius = borderRadius
-
+        for (p in styleProperties) p.set(s, p.get(this))
         s.transitions = transitions.toMutableMap()
         s.setProperties = setProperties?.toSet()
-
+        s.extras.putAll(extras)
         return s
     }
 
     override fun toString(): String {
-        return "Style(" +
-                "name='$name', " +
-                "marginX=$marginX, " +
-                "marginY=$marginY, " +
-                "paddingX=$paddingX, " +
-                "paddingY=$paddingY, " +
-                "minWidth=$minWidth, " +
-                "maxWidth=$maxWidth, " +
-                "minHeight=$minHeight, " +
-                "maxHeight=$maxHeight, " +
-                "fontFamily=$font, " +
-                "fontSize=$fontSize, " +
-                "textColor=$textColor, " +
-                "backgroundColor=$backgroundColor, " +
-                "strokeColor=$strokeColor, " +
-                "strokeWeight=$strokeWeight, " +
-                "borderRadius=$borderRadius, " +
-                "transitions=$transitions" +
-                ")"
+        val props = styleProperties.joinToString(", ") { "${it.name}=${it.get(this)}" }
+        val ext = extras.entries.joinToString(", ") { "${it.key}=${it.value}" }
+        return buildString {
+            append("Style(name='$name', $props")
+            if (ext.isNotEmpty()) append(", $ext")
+            append(", transitions=$transitions)")
+        }
+    }
+}
+
+fun <T> styleProperty(default: T) = object : ReadWriteProperty<Style, T> {
+    @Suppress("UNCHECKED_CAST")
+    override fun getValue(thisRef: Style, property: KProperty<*>): T =
+        if (property.name in thisRef.extras) thisRef.extras[property.name] as T else default
+
+    override fun setValue(thisRef: Style, property: KProperty<*>, value: T) {
+        thisRef.extras[property.name] = value
     }
 }
 
